@@ -14,7 +14,6 @@ const config: Config = {
         surface: "#111111",
         "surface-2": "#1a1a1a",
         foreground: "#f5f0e8",
-        muted: "#a89f94",
         accent: {
           DEFAULT: "#8B1A1A",
           hover: "#a01f1f",
