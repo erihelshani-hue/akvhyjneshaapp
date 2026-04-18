@@ -63,7 +63,7 @@ export default async function RehearsalsPage({
                       <h2 className="font-playfair text-lg font-semibold text-foreground">{title}</h2>
                       {occ.isRecurring && <RecurringTag />}
                     </div>
-                    <p className="text-gold text-sm font-medium mt-1">{formatDate(occ.date)}</p>
+                    <p className="mt-1 text-sm font-medium text-white">{formatDate(occ.date)}</p>
                     <div className="flex items-center gap-4 mt-2">
                       <span className="flex items-center gap-1.5 text-xs text-muted">
                         <Clock className="h-3 w-3" />

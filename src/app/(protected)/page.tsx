@@ -98,7 +98,7 @@ export default async function DashboardPage({
                     <div className="min-w-0">
                       <p className="font-medium text-foreground text-sm truncate">{title}</p>
                       <p className="text-muted text-xs mt-0.5 line-clamp-2">{body}</p>
-                      <p className="text-xs text-muted/60 mt-1">
+                      <p className="mt-1 text-xs text-white/80">
                         {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10))}
                       </p>
                     </div>

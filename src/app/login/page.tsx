@@ -52,7 +52,7 @@ export default function LoginPage() {
             alt="AKV Hyjnesha"
             width={84}
             height={84}
-            className="rounded-full border border-gold/60 object-cover"
+            className="rounded-full border border-accent/60 object-cover"
             priority
           />
           <div className="text-center">

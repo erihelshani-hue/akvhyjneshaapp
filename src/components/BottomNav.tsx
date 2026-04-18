@@ -22,7 +22,7 @@ export function BottomNav({ unreadCount }: BottomNavProps) {
 
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-50 md:hidden border-t border-border bg-background/96 backdrop-blur-xl"
+      className="fixed bottom-0 inset-x-0 z-50 md:hidden border-t border-white/15 bg-black/96 backdrop-blur-xl"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-stretch justify-around h-14">
@@ -33,7 +33,7 @@ export function BottomNav({ unreadCount }: BottomNavProps) {
               key={href}
               href={href}
               className={`flex flex-1 flex-col items-center justify-center gap-0.5 relative transition-colors duration-150 ${
-                isActive ? "text-accent" : "text-muted/60"
+                isActive ? "text-accent" : "text-white/75"
               }`}
             >
               {isActive && (
@@ -52,7 +52,7 @@ export function BottomNav({ unreadCount }: BottomNavProps) {
               </span>
               <span
                 className={`text-[9px] font-semibold uppercase tracking-wider ${
-                  isActive ? "text-accent" : "text-muted/50"
+                  isActive ? "text-accent" : "text-white/75"
                 }`}
               >
                 {t(labelKey)}

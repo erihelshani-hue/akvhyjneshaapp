@@ -51,7 +51,7 @@ export function DashboardCard({
           </h3>
           {isRecurring && <RecurringTag />}
         </div>
-        <p className="mt-2 text-gold font-medium">
+        <p className="mt-2 font-medium text-white">
           {formatDate(date)}
         </p>
         <div className="mt-3 space-y-1">

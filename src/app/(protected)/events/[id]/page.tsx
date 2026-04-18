@@ -73,7 +73,7 @@ export default async function EventDetailPage({
             <h1 className="font-playfair text-3xl font-semibold text-foreground">{title}</h1>
             <Badge variant="outline" className="text-xs">{t(`type.${event.event_type}`)}</Badge>
           </div>
-          <p className="text-gold font-medium">{formatDate(event.date)}</p>
+          <p className="font-medium text-white">{formatDate(event.date)}</p>
         </div>
         {isAdmin && <EventDeleteButton eventId={id} />}
       </div>

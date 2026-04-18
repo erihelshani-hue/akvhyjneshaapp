@@ -66,7 +66,7 @@ export default function OfflinePage() {
         )}
       </div>
 
-      <div className="mt-8 text-xs text-muted/60 max-w-xs">
+      <div className="mt-8 max-w-xs text-xs text-white/80">
         <p className="mb-2">Offline-Features verfügbar:</p>
         <ul className="text-left space-y-1">
           <li>• Gespeicherte Daten anzeigen</li>

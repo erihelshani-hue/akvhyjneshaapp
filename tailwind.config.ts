@@ -19,10 +19,10 @@ const config: Config = {
           hover: "#f0202d",
           foreground: "#ffffff",
         },
-        gold: "#f0c75e",
+        gold: "#ffffff",
         border: "#2a2a2a",
         input: "#050505",
-        ring: "#f0c75e",
+        ring: "#d31622",
         card: {
           DEFAULT: "#080808",
           foreground: "#ffffff",
@@ -44,8 +44,8 @@ const config: Config = {
           foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "#121212",
-          foreground: "#e7e7e7",
+          DEFAULT: "#e7e7e7",
+          foreground: "#ffffff",
         },
       },
       fontFamily: {
