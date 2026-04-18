@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
+import { supabaseAuthOptions, supabaseCookieOptions } from "@/lib/supabase/options";
 
 type CookieToSet = {
   name: string;
@@ -36,6 +37,8 @@ export async function GET(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
+        auth: supabaseAuthOptions,
+        cookieOptions: supabaseCookieOptions,
         cookies: {
           getAll() {
             return cookieStore.getAll();

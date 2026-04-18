@@ -19,7 +19,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'AKV "Hyjnesha"',
-  description: "Internes Koordinationssystem des Ansambli Kulturor Vendor Hyjnesha, Graz",
+  description: "Internes Koordinationssystem von AKV Hyjnesha, Graz",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

@@ -4,15 +4,15 @@
 
 @layer base {
   :root {
-    --background: #070606;
-    --foreground: #f7f0e4;
-    --surface: #100d0d;
-    --surface-2: #1a1414;
-    --muted: #b9ab99;
-    --accent: #a9161d;
-    --accent-hover: #c51b24;
-    --gold: #d8b765;
-    --border: #332727;
+    --background: #000000;
+    --foreground: #ffffff;
+    --surface: #080808;
+    --surface-2: #121212;
+    --muted: #e7e7e7;
+    --accent: #d31622;
+    --accent-hover: #f0202d;
+    --gold: #f0c75e;
+    --border: #2a2a2a;
   }
 
   * {
@@ -21,8 +21,8 @@
 
   body {
     background:
-      linear-gradient(135deg, rgba(169, 22, 29, 0.08) 0 1px, transparent 1px 48px),
-      linear-gradient(180deg, #0c0909 0%, #070606 42%, #0f0b0b 100%);
+      linear-gradient(180deg, rgba(211, 22, 34, 0.08), transparent 260px),
+      #000000;
     color: var(--foreground);
     font-family: var(--font-inter), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
