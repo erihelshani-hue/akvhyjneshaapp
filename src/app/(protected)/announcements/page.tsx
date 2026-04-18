@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Plus } from "lucide-react";
 
 export default async function AnnouncementsPage({
 }: Record<string, never>) {
+  const locale = await getLocale();
   const t = await getTranslations("announcement");
   const tCommon = await getTranslations("common");
   const supabase = await createClient();
@@ -65,12 +66,12 @@ export default async function AnnouncementsPage({
             created_at: string;
           }) => {
             const isUnread = !readIds.has(announcement.id);
-            const title = announcement.title;
-            const body = announcement.body;
+            const title = locale === "sq" ? announcement.title_sq : announcement.title;
+            const body = locale === "sq" ? announcement.body_sq : announcement.body;
             return (
               <div
                 key={announcement.id}
-                className={`p-5 border transition-colors ${
+                className={`p-5 rounded-xl border transition-all duration-300 hover:border-accent/50 hover:shadow-md hover:shadow-accent/5 ${
                   isUnread ? "border-accent/40 bg-accent/5" : "border-border bg-surface"
                 }`}
               >
@@ -82,7 +83,7 @@ export default async function AnnouncementsPage({
                     <div className="min-w-0">
                       <h2 className="font-playfair text-lg font-semibold text-foreground">{title}</h2>
                       <p className="text-xs text-muted mt-1">
-                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10), "de")}
+                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10), locale)}
                       </p>
                       <p className="text-sm text-foreground/90 mt-3 leading-relaxed whitespace-pre-wrap">
                         {body}

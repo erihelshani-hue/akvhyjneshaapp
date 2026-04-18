@@ -10,42 +10,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0a0a0a",
-        surface: "#111111",
-        "surface-2": "#1a1a1a",
-        foreground: "#f5f0e8",
+        background: "#ffffff",
+        surface: "#fafafa",
+        "surface-2": "#f4f4f5",
+        foreground: "#111111", // Dunkles Anthrazit für perfekte Lesbarkeit
         accent: {
           DEFAULT: "#8B1A1A",
-          hover: "#a01f1f",
-          foreground: "#f5f0e8",
+          hover: "#7a1717",
+          foreground: "#ffffff",
         },
-        gold: "#c9a84c",
-        border: "#2a2a2a",
-        input: "#1a1a1a",
+        border: "#e5e5e5",
+        input: "#f4f4f5",
         ring: "#8B1A1A",
         card: {
-          DEFAULT: "#111111",
-          foreground: "#f5f0e8",
+          DEFAULT: "#ffffff",
+          foreground: "#111111",
         },
         popover: {
-          DEFAULT: "#111111",
-          foreground: "#f5f0e8",
+          DEFAULT: "#ffffff",
+          foreground: "#111111",
         },
         primary: {
           DEFAULT: "#8B1A1A",
-          foreground: "#f5f0e8",
+          foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#1a1a1a",
-          foreground: "#a89f94",
+          DEFAULT: "#f4f4f5",
+          foreground: "#111111",
         },
         destructive: {
-          DEFAULT: "#7f1d1d",
-          foreground: "#f5f0e8",
+          DEFAULT: "#ef4444",
+          foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "#1a1a1a",
-          foreground: "#a89f94",
+          DEFAULT: "#f4f4f5",
+          foreground: "#71717a",
         },
       },
       fontFamily: {

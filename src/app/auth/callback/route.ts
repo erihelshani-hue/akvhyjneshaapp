@@ -59,25 +59,20 @@ export async function GET(request: Request) {
     } = authResult;
 
     if (!error && user) {
-      // Auto-create profile if it doesn't exist
-      const { data: profile } = await (supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle() as any);
+      // Sicheres Upsert, um Abstürze bei existierenden Nutzern (Unique Constraint) zu vermeiden
+      const profileInsert: Database["public"]["Tables"]["profiles"]["Insert"] = {
+        id: user.id,
+        full_name: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "Member",
+        email: user.email!,
+        role: "member",
+        language_preference: "de",
+        avatar_url: null,
+      };
 
-      if (!profile) {
-        const profileInsert: Database["public"]["Tables"]["profiles"]["Insert"] = {
-          id: user.id,
-          full_name: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "Member",
-          email: user.email!,
-          role: "member",
-          language_preference: "de",
-          avatar_url: null,
-        };
-
-        await (supabase.from("profiles") as any).insert(profileInsert);
-      }
+      await (supabase.from("profiles") as any).upsert(profileInsert, {
+        onConflict: "id",
+        ignoreDuplicates: true
+      });
 
       return NextResponse.redirect(`${origin}${next}`);
     }

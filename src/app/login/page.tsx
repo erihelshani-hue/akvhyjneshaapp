@@ -39,11 +39,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-      <div className="absolute inset-0 opacity-[0.02]" style={{
+      <div className="absolute inset-0 opacity-[0.03]" style={{
         backgroundImage: `repeating-linear-gradient(
           45deg,
-          #f5f0e8,
-          #f5f0e8 1px,
+          #8B1A1A,
+          #8B1A1A 1px,
           transparent 1px,
           transparent 60px
         )`
