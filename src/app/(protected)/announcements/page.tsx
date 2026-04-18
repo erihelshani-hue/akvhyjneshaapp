@@ -32,8 +32,10 @@ export default async function AnnouncementsPage({
   ]);
 
   const announcements = announcementsRes.data ?? [];
-  const readIds = new Set(readsRes.data?.map((r) => r.announcement_id) ?? []);
-  const unreadIds = announcements.filter((a) => !readIds.has(a.id)).map((a) => a.id);
+  const readIds = new Set(readsRes.data?.map((r: { announcement_id: string }) => r.announcement_id) ?? []);
+  const unreadIds = announcements
+    .filter((a: { id: string }) => !readIds.has(a.id))
+    .map((a: { id: string }) => a.id);
 
   return (
     <div className="space-y-6">
@@ -58,7 +60,14 @@ export default async function AnnouncementsPage({
         <p className="text-muted text-sm">{t("noAnnouncements")}</p>
       ) : (
         <div className="space-y-4">
-          {announcements.map((announcement) => {
+          {announcements.map((announcement: {
+            id: string;
+            title: string;
+            title_sq: string;
+            body: string;
+            body_sq: string;
+            created_at: string;
+          }) => {
             const isUnread = !readIds.has(announcement.id);
             const title = locale === "sq" ? announcement.title_sq : announcement.title;
             const body = locale === "sq" ? announcement.body_sq : announcement.body;

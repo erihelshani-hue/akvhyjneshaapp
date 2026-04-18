@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import type { Database } from "@/types/database";
 
 interface AnnouncementsMarkReadProps {
   unreadIds: string[];
@@ -15,11 +16,13 @@ export function AnnouncementsMarkRead({ unreadIds, userId }: AnnouncementsMarkRe
       const rows = unreadIds.map((id) => ({
         user_id: userId,
         announcement_id: id,
-      }));
-      await supabase.from("announcement_reads").upsert(rows, {
-        onConflict: "user_id,announcement_id",
-        ignoreDuplicates: true,
-      });
+      })) as unknown as Database["public"]["Tables"]["announcement_reads"]["Insert"][];
+      await (supabase as any)
+        .from("announcement_reads")
+        .upsert(rows as any, {
+          onConflict: "user_id,announcement_id",
+          ignoreDuplicates: true,
+        });
     }
     markRead();
   }, [unreadIds, userId]);
