@@ -91,6 +91,17 @@ export default function NewRehearsalPage() {
       return;
     }
 
+    // Fire-and-forget push notification
+    fetch("/api/push/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Neue Probe",
+        body: form.title,
+        url: `/rehearsals/${data.id}`,
+      }),
+    }).catch(() => {});
+
     router.push(`/rehearsals/${data.id}`);
     router.refresh();
     setLoading(false);

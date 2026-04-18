@@ -54,6 +54,17 @@ export default function NewAnnouncementPage() {
       return;
     }
 
+    // Fire-and-forget push notification
+    fetch("/api/push/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Neue Ankündigung",
+        body: form.title,
+        url: "/announcements",
+      }),
+    }).catch(() => {});
+
     router.push("/announcements");
     router.refresh();
     setLoading(false);

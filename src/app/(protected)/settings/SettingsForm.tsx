@@ -3,11 +3,12 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Camera, Check, LogOut, User } from "lucide-react";
+import { Bell, Camera, Check, LogOut, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { useRouter } from "@/i18n/navigation";
 
 interface SettingsFormProps {
@@ -259,6 +260,17 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl }: Sett
             {loading ? t("saving") : t("save")}
           </Button>
         </form>
+      </div>
+
+      {/* Push notifications section */}
+      <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-2 border border-border">
+            <Bell className="h-3.5 w-3.5 text-muted" />
+          </div>
+          <p className="text-sm font-medium text-foreground">Benachrichtigungen</p>
+        </div>
+        <PushNotificationToggle />
       </div>
 
       {/* Account section */}
