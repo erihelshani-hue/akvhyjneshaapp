@@ -5,6 +5,7 @@ import withPWA from "next-pwa";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["web-push"],
   images: {
     remotePatterns: [
       {
