@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatTime } from "@/lib/utils";
+import type { Event } from "@/types/database";
 import { Plus, MapPin, Clock } from "lucide-react";
 
 export default async function EventsPage({
@@ -30,6 +31,7 @@ export default async function EventsPage({
     .select("*")
     .gte("date", today)
     .order("date");
+  const upcomingEvents: Event[] = events ?? [];
 
   return (
     <div className="space-y-6">
@@ -47,11 +49,11 @@ export default async function EventsPage({
         )}
       </div>
 
-      {(!events || events.length === 0) ? (
+      {upcomingEvents.length === 0 ? (
         <p className="text-muted text-sm">{t("noUpcoming")}</p>
       ) : (
         <div className="space-y-3">
-          {events.map((event) => {
+          {upcomingEvents.map((event) => {
             const title = locale === "sq" ? event.title_sq : event.title;
             const notes = locale === "sq" ? event.notes_sq : event.notes;
             return (
