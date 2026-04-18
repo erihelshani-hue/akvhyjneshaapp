@@ -48,16 +48,16 @@
     "deleteConfirm": "Möchtest du diese Probe wirklich löschen?",
     "deleteSuccess": "Probe wurde gelöscht.",
     "form": {
-      "titleDe": "Titel (Deutsch)",
-      "titleSq": "Titel (Albanisch)",
+      "title": "Titel",
       "date": "Datum",
-      "time": "Uhrzeit",
+      "time": "Beginn",
+      "endTime": "Ende",
+      "endAfterStart": "Die Endzeit muss nach dem Beginn liegen.",
       "location": "Ort",
-      "notesDe": "Anmerkungen (Deutsch)",
-      "notesSq": "Anmerkungen (Albanisch)",
+      "notes": "Anmerkungen",
       "isRecurring": "Wöchentlich wiederkehrend",
       "recurrenceDay": "Wochentag",
-      "recurrenceTime": "Wiederholungszeit"
+      "recurrenceTime": "Beginn"
     },
     "days": {
       "MON": "Montag",
@@ -92,17 +92,17 @@
       "other": "Sonstiges"
     },
     "form": {
-      "titleDe": "Titel (Deutsch)",
-      "titleSq": "Titel (Albanisch)",
+      "title": "Titel",
       "date": "Datum",
-      "time": "Uhrzeit",
+      "time": "Beginn",
+      "endTime": "Ende",
+      "endAfterStart": "Die Endzeit muss nach dem Beginn liegen.",
       "location": "Ort",
       "eventType": "Veranstaltungstyp",
       "dressCode": "Kleidungsvorschrift",
       "meetupTime": "Treffpunktzeit",
       "locationUrl": "Karten-Link",
-      "notesDe": "Anmerkungen (Deutsch)",
-      "notesSq": "Anmerkungen (Albanisch)"
+      "notes": "Anmerkungen"
     }
   },
   "announcement": {
@@ -116,10 +116,8 @@
     "unread": "Ungelesen",
     "postedBy": "Erstellt von",
     "form": {
-      "titleDe": "Titel (Deutsch)",
-      "titleSq": "Titel (Albanisch)",
-      "bodyDe": "Text (Deutsch)",
-      "bodySq": "Text (Albanisch)"
+      "title": "Titel",
+      "body": "Text"
     }
   },
   "member": {
@@ -140,11 +138,13 @@
     "title": "Einstellungen",
     "displayName": "Anzeigename",
     "displayNamePlaceholder": "Dein Name",
-    "language": "Sprache",
     "save": "Speichern",
     "saving": "Speichere...",
     "saved": "Gespeichert",
-    "error": "Fehler beim Speichern."
+    "error": "Fehler beim Speichern.",
+    "account": "Konto",
+    "logout": "Abmelden",
+    "logoutHint": "Beendet die Sitzung auf diesem Gerät."
   },
   "rsvp": {
     "yes": "Ja",

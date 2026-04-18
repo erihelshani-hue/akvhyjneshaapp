@@ -21,16 +21,15 @@ export default function LoginPage() {
     setError(null);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error: signInError } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
-    if (error) {
-      console.error("Supabase Auth Fehler:", error);
-      setError(error.message || t("error"));
+    if (signInError) {
+      setError(signInError.message || t("error"));
     } else {
       setSent(true);
     }
@@ -38,53 +37,48 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
-      <div className="absolute inset-0 opacity-[0.08]" style={{
-        backgroundImage: `repeating-linear-gradient(
-          45deg,
-          #8B1A1A,
-          #8B1A1A 1px,
-          transparent 1px,
-          transparent 60px
-        )`
-      }} />
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4">
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage: "linear-gradient(135deg, rgba(169, 22, 29, 0.18) 0 1px, transparent 1px 54px)",
+        }}
+      />
 
-      <div className="relative w-full max-w-sm space-y-8">
+      <div className="relative w-full max-w-sm space-y-8 rounded-md border border-border bg-surface/85 p-6 shadow-2xl shadow-black/35 backdrop-blur">
         <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-accent/10 blur-xl" />
-            <Image
-              src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
-              alt="AKV Hyjnesha"
-              width={80}
-              height={80}
-              className="relative rounded-full object-cover border border-border"
-            />
-          </div>
+          <Image
+            src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
+            alt="AKV Hyjnesha"
+            width={84}
+            height={84}
+            className="rounded-full border border-gold/40 object-cover"
+            priority
+          />
           <div className="text-center">
             <h1 className="font-playfair text-2xl font-semibold text-foreground">
               AKV &ldquo;<em className="italic">Hyjnesha</em>&rdquo;
             </h1>
-            <p className="text-sm text-muted mt-1">{t("subtitle")}</p>
+            <p className="mt-1 text-sm text-muted">{t("subtitle")}</p>
           </div>
         </div>
 
         <div className="h-px bg-border" />
 
         {sent ? (
-          <div className="text-center space-y-4">
-            <div className="w-12 h-12 mx-auto bg-accent/10 border border-accent/20 flex items-center justify-center">
+          <div className="space-y-4 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md border border-accent/30 bg-accent/10">
               <svg className="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
               <h2 className="font-playfair text-lg font-semibold text-foreground">{t("checkEmail")}</h2>
-              <p className="text-sm text-muted mt-2">{t("checkEmailDesc", { email })}</p>
+              <p className="mt-2 text-sm text-muted">{t("checkEmailDesc", { email })}</p>
             </div>
             <button
               onClick={() => setSent(false)}
-              className="text-sm text-muted hover:text-foreground transition-colors underline underline-offset-4"
+              className="text-sm text-muted underline underline-offset-4 transition-colors hover:text-foreground"
             >
               {t("backToLogin")}
             </button>
@@ -104,17 +98,15 @@ export default function LoginPage() {
                 autoFocus
               />
             </div>
-            {error && (
-              <p className="text-sm text-red-400">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-300">{error}</p>}
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? t("sending") : t("sendLink")}
             </Button>
           </form>
         )}
 
-        <p className="text-center text-xs text-muted/60">
-          Ansambli Kulturor Vendor Hyjnesha Â· Graz
+        <p className="text-center text-xs text-muted/70">
+          Ansambli Kulturor Vendor Hyjnesha · Graz
         </p>
       </div>
     </div>

@@ -18,25 +18,25 @@ import {
 } from "@/components/ui/select";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
-import type { RecurrenceDay } from "@/types/database";
+import { isEndAfterStart } from "@/lib/utils";
+import type { RecurrenceDay, RehearsalInsert } from "@/types/database";
 
 const DAYS: RecurrenceDay[] = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 export default function NewRehearsalPage() {
   const t = useTranslations("rehearsal");
-  const tCommon = useTranslations("common");
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
-    title_sq: "",
     date: "",
     time: "",
+    end_time: "",
     location: "",
     notes: "",
-    notes_sq: "",
     recurrence_day: "MON" as RecurrenceDay,
     recurrence_time: "",
   });
@@ -48,28 +48,51 @@ export default function NewRehearsalPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+
+    const startTime = isRecurring ? form.recurrence_time || form.time : form.time;
+    if (form.end_time && !isEndAfterStart(startTime, form.end_time)) {
+      setError(t("form.endAfterStart"));
+      setLoading(false);
+      return;
+    }
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    const payload = {
+    if (userError || !user) {
+      setError("Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.");
+      setLoading(false);
+      return;
+    }
+
+    const payload: RehearsalInsert = {
       title: form.title,
-      title_sq: form.title_sq,
       date: isRecurring ? new Date().toISOString().substring(0, 10) : form.date,
-      time: form.time,
+      time: startTime,
+      end_time: form.end_time || null,
       location: form.location,
       notes: form.notes || null,
-      notes_sq: form.notes_sq || null,
       is_recurring: isRecurring,
       recurrence_day: isRecurring ? form.recurrence_day : null,
-      recurrence_time: isRecurring ? form.recurrence_time || form.time : null,
+      recurrence_time: isRecurring ? startTime : null,
       created_by: user?.id,
     };
 
-    const { data, error } = await supabase.from("rehearsals").insert(payload).select().single();
-    if (!error && data) {
-      router.push(`/rehearsals/${data.id}`);
+    const { data, error: insertError } = await supabase
+      .from("rehearsals")
+      .insert(payload)
+      .select()
+      .single();
+
+    if (insertError || !data) {
+      setError(insertError?.message || "Die Probe konnte nicht erstellt werden.");
+      setLoading(false);
+      return;
     }
+
+    router.push(`/rehearsals/${data.id}`);
+    router.refresh();
     setLoading(false);
   }
 
@@ -83,15 +106,9 @@ export default function NewRehearsalPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("form.titleDe")}</Label>
-            <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("form.titleSq")}</Label>
-            <Input value={form.title_sq} onChange={(e) => update("title_sq", e.target.value)} required />
-          </div>
+        <div className="space-y-1.5">
+          <Label>{t("form.title")}</Label>
+          <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
         </div>
 
         <div className="flex items-center gap-3">
@@ -106,7 +123,7 @@ export default function NewRehearsalPage() {
         </div>
 
         {isRecurring ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label>{t("form.recurrenceDay")}</Label>
               <Select value={form.recurrence_day} onValueChange={(v) => update("recurrence_day", v)}>
@@ -122,11 +139,15 @@ export default function NewRehearsalPage() {
             </div>
             <div className="space-y-1.5">
               <Label>{t("form.recurrenceTime")}</Label>
-              <Input type="time" value={form.recurrence_time} onChange={(e) => update("recurrence_time", e.target.value)} />
+              <Input type="time" value={form.recurrence_time} onChange={(e) => update("recurrence_time", e.target.value)} required={isRecurring} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("form.endTime")}</Label>
+              <Input type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
             </div>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label>{t("form.date")}</Label>
               <Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required={!isRecurring} />
@@ -134,6 +155,10 @@ export default function NewRehearsalPage() {
             <div className="space-y-1.5">
               <Label>{t("form.time")}</Label>
               <Input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("form.endTime")}</Label>
+              <Input type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
             </div>
           </div>
         )}
@@ -143,16 +168,12 @@ export default function NewRehearsalPage() {
           <Input value={form.location} onChange={(e) => update("location", e.target.value)} required />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("form.notesDe")}</Label>
-            <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("form.notesSq")}</Label>
-            <Textarea value={form.notes_sq} onChange={(e) => update("notes_sq", e.target.value)} rows={3} />
-          </div>
+        <div className="space-y-1.5">
+          <Label>{t("form.notes")}</Label>
+          <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} />
         </div>
+
+        {error && <p className="text-sm text-red-300">{error}</p>}
 
         <Button type="submit" disabled={loading} className="w-full sm:w-auto">
           {loading ? t("creating") : t("create")}

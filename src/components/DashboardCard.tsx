@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { MapPin, Clock } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { RecurringTag } from "@/components/RecurringTag";
-import { formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTimeRange } from "@/lib/utils";
 
 interface DashboardCardProps {
   type: "rehearsal" | "event";
   title: string;
   date: string | null;
   time: string | null;
+  endTime?: string | null;
   location: string | null;
   isRecurring?: boolean;
   href: string;
-  locale: string;
 }
 
 export function DashboardCard({
@@ -21,10 +21,10 @@ export function DashboardCard({
   title,
   date,
   time,
+  endTime,
   location,
   isRecurring,
   href,
-  locale,
 }: DashboardCardProps) {
   const t = useTranslations("dashboard");
   const tCommon = useTranslations("common");
@@ -52,13 +52,13 @@ export function DashboardCard({
           {isRecurring && <RecurringTag />}
         </div>
         <p className="mt-2 text-gold font-medium">
-          {formatDate(date, locale)}
+          {formatDate(date)}
         </p>
         <div className="mt-3 space-y-1">
           {time && (
             <div className="flex items-center gap-2 text-sm text-muted">
               <Clock className="h-3.5 w-3.5 shrink-0" />
-              <span>{tCommon("at")} {formatTime(time)} Uhr</span>
+              <span>{tCommon("at")} {formatTimeRange(time, endTime)}</span>
             </div>
           )}
           {location && (

@@ -16,10 +16,10 @@ export function AnnouncementsMarkRead({ unreadIds, userId }: AnnouncementsMarkRe
       const rows = unreadIds.map((id) => ({
         user_id: userId,
         announcement_id: id,
-      })) as unknown as Database["public"]["Tables"]["announcement_reads"]["Insert"][];
-      await (supabase as any)
+      })) satisfies Database["public"]["Tables"]["announcement_reads"]["Insert"][];
+      await supabase
         .from("announcement_reads")
-        .upsert(rows as any, {
+        .upsert(rows, {
           onConflict: "user_id,announcement_id",
           ignoreDuplicates: true,
         });

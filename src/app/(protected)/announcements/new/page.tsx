@@ -10,16 +10,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
+import type { AnnouncementInsert } from "@/types/database";
 
 export default function NewAnnouncementPage() {
   const t = useTranslations("announcement");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
-    title_sq: "",
     body: "",
-    body_sq: "",
   });
 
   function update(field: string, value: string) {
@@ -29,19 +29,33 @@ export default function NewAnnouncementPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    await supabase.from("announcements").insert({
+    if (userError || !user) {
+      setError("Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.");
+      setLoading(false);
+      return;
+    }
+
+    const payload: AnnouncementInsert = {
       title: form.title,
-      title_sq: form.title_sq,
       body: form.body,
-      body_sq: form.body_sq,
       created_by: user?.id,
-    });
+    };
+
+    const { error: insertError } = await supabase.from("announcements").insert(payload);
+
+    if (insertError) {
+      setError(insertError.message || "Die Ankündigung konnte nicht erstellt werden.");
+      setLoading(false);
+      return;
+    }
 
     router.push("/announcements");
+    router.refresh();
     setLoading(false);
   }
 
@@ -55,37 +69,22 @@ export default function NewAnnouncementPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("form.titleDe")}</Label>
-            <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("form.titleSq")}</Label>
-            <Input value={form.title_sq} onChange={(e) => update("title_sq", e.target.value)} required />
-          </div>
+        <div className="space-y-1.5">
+          <Label>{t("form.title")}</Label>
+          <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("form.bodyDe")}</Label>
-            <Textarea
-              value={form.body}
-              onChange={(e) => update("body", e.target.value)}
-              rows={8}
-              required
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("form.bodySq")}</Label>
-            <Textarea
-              value={form.body_sq}
-              onChange={(e) => update("body_sq", e.target.value)}
-              rows={8}
-              required
-            />
-          </div>
+        <div className="space-y-1.5">
+          <Label>{t("form.body")}</Label>
+          <Textarea
+            value={form.body}
+            onChange={(e) => update("body", e.target.value)}
+            rows={8}
+            required
+          />
         </div>
+
+        {error && <p className="text-sm text-red-300">{error}</p>}
 
         <Button type="submit" disabled={loading}>
           {loading ? t("creating") : t("create")}

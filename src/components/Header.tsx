@@ -13,7 +13,7 @@ interface HeaderProps {
   isAdmin: boolean;
 }
 
-export function Header({ unreadCount, isAdmin }: HeaderProps) {
+export function Header({ unreadCount }: HeaderProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
@@ -21,7 +21,8 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
+    router.replace("/login");
+    router.refresh();
   }
 
   const navItems = [
@@ -33,10 +34,10 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-xl"
+      className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <Image
@@ -46,7 +47,7 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
             height={32}
             className="rounded-full object-cover"
           />
-          <span className="font-playfair text-base font-semibold text-foreground">
+          <span className="font-playfair text-base font-semibold text-foreground sm:text-lg">
             AKV &ldquo;Hyjnesha&rdquo;
           </span>
         </Link>
@@ -80,7 +81,14 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
           </button>
         </div>
 
-        <div className="md:hidden" />
+        <div className="flex items-center gap-2 md:hidden">
+          <Link href="/settings" className="text-muted hover:text-foreground transition-colors" aria-label={t("settings")}>
+            <Settings className="h-5 w-5" />
+          </Link>
+          <button onClick={handleLogout} className="text-muted hover:text-foreground transition-colors" aria-label={t("logout")}>
+            <LogOut className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </header>
   );

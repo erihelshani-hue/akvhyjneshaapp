@@ -16,7 +16,7 @@ declare module 'next-pwa' {
           maxAgeSeconds?: number;
         };
         rangeRequests?: boolean;
-        cacheKeyWillBeUsed?: (params: any) => Promise<string>;
+        cacheKeyWillBeUsed?: (params: unknown) => Promise<string>;
       };
     }>;
     buildExcludes?: RegExp[];

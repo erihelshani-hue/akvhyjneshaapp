@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTimeRange } from "@/lib/utils";
 import { Plus, MapPin, Clock } from "lucide-react";
 import type { Event } from "@/types/database";
 
@@ -65,11 +65,11 @@ export default async function EventsPage({
                         {t(`type.${event.event_type}`)}
                       </Badge>
                     </div>
-                    <p className="text-gold text-sm font-medium mt-1">{formatDate(event.date, "de")}</p>
+                    <p className="text-gold text-sm font-medium mt-1">{formatDate(event.date)}</p>
                     <div className="flex items-center gap-4 mt-2">
                       <span className="flex items-center gap-1.5 text-xs text-muted">
                         <Clock className="h-3 w-3" />
-                        {formatTime(event.time)}
+                        {formatTimeRange(event.time, event.end_time)}
                       </span>
                       <span className="flex items-center gap-1.5 text-xs text-muted">
                         <MapPin className="h-3 w-3" />

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { EventRSVP } from "./EventRSVP";
 import { EventDeleteButton } from "./EventDeleteButton";
 import { Link } from "@/i18n/navigation";
-import { formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTime, formatTimeRange } from "@/lib/utils";
 import { MapPin, Clock, Shirt, Users, ExternalLink, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { AttendanceStatus } from "@/types/database";
@@ -47,14 +47,14 @@ export default async function EventDetailPage({
     .eq("entity_id", id)
     .eq("status", "yes");
 
-  let attendees: { profile: { full_name: string }; status: AttendanceStatus }[] = [];
+  let attendees: { profiles: { full_name: string } | { full_name: string }[] | null; status: AttendanceStatus }[] = [];
   if (isAdmin) {
     const { data } = await supabase
       .from("attendances")
       .select("status, profiles(full_name)")
       .eq("entity_type", "event")
       .eq("entity_id", id);
-    attendees = (data ?? []) as typeof attendees;
+    attendees = (data ?? []) as unknown as typeof attendees;
   }
 
   const title = event.title;
@@ -73,7 +73,7 @@ export default async function EventDetailPage({
             <h1 className="font-playfair text-3xl font-semibold text-foreground">{title}</h1>
             <Badge variant="outline" className="text-xs">{t(`type.${event.event_type}`)}</Badge>
           </div>
-          <p className="text-gold font-medium">{formatDate(event.date, "de")}</p>
+          <p className="text-gold font-medium">{formatDate(event.date)}</p>
         </div>
         {isAdmin && <EventDeleteButton eventId={id} />}
       </div>
@@ -84,7 +84,7 @@ export default async function EventDetailPage({
         <div className="flex items-center gap-2 text-sm">
           <Clock className="h-3.5 w-3.5 text-muted shrink-0" />
           <span className="text-muted w-28">{t("time")}:</span>
-          <span className="text-foreground">{formatTime(event.time)}</span>
+          <span className="text-foreground">{formatTimeRange(event.time, event.end_time)}</span>
         </div>
         {event.meetup_time && (
           <div className="flex items-center gap-2 text-sm">
@@ -144,7 +144,9 @@ export default async function EventDetailPage({
             <div className="space-y-2">
               {attendees.map((att, i) => (
                 <div key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-foreground">{att.profile?.full_name}</span>
+                  <span className="text-foreground">
+                    {Array.isArray(att.profiles) ? att.profiles[0]?.full_name : att.profiles?.full_name}
+                  </span>
                   <span className={`text-xs px-2 py-0.5 ${
                     att.status === "yes" ? "text-green-400 bg-green-400/10" :
                     att.status === "no" ? "text-red-400 bg-red-400/10" :

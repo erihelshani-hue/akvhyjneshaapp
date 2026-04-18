@@ -19,10 +19,9 @@ interface MemberCardProps {
   member: Profile;
   isAdmin: boolean;
   currentUserId: string;
-  locale: string;
 }
 
-export function MemberCard({ member, isAdmin, currentUserId, locale }: MemberCardProps) {
+export function MemberCard({ member, isAdmin, currentUserId }: MemberCardProps) {
   const t = useTranslations("member");
   const [role, setRole] = useState(member.role);
 
@@ -58,7 +57,7 @@ export function MemberCard({ member, isAdmin, currentUserId, locale }: MemberCar
         </div>
         <p className="text-xs text-muted truncate">{member.email}</p>
         <p className="text-xs text-muted mt-0.5">
-          {t("joined")} {formatDate(member.created_at.substring(0, 10), locale)}
+          {t("joined")} {formatDate(member.created_at.substring(0, 10))}
         </p>
       </div>
       {isAdmin && member.id !== currentUserId && (

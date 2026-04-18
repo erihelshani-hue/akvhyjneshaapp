@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { Database } from "@/types/database";
 
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
 type CookieToSet = {
@@ -31,7 +30,7 @@ export async function createClient() {
         },
       },
     }
-  ) as any;
+  );
 }
 
 export async function createServiceClient() {
@@ -54,5 +53,5 @@ export async function createServiceClient() {
         },
       },
     }
-  ) as any;
+  );
 }

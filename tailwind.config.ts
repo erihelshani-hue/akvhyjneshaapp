@@ -10,41 +10,42 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#000000", // Tiefschwarzer Hintergrund
-        surface: "#0f0f0f",
-        "surface-2": "#1a1a1a",
-        foreground: "#ffffff", // Weißer Text für perfekten Kontrast
+        background: "#070606",
+        surface: "#100d0d",
+        "surface-2": "#1a1414",
+        foreground: "#f7f0e4",
         accent: {
-          DEFAULT: "#8B1A1A",
-          hover: "#a01f1f",
-          foreground: "#ffffff",
+          DEFAULT: "#a9161d",
+          hover: "#c51b24",
+          foreground: "#fff7ec",
         },
-        border: "#222222",
-        input: "#0f0f0f",
-        ring: "#8B1A1A",
+        gold: "#d8b765",
+        border: "#332727",
+        input: "#120f0f",
+        ring: "#d8b765",
         card: {
-          DEFAULT: "#0a0a0a",
-          foreground: "#ffffff",
+          DEFAULT: "#100d0d",
+          foreground: "#f7f0e4",
         },
         popover: {
-          DEFAULT: "#0a0a0a",
-          foreground: "#ffffff",
+          DEFAULT: "#100d0d",
+          foreground: "#f7f0e4",
         },
         primary: {
-          DEFAULT: "#8B1A1A",
-          foreground: "#ffffff",
+          DEFAULT: "#a9161d",
+          foreground: "#fff7ec",
         },
         secondary: {
-          DEFAULT: "#1a1a1a",
-          foreground: "#ffffff",
+          DEFAULT: "#1a1414",
+          foreground: "#f7f0e4",
         },
         destructive: {
           DEFAULT: "#ef4444",
-          foreground: "#ffffff",
+          foreground: "#fff7ec",
         },
         muted: {
-          DEFAULT: "#1a1a1a",
-          foreground: "#a1a1aa",
+          DEFAULT: "#1a1414",
+          foreground: "#b9ab99",
         },
       },
       fontFamily: {

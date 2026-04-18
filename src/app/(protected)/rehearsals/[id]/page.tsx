@@ -1,13 +1,12 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getOccurrencesForRehearsal } from "@/lib/recurring";
-import { RSVPBar } from "@/components/RSVPBar";
 import { RecurringTag } from "@/components/RecurringTag";
 import { RehearsalDeleteButton } from "./RehearsalDeleteButton";
 import { RehearsalRSVP } from "./RehearsalRSVP";
 import { Link } from "@/i18n/navigation";
-import { formatDate, formatTime } from "@/lib/utils";
+import { formatDate, formatTimeRange } from "@/lib/utils";
 import { MapPin, Clock, ArrowLeft } from "lucide-react";
 import type { AttendanceStatus } from "@/types/database";
 
@@ -59,7 +58,7 @@ export default async function RehearsalDetailPage({
     .eq("status", "yes");
 
   // Admin: get full breakdown
-  let attendees: { profile: { full_name: string }; status: AttendanceStatus }[] = [];
+  let attendees: { profiles: { full_name: string } | { full_name: string }[] | null; status: AttendanceStatus }[] = [];
   if (isAdmin) {
     const { data } = await supabase
       .from("attendances")
@@ -67,7 +66,7 @@ export default async function RehearsalDetailPage({
       .eq("entity_type", "rehearsal")
       .eq("entity_id", id)
       .eq("entity_date", targetDate);
-    attendees = (data ?? []) as typeof attendees;
+    attendees = (data ?? []) as unknown as typeof attendees;
   }
 
   const title = rehearsal.title;
@@ -105,7 +104,7 @@ export default async function RehearsalDetailPage({
                     : "border-border text-muted hover:border-foreground/30"
                 }`}
               >
-                {formatDate(occ.date, "de")}
+                {formatDate(occ.date)}
               </Link>
             ))}
           </div>
@@ -120,7 +119,7 @@ export default async function RehearsalDetailPage({
           <span className="text-muted w-20 shrink-0">{t("time")}:</span>
           <span className="text-foreground flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5 text-muted" />
-            {formatDate(targetDate, "de")} {tCommon("at")} {formatTime(rehearsal.recurrence_time ?? rehearsal.time)}
+            {formatDate(targetDate)} {tCommon("at")} {formatTimeRange(rehearsal.recurrence_time ?? rehearsal.time, rehearsal.end_time)}
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm">
@@ -160,7 +159,9 @@ export default async function RehearsalDetailPage({
             <div className="space-y-2">
               {attendees.map((att, i) => (
                 <div key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-foreground">{att.profile?.full_name}</span>
+                  <span className="text-foreground">
+                    {Array.isArray(att.profiles) ? att.profiles[0]?.full_name : att.profiles?.full_name}
+                  </span>
                   <span className={`text-xs px-2 py-0.5 ${
                     att.status === "yes" ? "text-green-400 bg-green-400/10" :
                     att.status === "no" ? "text-red-400 bg-red-400/10" :

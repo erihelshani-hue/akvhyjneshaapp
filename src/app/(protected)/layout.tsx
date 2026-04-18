@@ -18,24 +18,17 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  const [profileRes, announcementsRes, readsRes] = await Promise.all([
+    supabase.from("profiles").select("role").eq("id", user.id).single(),
+    supabase.from("announcements").select("id"),
+    supabase.from("announcement_reads").select("announcement_id").eq("user_id", user.id),
+  ]);
 
-  const { data: announcements }: { data: Announcement[] | null } = await supabase
-    .from("announcements")
-    .select("id");
-
-  const { data: reads }: { data: AnnouncementRead[] | null } = await supabase
-    .from("announcement_reads")
-    .select("announcement_id")
-    .eq("user_id", user.id);
-
-  const readIds = new Set(reads?.map((r) => r.announcement_id) ?? []);
-  const unreadCount = (announcements ?? []).filter((a) => !readIds.has(a.id)).length;
-  const isAdmin = profile?.role === "admin";
+  const announcements = (announcementsRes.data ?? []) as Pick<Announcement, "id">[];
+  const reads = (readsRes.data ?? []) as Pick<AnnouncementRead, "announcement_id">[];
+  const readIds = new Set(reads.map((r) => r.announcement_id));
+  const unreadCount = announcements.filter((a) => !readIds.has(a.id)).length;
+  const isAdmin = profileRes.data?.role === "admin";
 
   return (
     <div className="min-h-screen bg-background">

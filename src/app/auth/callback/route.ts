@@ -6,28 +6,33 @@ import type { Database } from "@/types/database";
 type CookieToSet = {
   name: string;
   value: string;
-  options?: Parameters<(typeof cookies extends (...args: never[]) => Promise<infer T> ? T : never)["set"]>[2];
+  options?: Parameters<NextResponse["cookies"]["set"]>[2];
 };
+
+function safeNextPath(nextParam: string | null): string {
+  if (!nextParam || !nextParam.startsWith("/") || nextParam.startsWith("//")) {
+    return "/";
+  }
+
+  if (["/de", "/sq", "/al"].some((prefix) => nextParam === prefix || nextParam.startsWith(`${prefix}/`))) {
+    return "/";
+  }
+
+  return nextParam;
+}
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  const nextParam = searchParams.get("next");
-  let next =
-    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
-      ? nextParam
-      : "/";
-
-  // Verhindere Redirects auf veraltete Locale-Pfade
-  if (["/de", "/sq", "/al"].some((prefix) => next === prefix || next.startsWith(`${prefix}/`))) {
-    next = "/";
-  }
+  const next = safeNextPath(searchParams.get("next"));
 
   if (code || (tokenHash && type)) {
     const cookieStore = await cookies();
-    const supabase = createServerClient<Database>(
+    const authCookies: CookieToSet[] = [];
+
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -36,11 +41,7 @@ export async function GET(request: Request) {
             return cookieStore.getAll();
           },
           setAll(cookiesToSet: CookieToSet[]) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) => {
-                cookieStore.set(name, value, options);
-              });
-            } catch {}
+            authCookies.push(...cookiesToSet);
           },
         },
       }
@@ -54,12 +55,11 @@ export async function GET(request: Request) {
         });
 
     const {
-      data: { user },
+      data: { user, session },
       error,
     } = authResult;
 
-    if (!error && user) {
-      // Sicheres Upsert, um Abstürze bei existierenden Nutzern (Unique Constraint) zu vermeiden
+    if (!error && user && session) {
       const profileInsert: Database["public"]["Tables"]["profiles"]["Insert"] = {
         id: user.id,
         full_name: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "Member",
@@ -69,14 +69,21 @@ export async function GET(request: Request) {
         avatar_url: null,
       };
 
-      await (supabase.from("profiles") as any).upsert(profileInsert, {
+      await supabase.from("profiles").upsert(profileInsert, {
         onConflict: "id",
-        ignoreDuplicates: true
+        ignoreDuplicates: true,
       });
 
-      return NextResponse.redirect(`${origin}${next}`);
+      const redirectResponse = NextResponse.redirect(`${origin}${next}`);
+      for (const { name, value, options } of authCookies) {
+        redirectResponse.cookies.set(name, value, options);
+      }
+      redirectResponse.headers.set("Cache-Control", "no-store");
+      return redirectResponse;
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  const errorResponse = NextResponse.redirect(`${origin}/login?error=auth`);
+  errorResponse.headers.set("Cache-Control", "no-store");
+  return errorResponse;
 }

@@ -37,7 +37,6 @@ export default async function MembersPage({
               member={member}
               isAdmin={isAdmin}
               currentUserId={user!.id}
-              locale="de"
             />
           ))}
         </div>

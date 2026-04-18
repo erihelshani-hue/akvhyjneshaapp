@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
-import type { EventType } from "@/types/database";
+import { isEndAfterStart } from "@/lib/utils";
+import type { EventInsert, EventType } from "@/types/database";
 
 const EVENT_TYPES: EventType[] = ["performance", "wedding", "festival", "other"];
 
@@ -25,18 +26,18 @@ export default function NewEventPage() {
   const t = useTranslations("event");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
-    title_sq: "",
     date: "",
     time: "",
+    end_time: "",
     location: "",
     event_type: "performance" as EventType,
     dress_code: "",
     meetup_time: "",
     location_url: "",
     notes: "",
-    notes_sq: "",
   });
 
   function update(field: string, value: string) {
@@ -46,28 +47,51 @@ export default function NewEventPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+
+    if (form.end_time && !isEndAfterStart(form.time, form.end_time)) {
+      setError(t("form.endAfterStart"));
+      setLoading(false);
+      return;
+    }
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    const { data, error } = await supabase.from("events").insert({
+    if (userError || !user) {
+      setError("Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.");
+      setLoading(false);
+      return;
+    }
+
+    const payload: EventInsert = {
       title: form.title,
-      title_sq: form.title_sq,
       date: form.date,
       time: form.time,
+      end_time: form.end_time || null,
       location: form.location,
       event_type: form.event_type,
       dress_code: form.dress_code || null,
       meetup_time: form.meetup_time || null,
       location_url: form.location_url || null,
       notes: form.notes || null,
-      notes_sq: form.notes_sq || null,
       created_by: user?.id,
-    }).select().single();
+    };
 
-    if (!error && data) {
-      router.push(`/events/${data.id}`);
+    const { data, error: insertError } = await supabase
+      .from("events")
+      .insert(payload)
+      .select()
+      .single();
+
+    if (insertError || !data) {
+      setError(insertError?.message || "Die Veranstaltung konnte nicht erstellt werden.");
+      setLoading(false);
+      return;
     }
+
+    router.push(`/events/${data.id}`);
+    router.refresh();
     setLoading(false);
   }
 
@@ -81,18 +105,12 @@ export default function NewEventPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("form.titleDe")}</Label>
-            <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("form.titleSq")}</Label>
-            <Input value={form.title_sq} onChange={(e) => update("title_sq", e.target.value)} required />
-          </div>
+        <div className="space-y-1.5">
+          <Label>{t("form.title")}</Label>
+          <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
             <Label>{t("form.date")}</Label>
             <Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
@@ -100,6 +118,10 @@ export default function NewEventPage() {
           <div className="space-y-1.5">
             <Label>{t("form.time")}</Label>
             <Input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("form.endTime")}</Label>
+            <Input type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
           </div>
         </div>
 
@@ -139,16 +161,12 @@ export default function NewEventPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("form.notesDe")}</Label>
-            <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("form.notesSq")}</Label>
-            <Textarea value={form.notes_sq} onChange={(e) => update("notes_sq", e.target.value)} rows={3} />
-          </div>
+        <div className="space-y-1.5">
+          <Label>{t("form.notes")}</Label>
+          <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} />
         </div>
+
+        {error && <p className="text-sm text-red-300">{error}</p>}
 
         <Button type="submit" disabled={loading}>
           {loading ? t("creating") : t("create")}

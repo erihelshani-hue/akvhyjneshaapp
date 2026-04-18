@@ -1,16 +1,14 @@
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardCard } from "@/components/DashboardCard";
 import { getNextOccurrence } from "@/lib/recurring";
 import { Link } from "@/i18n/navigation";
-import { formatDate, formatTime } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import type { Rehearsal, Event, Announcement, AnnouncementRead } from "@/types/database";
 
 export default async function DashboardPage({
 }: Record<string, never>) {
   const t = await getTranslations("dashboard");
-  const tAnnouncement = await getTranslations("announcement");
   const tCommon = await getTranslations("common");
   const supabase = await createClient();
 
@@ -26,7 +24,7 @@ export default async function DashboardPage({
   const rehearsals: Rehearsal[] = rehearsalsRes.data ?? [];
   const events: Event[] = eventsRes.data ?? [];
   const announcements: Announcement[] = announcementsRes.data ?? [];
-  const reads: AnnouncementRead[] = readsRes.data ?? [];
+  const reads = (readsRes.data ?? []) as Pick<AnnouncementRead, "announcement_id">[];
   const readIds = new Set(reads.map((r) => r.announcement_id));
 
   const nextRehearsal = getNextOccurrence(rehearsals);
@@ -52,19 +50,19 @@ export default async function DashboardPage({
           title={rehearsalTitle ?? ""}
           date={nextRehearsal?.date ?? null}
           time={nextRehearsal?.rehearsal.time ?? null}
+          endTime={nextRehearsal?.rehearsal.end_time ?? null}
           location={nextRehearsal?.rehearsal.location ?? null}
           isRecurring={nextRehearsal?.isRecurring}
           href={nextRehearsal ? `/rehearsals/${nextRehearsal.rehearsal.id}` : "/rehearsals"}
-          locale="de"
         />
         <DashboardCard
           type="event"
           title={eventTitle ?? ""}
           date={nextEvent?.date ?? null}
           time={nextEvent?.time ?? null}
+          endTime={nextEvent?.end_time ?? null}
           location={nextEvent?.location ?? null}
           href={nextEvent ? `/events/${nextEvent.id}` : "/events"}
-          locale="de"
         />
       </div>
 
@@ -101,7 +99,7 @@ export default async function DashboardPage({
                       <p className="font-medium text-foreground text-sm truncate">{title}</p>
                       <p className="text-muted text-xs mt-0.5 line-clamp-2">{body}</p>
                       <p className="text-xs text-muted/60 mt-1">
-                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10), "de")}
+                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10))}
                       </p>
                     </div>
                   </div>

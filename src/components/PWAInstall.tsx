@@ -17,8 +17,7 @@ export function PWAInstall() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) {
+    if (window.matchMedia?.("(display-mode: standalone)").matches) {
       setIsInstalled(true);
       return;
     }
@@ -44,27 +43,14 @@ export function PWAInstall() {
     };
   }, []);
 
-  const handleInstall = async () => {
+  async function handleInstall() {
     if (!deferredPrompt) return;
 
-    try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+    await deferredPrompt.prompt();
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  }
 
-      if (outcome === "accepted") {
-        console.log("PWA installiert");
-      } else {
-        console.log("PWA-Installation abgelehnt");
-      }
-
-      setDeferredPrompt(null);
-      setIsInstallable(false);
-    } catch (error) {
-      console.error("PWA-Installation fehlgeschlagen:", error);
-    }
-  };
-
-  // Don't render anything if not installable or already installed
   if (!isInstallable || isInstalled) {
     return null;
   }
@@ -72,10 +58,10 @@ export function PWAInstall() {
   return (
     <button
       onClick={handleInstall}
-      className="fixed bottom-20 left-4 right-4 z-50 bg-accent text-accent-foreground px-4 py-3 rounded-lg shadow-lg font-medium text-sm sm:hidden"
+      className="fixed bottom-20 left-4 right-4 z-50 rounded-md bg-accent px-4 py-3 text-sm font-medium text-accent-foreground shadow-lg sm:hidden"
       style={{ marginBottom: "calc(3.5rem + env(safe-area-inset-bottom))" }}
     >
-      📱 App installieren
+      App installieren
     </button>
   );
 }

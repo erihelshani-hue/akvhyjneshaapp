@@ -37,17 +37,6 @@ export default withNextIntl(withPWA({
       },
     },
     {
-      urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-      handler: "StaleWhileRevalidate",
-      options: {
-        cacheName: "supabase-assets",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 7,
-        },
-      },
-    },
-    {
       urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
       handler: "StaleWhileRevalidate",
       options: {
@@ -105,4 +94,3 @@ export default withNextIntl(withPWA({
     },
   ],
 })(nextConfig));
-

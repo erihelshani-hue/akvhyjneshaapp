@@ -23,26 +23,26 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 CREATE TABLE IF NOT EXISTS public.rehearsals (
   id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title          text NOT NULL,
-  title_sq       text NOT NULL,
   date           date NOT NULL,
   time           time NOT NULL,
+  end_time       time,
   location       text NOT NULL,
   notes          text,
-  notes_sq       text,
   is_recurring   boolean DEFAULT false,
   recurrence_day text CHECK (recurrence_day IN ('MON','TUE','WED','THU','FRI','SAT','SUN')),
   recurrence_time time,
   created_by     uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
-  created_at     timestamptz DEFAULT now()
+  created_at     timestamptz DEFAULT now(),
+  CONSTRAINT rehearsals_end_after_start CHECK (end_time IS NULL OR end_time > time)
 );
 
 -- events
 CREATE TABLE IF NOT EXISTS public.events (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title        text NOT NULL,
-  title_sq     text NOT NULL,
   date         date NOT NULL,
   time         time NOT NULL,
+  end_time     time,
   location     text NOT NULL,
   event_type   text DEFAULT 'performance'
                  CHECK (event_type IN ('performance','wedding','festival','other')),
@@ -50,9 +50,9 @@ CREATE TABLE IF NOT EXISTS public.events (
   meetup_time  time,
   location_url text,
   notes        text,
-  notes_sq     text,
   created_by   uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
-  created_at   timestamptz DEFAULT now()
+  created_at   timestamptz DEFAULT now(),
+  CONSTRAINT events_end_after_start CHECK (end_time IS NULL OR end_time > time)
 );
 
 -- attendances
@@ -71,9 +71,7 @@ CREATE TABLE IF NOT EXISTS public.attendances (
 CREATE TABLE IF NOT EXISTS public.announcements (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title      text NOT NULL,
-  title_sq   text NOT NULL,
   body       text NOT NULL,
-  body_sq    text NOT NULL,
   created_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   created_at timestamptz DEFAULT now()
 );

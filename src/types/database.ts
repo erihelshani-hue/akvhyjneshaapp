@@ -17,12 +17,11 @@ export interface Profile {
 export interface Rehearsal {
   id: string;
   title: string;
-  title_sq: string;
   date: string;
   time: string;
+  end_time: string | null;
   location: string;
   notes: string | null;
-  notes_sq: string | null;
   is_recurring: boolean;
   recurrence_day: RecurrenceDay | null;
   recurrence_time: string | null;
@@ -33,16 +32,15 @@ export interface Rehearsal {
 export interface Event {
   id: string;
   title: string;
-  title_sq: string;
   date: string;
   time: string;
+  end_time: string | null;
   location: string;
   event_type: EventType;
   dress_code: string | null;
   meetup_time: string | null;
   location_url: string | null;
   notes: string | null;
-  notes_sq: string | null;
   created_by: string | null;
   created_at: string;
 }
@@ -64,9 +62,7 @@ export interface AttendanceWithProfile extends Attendance {
 export interface Announcement {
   id: string;
   title: string;
-  title_sq: string;
   body: string;
-  body_sq: string;
   created_by: string | null;
   created_at: string;
 }
@@ -84,6 +80,25 @@ export interface RehearsalOccurrence {
   isRecurring: boolean;
 }
 
+export type RehearsalInsert = Omit<
+  Rehearsal,
+  "id" | "created_at" | "end_time"
+> & {
+  end_time?: string | null;
+};
+
+export type EventInsert = Omit<
+  Event,
+  "id" | "created_at" | "end_time"
+> & {
+  end_time?: string | null;
+};
+
+export type AnnouncementInsert = Omit<
+  Announcement,
+  "id" | "created_at"
+>;
+
 export type Database = {
   public: {
     Tables: {
@@ -91,32 +106,42 @@ export type Database = {
         Row: Profile;
         Insert: Omit<Profile, "created_at">;
         Update: Partial<Omit<Profile, "id" | "created_at">>;
+        Relationships: [];
       };
       rehearsals: {
         Row: Rehearsal;
-        Insert: Omit<Rehearsal, "id" | "created_at">;
+        Insert: RehearsalInsert;
         Update: Partial<Omit<Rehearsal, "id" | "created_at">>;
+        Relationships: [];
       };
       events: {
         Row: Event;
-        Insert: Omit<Event, "id" | "created_at">;
+        Insert: EventInsert;
         Update: Partial<Omit<Event, "id" | "created_at">>;
+        Relationships: [];
       };
       attendances: {
         Row: Attendance;
         Insert: Omit<Attendance, "id" | "created_at">;
         Update: Partial<Omit<Attendance, "id" | "created_at">>;
+        Relationships: [];
       };
       announcements: {
         Row: Announcement;
-        Insert: Omit<Announcement, "id" | "created_at">;
+        Insert: AnnouncementInsert;
         Update: Partial<Omit<Announcement, "id" | "created_at">>;
+        Relationships: [];
       };
       announcement_reads: {
         Row: AnnouncementRead;
         Insert: Omit<AnnouncementRead, "id" | "read_at">;
         Update: never;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };
