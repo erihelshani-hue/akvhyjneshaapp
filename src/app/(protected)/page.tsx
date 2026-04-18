@@ -8,11 +8,7 @@ import { formatDate, formatTime } from "@/lib/utils";
 import type { Rehearsal, Event, Announcement, AnnouncementRead } from "@/types/database";
 
 export default async function DashboardPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+}: Record<string, never>) {
   const t = await getTranslations("dashboard");
   const tAnnouncement = await getTranslations("announcement");
   const tCommon = await getTranslations("common");
@@ -36,12 +32,8 @@ export default async function DashboardPage({
   const nextRehearsal = getNextOccurrence(rehearsals);
   const nextEvent = events[0] ?? null;
 
-  const rehearsalTitle = nextRehearsal
-    ? (locale === "sq" ? nextRehearsal.rehearsal.title_sq : nextRehearsal.rehearsal.title)
-    : null;
-  const eventTitle = nextEvent
-    ? (locale === "sq" ? nextEvent.title_sq : nextEvent.title)
-    : null;
+  const rehearsalTitle = nextRehearsal ? nextRehearsal.rehearsal.title : null;
+  const eventTitle = nextEvent ? nextEvent.title : null;
 
   return (
     <div className="space-y-8">
@@ -62,8 +54,8 @@ export default async function DashboardPage({
           time={nextRehearsal?.rehearsal.time ?? null}
           location={nextRehearsal?.rehearsal.location ?? null}
           isRecurring={nextRehearsal?.isRecurring}
-          href={nextRehearsal ? `/${locale}/rehearsals/${nextRehearsal.rehearsal.id}` : `/${locale}/rehearsals`}
-          locale={locale}
+          href={nextRehearsal ? `/rehearsals/${nextRehearsal.rehearsal.id}` : "/rehearsals"}
+          locale="de"
         />
         <DashboardCard
           type="event"
@@ -71,8 +63,8 @@ export default async function DashboardPage({
           date={nextEvent?.date ?? null}
           time={nextEvent?.time ?? null}
           location={nextEvent?.location ?? null}
-          href={nextEvent ? `/${locale}/events/${nextEvent.id}` : `/${locale}/events`}
-          locale={locale}
+          href={nextEvent ? `/events/${nextEvent.id}` : "/events"}
+          locale="de"
         />
       </div>
 
@@ -93,8 +85,8 @@ export default async function DashboardPage({
           <div className="space-y-3">
             {announcements.map((announcement) => {
               const isUnread = !readIds.has(announcement.id);
-              const title = locale === "sq" ? announcement.title_sq : announcement.title;
-              const body = locale === "sq" ? announcement.body_sq : announcement.body;
+              const title = announcement.title;
+              const body = announcement.body;
               return (
                 <Link
                   key={announcement.id}
@@ -109,7 +101,7 @@ export default async function DashboardPage({
                       <p className="font-medium text-foreground text-sm truncate">{title}</p>
                       <p className="text-muted text-xs mt-0.5 line-clamp-2">{body}</p>
                       <p className="text-xs text-muted/60 mt-1">
-                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10), locale)}
+                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10), "de")}
                       </p>
                     </div>
                   </div>

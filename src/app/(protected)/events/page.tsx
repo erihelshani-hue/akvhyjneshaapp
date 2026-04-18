@@ -8,11 +8,7 @@ import { Plus, MapPin, Clock } from "lucide-react";
 import type { Event } from "@/types/database";
 
 export default async function EventsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+}: Record<string, never>) {
   const t = await getTranslations("event");
   const supabase = await createClient();
 
@@ -53,8 +49,8 @@ export default async function EventsPage({
       ) : (
         <div className="space-y-3">
           {events.map((event) => {
-            const title = locale === "sq" ? event.title_sq : event.title;
-            const notes = locale === "sq" ? event.notes_sq : event.notes;
+            const title = event.title;
+            const notes = event.notes;
             return (
               <Link
                 key={event.id}
@@ -69,7 +65,7 @@ export default async function EventsPage({
                         {t(`type.${event.event_type}`)}
                       </Badge>
                     </div>
-                    <p className="text-gold text-sm font-medium mt-1">{formatDate(event.date, locale)}</p>
+                    <p className="text-gold text-sm font-medium mt-1">{formatDate(event.date, "de")}</p>
                     <div className="flex items-center gap-4 mt-2">
                       <span className="flex items-center gap-1.5 text-xs text-muted">
                         <Clock className="h-3 w-3" />

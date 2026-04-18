@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
+  const { origin } = new URL(request.url);
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
 
   const serviceClient = await createServiceClient();
   const { error } = await serviceClient.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+    redirectTo: `${origin}/auth/callback`,
   });
 
   if (error) {

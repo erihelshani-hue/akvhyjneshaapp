@@ -5,11 +5,7 @@ import { InviteButton } from "./InviteButton";
 import type { Profile } from "@/types/database";
 
 export default async function MembersPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+}: Record<string, never>) {
   const t = await getTranslations("member");
   const supabase = await createClient();
 
@@ -41,7 +37,7 @@ export default async function MembersPage({
               member={member}
               isAdmin={isAdmin}
               currentUserId={user!.id}
-              locale={locale}
+              locale="de"
             />
           ))}
         </div>

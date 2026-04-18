@@ -1,20 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server";
-import createIntlMiddleware from "next-intl/middleware";
 import { updateSession } from "@/lib/supabase/middleware";
-import { routing } from "@/i18n/routing";
-
-const intlMiddleware = createIntlMiddleware(routing);
 
 const PUBLIC_PATHS = ["/login", "/auth/callback", "/offline"];
+const LEGACY_LOCALE_PREFIXES = ["/de", "/sq", "/al"];
 
 function isPublicPath(pathname: string): boolean {
-  for (const locale of routing.locales) {
-    for (const publicPath of PUBLIC_PATHS) {
-      if (pathname === `/${locale}${publicPath}` || pathname.startsWith(`/${locale}${publicPath}/`)) {
-        return true;
-      }
+  for (const publicPath of PUBLIC_PATHS) {
+    if (pathname === publicPath || pathname.startsWith(`${publicPath}/`)) {
+      return true;
     }
   }
+
   return pathname.startsWith("/auth/") || pathname === "/offline";
 }
 
@@ -30,37 +26,41 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Run intl middleware first to handle locale detection/redirect
-  const intlResponse = intlMiddleware(request);
+  const legacyLocalePrefix = LEGACY_LOCALE_PREFIXES.find(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
 
-  // Handle auth for non-public routes
+  if (legacyLocalePrefix) {
+    const normalizedPath = pathname.slice(legacyLocalePrefix.length) || "/";
+    const redirectUrl = new URL(normalizedPath, request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (pathname === "/auth/login") {
+    const redirectUrl = new URL("/login", request.url);
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl);
+  }
+
   if (!isPublicPath(pathname)) {
     const { response, user } = await updateSession(request);
 
     if (!user) {
-      // Detect locale from pathname or default
-      const locale =
-        routing.locales.find((l) => pathname.startsWith(`/${l}`)) ??
-        routing.defaultLocale;
-      const loginUrl = new URL(`/${locale}/login`, request.url);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
     return response;
   }
 
-  // If authenticated user hits login, redirect to dashboard
   if (PUBLIC_PATHS.some((p) => pathname.includes(p) && p === "/login")) {
     const { user } = await updateSession(request);
     if (user) {
-      const locale =
-        routing.locales.find((l) => pathname.startsWith(`/${l}`)) ??
-        routing.defaultLocale;
-      return NextResponse.redirect(new URL(`/${locale}`, request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
-  return intlResponse ?? NextResponse.next();
+  return NextResponse.next();
 }
 
 export const config = {

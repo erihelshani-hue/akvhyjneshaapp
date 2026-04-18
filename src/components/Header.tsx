@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LogOut, Settings } from "lucide-react";
 import { UnreadBadge } from "@/components/UnreadBadge";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/navigation";
 
@@ -73,7 +72,6 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
 
         {/* Desktop actions */}
         <div className="hidden md:flex items-center gap-3">
-          <LanguageSwitcher />
           <Link href="/settings" className="text-muted hover:text-foreground transition-colors" aria-label={t("settings")}>
             <Settings className="h-4 w-4" />
           </Link>
@@ -82,10 +80,7 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
           </button>
         </div>
 
-        {/* Mobile: language switcher only (navigation via bottom nav) */}
-        <div className="md:hidden">
-          <LanguageSwitcher />
-        </div>
+        <div className="md:hidden" />
       </div>
     </header>
   );

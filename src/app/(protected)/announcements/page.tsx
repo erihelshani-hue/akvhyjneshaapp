@@ -8,11 +8,7 @@ import { formatDate } from "@/lib/utils";
 import { Plus } from "lucide-react";
 
 export default async function AnnouncementsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+}: Record<string, never>) {
   const t = await getTranslations("announcement");
   const tCommon = await getTranslations("common");
   const supabase = await createClient();
@@ -69,8 +65,8 @@ export default async function AnnouncementsPage({
             created_at: string;
           }) => {
             const isUnread = !readIds.has(announcement.id);
-            const title = locale === "sq" ? announcement.title_sq : announcement.title;
-            const body = locale === "sq" ? announcement.body_sq : announcement.body;
+            const title = announcement.title;
+            const body = announcement.body;
             return (
               <div
                 key={announcement.id}
@@ -86,7 +82,7 @@ export default async function AnnouncementsPage({
                     <div className="min-w-0">
                       <h2 className="font-playfair text-lg font-semibold text-foreground">{title}</h2>
                       <p className="text-xs text-muted mt-1">
-                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10), locale)}
+                        {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10), "de")}
                       </p>
                       <p className="text-sm text-foreground/90 mt-3 leading-relaxed whitespace-pre-wrap">
                         {body}

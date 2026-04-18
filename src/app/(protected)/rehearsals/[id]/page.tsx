@@ -15,10 +15,10 @@ export default async function RehearsalDetailPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ locale: string; id: string }>;
+  params: Promise<{ id: string }>;
   searchParams: Promise<{ date?: string }>;
 }) {
-  const { locale, id } = await params;
+  const { id } = await params;
   const { date: queryDate } = await searchParams;
   const t = await getTranslations("rehearsal");
   const tCommon = await getTranslations("common");
@@ -70,8 +70,8 @@ export default async function RehearsalDetailPage({
     attendees = (data ?? []) as typeof attendees;
   }
 
-  const title = locale === "sq" ? rehearsal.title_sq : rehearsal.title;
-  const notes = locale === "sq" ? rehearsal.notes_sq : rehearsal.notes;
+  const title = rehearsal.title;
+  const notes = rehearsal.notes;
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -85,7 +85,7 @@ export default async function RehearsalDetailPage({
           <h1 className="font-playfair text-3xl font-semibold text-foreground">
             {title}
           </h1>
-          {isAdmin && <RehearsalDeleteButton rehearsalId={id} locale={locale} />}
+          {isAdmin && <RehearsalDeleteButton rehearsalId={id} />}
         </div>
         {rehearsal.is_recurring && <RecurringTag />}
       </div>
@@ -105,7 +105,7 @@ export default async function RehearsalDetailPage({
                     : "border-border text-muted hover:border-foreground/30"
                 }`}
               >
-                {formatDate(occ.date, locale)}
+                {formatDate(occ.date, "de")}
               </Link>
             ))}
           </div>
@@ -120,7 +120,7 @@ export default async function RehearsalDetailPage({
           <span className="text-muted w-20 shrink-0">{t("time")}:</span>
           <span className="text-foreground flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5 text-muted" />
-            {formatDate(targetDate, locale)} {tCommon("at")} {formatTime(rehearsal.recurrence_time ?? rehearsal.time)}
+            {formatDate(targetDate, "de")} {tCommon("at")} {formatTime(rehearsal.recurrence_time ?? rehearsal.time)}
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm">

@@ -12,9 +12,9 @@ import type { AttendanceStatus } from "@/types/database";
 export default async function EventDetailPage({
   params,
 }: {
-  params: Promise<{ locale: string; id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const { locale, id } = await params;
+  const { id } = await params;
   const t = await getTranslations("event");
   const tCommon = await getTranslations("common");
   const tRsvp = await getTranslations("rsvp");
@@ -57,8 +57,8 @@ export default async function EventDetailPage({
     attendees = (data ?? []) as typeof attendees;
   }
 
-  const title = locale === "sq" ? event.title_sq : event.title;
-  const notes = locale === "sq" ? event.notes_sq : event.notes;
+  const title = event.title;
+  const notes = event.notes;
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -73,7 +73,7 @@ export default async function EventDetailPage({
             <h1 className="font-playfair text-3xl font-semibold text-foreground">{title}</h1>
             <Badge variant="outline" className="text-xs">{t(`type.${event.event_type}`)}</Badge>
           </div>
-          <p className="text-gold font-medium">{formatDate(event.date, locale)}</p>
+          <p className="text-gold font-medium">{formatDate(event.date, "de")}</p>
         </div>
         {isAdmin && <EventDeleteButton eventId={id} />}
       </div>

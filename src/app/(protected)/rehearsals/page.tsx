@@ -8,11 +8,7 @@ import { formatDate, formatTime } from "@/lib/utils";
 import { Plus, MapPin, Clock } from "lucide-react";
 
 export default async function RehearsalsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+}: Record<string, never>) {
   const t = await getTranslations("rehearsal");
   const tCommon = await getTranslations("common");
   const supabase = await createClient();
@@ -54,8 +50,8 @@ export default async function RehearsalsPage({
       ) : (
         <div className="space-y-3">
           {occurrences.map((occ) => {
-            const title = locale === "sq" ? occ.rehearsal.title_sq : occ.rehearsal.title;
-            const notes = locale === "sq" ? occ.rehearsal.notes_sq : occ.rehearsal.notes;
+            const title = occ.rehearsal.title;
+            const notes = occ.rehearsal.notes;
             return (
               <Link
                 key={`${occ.rehearsal.id}-${occ.date}`}
@@ -68,7 +64,7 @@ export default async function RehearsalsPage({
                       <h2 className="font-playfair text-lg font-semibold text-foreground">{title}</h2>
                       {occ.isRecurring && <RecurringTag />}
                     </div>
-                    <p className="text-gold text-sm font-medium mt-1">{formatDate(occ.date, locale)}</p>
+                    <p className="text-gold text-sm font-medium mt-1">{formatDate(occ.date, "de")}</p>
                     <div className="flex items-center gap-4 mt-2">
                       <span className="flex items-center gap-1.5 text-xs text-muted">
                         <Clock className="h-3 w-3" />

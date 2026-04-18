@@ -3,10 +3,16 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database";
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Parameters<(typeof cookies extends (...args: never[]) => Promise<infer T> ? T : never)["set"]>[2];
+};
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/de";
+  const next = searchParams.get("next") ?? "/";
 
   if (code) {
     const cookieStore = await cookies();
@@ -18,7 +24,7 @@ export async function GET(request: Request) {
           getAll() {
             return cookieStore.getAll();
           },
-          setAll(cookiesToSet) {
+          setAll(cookiesToSet: CookieToSet[]) {
             try {
               cookiesToSet.forEach(({ name, value, options }) => {
                 cookieStore.set(name, value, options);
@@ -40,18 +46,21 @@ export async function GET(request: Request) {
         .single();
 
       if (!profile) {
-        await supabase.from("profiles").insert({
+        const profileInsert: Database["public"]["Tables"]["profiles"]["Insert"] = {
           id: user.id,
           full_name: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "Member",
           email: user.email!,
           role: "member",
           language_preference: "de",
-        });
+          avatar_url: null,
+        };
+
+        await (supabase.from("profiles") as any).insert(profileInsert);
       }
 
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
-  return NextResponse.redirect(`${origin}/de/login?error=auth`);
+  return NextResponse.redirect(`${origin}/login?error=auth`);
 }

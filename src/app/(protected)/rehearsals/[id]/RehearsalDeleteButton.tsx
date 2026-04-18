@@ -10,10 +10,9 @@ import { Trash2 } from "lucide-react";
 
 interface RehearsalDeleteButtonProps {
   rehearsalId: string;
-  locale: string;
 }
 
-export function RehearsalDeleteButton({ rehearsalId, locale }: RehearsalDeleteButtonProps) {
+export function RehearsalDeleteButton({ rehearsalId }: RehearsalDeleteButtonProps) {
   const t = useTranslations("rehearsal");
   const [open, setOpen] = useState(false);
   const router = useRouter();
