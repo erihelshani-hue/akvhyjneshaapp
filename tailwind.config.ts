@@ -10,41 +10,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#ffffff",
-        surface: "#fafafa",
-        "surface-2": "#f4f4f5",
-        foreground: "#111111", // Dunkles Anthrazit für perfekte Lesbarkeit
+        background: "#000000", // Tiefschwarzer Hintergrund
+        surface: "#0f0f0f",
+        "surface-2": "#1a1a1a",
+        foreground: "#ffffff", // Weißer Text für perfekten Kontrast
         accent: {
           DEFAULT: "#8B1A1A",
-          hover: "#7a1717",
+          hover: "#a01f1f",
           foreground: "#ffffff",
         },
-        border: "#e5e5e5",
-        input: "#f4f4f5",
+        border: "#222222",
+        input: "#0f0f0f",
         ring: "#8B1A1A",
         card: {
-          DEFAULT: "#ffffff",
-          foreground: "#111111",
+          DEFAULT: "#0a0a0a",
+          foreground: "#ffffff",
         },
         popover: {
-          DEFAULT: "#ffffff",
-          foreground: "#111111",
+          DEFAULT: "#0a0a0a",
+          foreground: "#ffffff",
         },
         primary: {
           DEFAULT: "#8B1A1A",
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#f4f4f5",
-          foreground: "#111111",
+          DEFAULT: "#1a1a1a",
+          foreground: "#ffffff",
         },
         destructive: {
           DEFAULT: "#ef4444",
           foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "#f4f4f5",
-          foreground: "#71717a",
+          DEFAULT: "#1a1a1a",
+          foreground: "#a1a1aa",
         },
       },
       fontFamily: {
