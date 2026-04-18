@@ -29,7 +29,8 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(t("error"));
+      console.error("Supabase Auth Fehler:", error);
+      setError(error.message || t("error"));
     } else {
       setSent(true);
     }

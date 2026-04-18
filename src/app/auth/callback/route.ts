@@ -15,10 +15,15 @@ export async function GET(request: Request) {
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const nextParam = searchParams.get("next");
-  const next =
+  let next =
     nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
       ? nextParam
       : "/";
+
+  // Verhindere Redirects auf veraltete Locale-Pfade
+  if (["/de", "/sq", "/al"].some((prefix) => next === prefix || next.startsWith(`${prefix}/`))) {
+    next = "/";
+  }
 
   if (code || (tokenHash && type)) {
     const cookieStore = await cookies();
