@@ -12,9 +12,15 @@ type CookieToSet = {
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type");
+  const nextParam = searchParams.get("next");
+  const next =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : "/";
 
-  if (code) {
+  if (code || (tokenHash && type)) {
     const cookieStore = await cookies();
     const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,15 +41,25 @@ export async function GET(request: Request) {
       }
     );
 
-    const { data: { user }, error } = await supabase.auth.exchangeCodeForSession(code);
+    const authResult = code
+      ? await supabase.auth.exchangeCodeForSession(code)
+      : await supabase.auth.verifyOtp({
+          token_hash: tokenHash!,
+          type: type as "email" | "recovery" | "invite" | "email_change",
+        });
+
+    const {
+      data: { user },
+      error,
+    } = authResult;
 
     if (!error && user) {
       // Auto-create profile if it doesn't exist
-      const { data: profile } = await supabase
+      const { data: profile } = await (supabase
         .from("profiles")
         .select("id")
         .eq("id", user.id)
-        .single();
+        .maybeSingle() as any);
 
       if (!profile) {
         const profileInsert: Database["public"]["Tables"]["profiles"]["Insert"] = {
