@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { MemberCard } from "@/components/MemberCard";
 import { InviteButton } from "./InviteButton";
+import type { Profile } from "@/types/database";
 
 export default async function MembersPage({
   params,
@@ -19,7 +20,7 @@ export default async function MembersPage({
   ]);
 
   const isAdmin = profileRes.data?.role === "admin";
-  const members = membersRes.data ?? [];
+  const members: Profile[] = membersRes.data ?? [];
 
   return (
     <div className="space-y-6">

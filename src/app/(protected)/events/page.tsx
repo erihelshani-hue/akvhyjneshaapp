@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatTime } from "@/lib/utils";
 import { Plus, MapPin, Clock } from "lucide-react";
+import type { Event } from "@/types/database";
 
 export default async function EventsPage({
   params,
@@ -25,7 +26,7 @@ export default async function EventsPage({
   const isAdmin = profile?.role === "admin";
   const today = new Date().toISOString().substring(0, 10);
 
-  const { data: events } = await supabase
+  const { data: events }: { data: Event[] | null } = await supabase
     .from("events")
     .select("*")
     .gte("date", today)

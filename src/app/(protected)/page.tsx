@@ -5,6 +5,7 @@ import { DashboardCard } from "@/components/DashboardCard";
 import { getNextOccurrence } from "@/lib/recurring";
 import { Link } from "@/i18n/navigation";
 import { formatDate, formatTime } from "@/lib/utils";
+import type { Rehearsal, Event, Announcement, AnnouncementRead } from "@/types/database";
 
 export default async function DashboardPage({
   params,
@@ -26,10 +27,11 @@ export default async function DashboardPage({
     supabase.from("announcement_reads").select("announcement_id").eq("user_id", user!.id),
   ]);
 
-  const rehearsals = rehearsalsRes.data ?? [];
-  const events = eventsRes.data ?? [];
-  const announcements = announcementsRes.data ?? [];
-  const reads = new Set(readsRes.data?.map((r) => r.announcement_id) ?? []);
+  const rehearsals: Rehearsal[] = rehearsalsRes.data ?? [];
+  const events: Event[] = eventsRes.data ?? [];
+  const announcements: Announcement[] = announcementsRes.data ?? [];
+  const reads: AnnouncementRead[] = readsRes.data ?? [];
+  const readIds = new Set(reads.map((r) => r.announcement_id));
 
   const nextRehearsal = getNextOccurrence(rehearsals);
   const nextEvent = events[0] ?? null;
@@ -90,7 +92,7 @@ export default async function DashboardPage({
         ) : (
           <div className="space-y-3">
             {announcements.map((announcement) => {
-              const isUnread = !reads.has(announcement.id);
+              const isUnread = !readIds.has(announcement.id);
               const title = locale === "sq" ? announcement.title_sq : announcement.title;
               const body = locale === "sq" ? announcement.body_sq : announcement.body;
               return (

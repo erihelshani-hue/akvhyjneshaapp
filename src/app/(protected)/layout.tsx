@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
+import type { AnnouncementRead, Announcement } from "@/types/database";
 
 export default async function ProtectedLayout({
   children,
@@ -23,11 +24,11 @@ export default async function ProtectedLayout({
     .eq("id", user.id)
     .single();
 
-  const { data: announcements } = await supabase
+  const { data: announcements }: { data: Announcement[] | null } = await supabase
     .from("announcements")
     .select("id");
 
-  const { data: reads } = await supabase
+  const { data: reads }: { data: AnnouncementRead[] | null } = await supabase
     .from("announcement_reads")
     .select("announcement_id")
     .eq("user_id", user.id);

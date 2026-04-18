@@ -1,18 +1,59 @@
 {
   "name": "AKV \"Hyjnesha\"",
   "short_name": "Hyjnesha",
-  "description": "Internes Koordinationssystem des AKV Hyjnesha, Graz",
-  "start_url": "/de",
+  "description": "Internes Koordinationssystem des Ansambli Kulturor Vendor Hyjnesha, Graz",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "theme_color": "#8B1A1A",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "utilities"],
+  "lang": "de",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
@@ -21,6 +62,27 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "utilities"],
-  "lang": "de"
+  "shortcuts": [
+    {
+      "name": "Ankündigungen",
+      "short_name": "News",
+      "description": "Aktuelle Ankündigungen anzeigen",
+      "url": "/de/announcements",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Events",
+      "short_name": "Events",
+      "description": "Veranstaltungen und Termine",
+      "url": "/de/events",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Proben",
+      "short_name": "Proben",
+      "description": "Probepläne und Termine",
+      "url": "/de/rehearsals",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
 }

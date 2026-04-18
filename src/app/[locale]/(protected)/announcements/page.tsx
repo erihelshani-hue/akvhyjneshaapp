@@ -6,6 +6,7 @@ import { AnnouncementsMarkRead } from "./AnnouncementsMarkRead";
 import { AnnouncementDeleteButton } from "./AnnouncementDeleteButton";
 import { formatDate } from "@/lib/utils";
 import { Plus } from "lucide-react";
+import type { Announcement, AnnouncementRead } from "@/types/database";
 
 export default async function AnnouncementsPage({
   params,
@@ -31,8 +32,9 @@ export default async function AnnouncementsPage({
     supabase.from("announcement_reads").select("announcement_id").eq("user_id", user!.id),
   ]);
 
-  const announcements = announcementsRes.data ?? [];
-  const readIds = new Set(readsRes.data?.map((r) => r.announcement_id) ?? []);
+  const announcements: Announcement[] = announcementsRes.data ?? [];
+  const reads: AnnouncementRead[] = readsRes.data ?? [];
+  const readIds = new Set(reads.map((r) => r.announcement_id));
   const unreadIds = announcements.filter((a) => !readIds.has(a.id)).map((a) => a.id);
 
   return (
