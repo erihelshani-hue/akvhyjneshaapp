@@ -35,10 +35,9 @@ export default async function EventsPage({
           {t("title")}
         </h1>
         {isAdmin && (
-          <Link href="/events/new">
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              {t("new")}
+          <Link href="/events/new" aria-label={t("new")}>
+            <Button size="icon" className="rounded-full">
+              <Plus className="h-5 w-5" />
             </Button>
           </Link>
         )}

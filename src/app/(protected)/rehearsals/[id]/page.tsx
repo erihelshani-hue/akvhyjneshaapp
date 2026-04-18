@@ -7,8 +7,14 @@ import { RehearsalDeleteButton } from "./RehearsalDeleteButton";
 import { RehearsalRSVP } from "./RehearsalRSVP";
 import { Link } from "@/i18n/navigation";
 import { formatDate, formatTimeRange } from "@/lib/utils";
-import { MapPin, Clock, ArrowLeft } from "lucide-react";
+import { Edit, MapPin, Clock, ArrowLeft } from "lucide-react";
 import type { AttendanceStatus } from "@/types/database";
+
+type ParticipantStatus = {
+  id: string;
+  fullName: string;
+  status: AttendanceStatus | null;
+};
 
 export default async function RehearsalDetailPage({
   params,
@@ -57,17 +63,28 @@ export default async function RehearsalDetailPage({
     .eq("entity_date", targetDate)
     .eq("status", "yes");
 
-  // Admin: get full breakdown
-  let attendees: { profiles: { full_name: string } | { full_name: string }[] | null; status: AttendanceStatus }[] = [];
-  if (isAdmin) {
-    const { data } = await supabase
+  const [membersRes, attendancesRes] = await Promise.all([
+    supabase.from("profiles").select("id, full_name").order("full_name"),
+    supabase
       .from("attendances")
-      .select("status, profiles(full_name)")
+      .select("user_id, status")
       .eq("entity_type", "rehearsal")
       .eq("entity_id", id)
-      .eq("entity_date", targetDate);
-    attendees = (data ?? []) as unknown as typeof attendees;
-  }
+      .eq("entity_date", targetDate),
+  ]);
+
+  const statusByUser = new Map<string, AttendanceStatus>(
+    (attendancesRes.data ?? []).map((item: { user_id: string; status: AttendanceStatus }) => [
+      item.user_id,
+      item.status,
+    ])
+  );
+  const participants: ParticipantStatus[] = (membersRes.data ?? []).map((member: { id: string; full_name: string }) => ({
+    id: member.id,
+    fullName: member.full_name,
+    status: statusByUser.get(member.id) ?? null,
+  }));
+  const noAnswerCount = participants.filter((participant) => !participant.status).length;
 
   const title = rehearsal.title;
   const notes = rehearsal.notes;
@@ -84,7 +101,14 @@ export default async function RehearsalDetailPage({
           <h1 className="font-playfair text-3xl font-semibold text-foreground">
             {title}
           </h1>
-          {isAdmin && <RehearsalDeleteButton rehearsalId={id} />}
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <Link href={`/rehearsals/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center border border-border text-muted transition-colors hover:border-accent hover:text-foreground" aria-label={t("edit")}>
+                <Edit className="h-4 w-4" />
+              </Link>
+              <RehearsalDeleteButton rehearsalId={id} />
+            </div>
+          )}
         </div>
         {rehearsal.is_recurring && <RecurringTag />}
       </div>
@@ -150,24 +174,32 @@ export default async function RehearsalDetailPage({
         />
       </div>
 
-      {/* Admin breakdown */}
-      {isAdmin && attendees.length > 0 && (
+      {/* Participant breakdown */}
+      {participants.length > 0 && (
         <>
           <div className="h-px bg-border" />
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted mb-3">{tRsvp("attendees")}</p>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-xs uppercase tracking-widest text-muted">{tRsvp("attendees")}</p>
+              <p className="text-xs text-muted">{tRsvp("noAnswerCount", { count: noAnswerCount })}</p>
+            </div>
             <div className="space-y-2">
-              {attendees.map((att, i) => (
-                <div key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-foreground">
-                    {Array.isArray(att.profiles) ? att.profiles[0]?.full_name : att.profiles?.full_name}
-                  </span>
+              {participants.map((participant) => (
+                <div key={participant.id} className="flex items-center justify-between text-sm">
+                  <span className="text-foreground">{participant.fullName}</span>
                   <span className={`text-xs px-2 py-0.5 ${
-                    att.status === "yes" ? "text-green-400 bg-green-400/10" :
-                    att.status === "no" ? "text-red-400 bg-red-400/10" :
-                    "text-muted bg-surface-2"
+                    participant.status === "yes" ? "text-green-300 bg-green-400/10" :
+                    participant.status === "no" ? "text-red-300 bg-red-400/10" :
+                    participant.status === "maybe" ? "text-white bg-surface-2" :
+                    "text-white/80 bg-surface-2"
                   }`}>
-                    {att.status === "yes" ? tRsvp("yes") : att.status === "no" ? tRsvp("no") : tRsvp("maybe")}
+                    {participant.status === "yes"
+                      ? tRsvp("yes")
+                      : participant.status === "no"
+                        ? tRsvp("no")
+                        : participant.status === "maybe"
+                          ? tRsvp("maybe")
+                          : tRsvp("noAnswer")}
                   </span>
                 </div>
               ))}

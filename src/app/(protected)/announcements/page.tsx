@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AnnouncementsMarkRead } from "./AnnouncementsMarkRead";
 import { AnnouncementDeleteButton } from "./AnnouncementDeleteButton";
 import { formatDate } from "@/lib/utils";
-import { Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 
 export default async function AnnouncementsPage({
 }: Record<string, never>) {
@@ -43,10 +43,9 @@ export default async function AnnouncementsPage({
           {t("title")}
         </h1>
         {isAdmin && (
-          <Link href="/announcements/new">
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              {t("new")}
+          <Link href="/announcements/new" aria-label={t("new")}>
+            <Button size="icon" className="rounded-full">
+              <Plus className="h-5 w-5" />
             </Button>
           </Link>
         )}
@@ -88,7 +87,12 @@ export default async function AnnouncementsPage({
                     </div>
                   </div>
                   {isAdmin && (
-                    <AnnouncementDeleteButton announcementId={announcement.id} />
+                    <div className="flex items-center gap-2">
+                      <Link href={`/announcements/${announcement.id}/edit`} className="inline-flex h-9 w-9 items-center justify-center border border-border text-muted transition-colors hover:border-accent hover:text-foreground" aria-label={t("edit")}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                      <AnnouncementDeleteButton announcementId={announcement.id} />
+                    </div>
                   )}
                 </div>
               </div>

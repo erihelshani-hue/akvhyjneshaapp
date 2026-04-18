@@ -179,11 +179,12 @@ CREATE POLICY "events: admin delete"
   USING (public.is_admin());
 
 -- ── attendances ───────────────────────────────────────────────
--- Members see only their own attendance; admins see all
-CREATE POLICY "attendances: own select"
+-- Members can see attendance statuses so participant lists and "Keine Antwort"
+-- counts are accurate for everyone.
+CREATE POLICY "attendances: authenticated select"
   ON public.attendances FOR SELECT
   TO authenticated
-  USING (user_id = auth.uid() OR public.is_admin());
+  USING (true);
 
 CREATE POLICY "attendances: own insert"
   ON public.attendances FOR INSERT

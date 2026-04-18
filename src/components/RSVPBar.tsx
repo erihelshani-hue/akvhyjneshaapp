@@ -21,16 +21,27 @@ export function RSVPBar({
 }: RSVPBarProps) {
   const t = useTranslations("rsvp");
   const [status, setStatus] = useState<AttendanceStatus | null>(currentStatus);
+  const [optimisticYesCount, setOptimisticYesCount] = useState(yesCount);
   const [isPending, startTransition] = useTransition();
 
   function handleRSVP(newStatus: AttendanceStatus) {
+    const previousStatus = status;
+    setStatus(newStatus);
+    setOptimisticYesCount((count) => {
+      if (previousStatus === "yes" && newStatus !== "yes") return Math.max(0, count - 1);
+      if (previousStatus !== "yes" && newStatus === "yes") return count + 1;
+      return count;
+    });
+
     startTransition(async () => {
-      await onRSVP(newStatus);
-      setStatus(newStatus);
+      try {
+        await onRSVP(newStatus);
+      } catch {
+        setStatus(previousStatus);
+        setOptimisticYesCount(yesCount);
+      }
     });
   }
-
-  const count = status === "yes" ? yesCount : yesCount;
 
   return (
     <div className="space-y-3">
@@ -61,7 +72,7 @@ export function RSVPBar({
         />
       </div>
       <p className="text-xs text-muted">
-        {count === 1 ? t("attendingOne") : t("attending", { count })}
+        {optimisticYesCount === 1 ? t("attendingOne") : t("attending", { count: optimisticYesCount })}
       </p>
     </div>
   );
