@@ -8,13 +8,26 @@ import { RehearsalRSVP } from "./RehearsalRSVP";
 import { Link } from "@/i18n/navigation";
 import { formatDate, formatTimeRange } from "@/lib/utils";
 import { Edit, MapPin, Clock, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 import type { AttendanceStatus } from "@/types/database";
 
 type ParticipantStatus = {
   id: string;
   fullName: string;
+  avatarUrl: string | null;
   status: AttendanceStatus | null;
 };
+
+const STATUS_ORDER: (AttendanceStatus | null)[] = ["yes", "no", "maybe", null];
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 export default async function RehearsalDetailPage({
   params,
@@ -44,7 +57,6 @@ export default async function RehearsalDetailPage({
   const occurrences = getOccurrencesForRehearsal(rehearsal, 8);
   const targetDate = queryDate ?? occurrences[0]?.date ?? rehearsal.date;
 
-  // Get attendance for this occurrence
   const { data: attendance } = await supabase
     .from("attendances")
     .select("status")
@@ -54,7 +66,6 @@ export default async function RehearsalDetailPage({
     .eq("entity_date", targetDate)
     .single();
 
-  // Count yes responses
   const { count: yesCount } = await supabase
     .from("attendances")
     .select("*", { count: "exact", head: true })
@@ -64,7 +75,7 @@ export default async function RehearsalDetailPage({
     .eq("status", "yes");
 
   const [membersRes, attendancesRes] = await Promise.all([
-    supabase.from("profiles").select("id, full_name").order("full_name"),
+    supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
     supabase
       .from("attendances")
       .select("user_id, status")
@@ -79,12 +90,24 @@ export default async function RehearsalDetailPage({
       item.status,
     ])
   );
-  const participants: ParticipantStatus[] = (membersRes.data ?? []).map((member: { id: string; full_name: string }) => ({
-    id: member.id,
-    fullName: member.full_name,
-    status: statusByUser.get(member.id) ?? null,
-  }));
-  const noAnswerCount = participants.filter((participant) => !participant.status).length;
+
+  const allParticipants: ParticipantStatus[] = (membersRes.data ?? []).map(
+    (member: { id: string; full_name: string; avatar_url: string | null }) => ({
+      id: member.id,
+      fullName: member.full_name,
+      avatarUrl: member.avatar_url ?? null,
+      status: statusByUser.get(member.id) ?? null,
+    })
+  );
+
+  const groups = STATUS_ORDER
+    .map((status) => ({
+      status,
+      members: allParticipants.filter((p) => p.status === status),
+    }))
+    .filter((g) => g.members.length > 0);
+
+  const noAnswerCount = allParticipants.filter((p) => !p.status).length;
 
   const title = rehearsal.title;
   const notes = rehearsal.notes;
@@ -113,7 +136,6 @@ export default async function RehearsalDetailPage({
         {rehearsal.is_recurring && <RecurringTag />}
       </div>
 
-      {/* Occurrence selector for recurring */}
       {rehearsal.is_recurring && occurrences.length > 0 && (
         <div>
           <p className="text-xs uppercase tracking-widest text-muted mb-2">{t("recurring")}</p>
@@ -137,7 +159,6 @@ export default async function RehearsalDetailPage({
 
       <div className="h-px bg-border" />
 
-      {/* Details */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted w-20 shrink-0">{t("time")}:</span>
@@ -163,7 +184,6 @@ export default async function RehearsalDetailPage({
 
       <div className="h-px bg-border" />
 
-      {/* RSVP */}
       <div className="space-y-2">
         <p className="text-xs uppercase tracking-widest text-muted">{tRsvp("yourStatus")}</p>
         <RehearsalRSVP
@@ -174,42 +194,84 @@ export default async function RehearsalDetailPage({
         />
       </div>
 
-      {/* Participant breakdown */}
-      {participants.length > 0 && (
+      {/* Participant breakdown — grouped like WhatsApp votes */}
+      {allParticipants.length > 0 && (
         <>
           <div className="h-px bg-border" />
-          <div>
-            <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-widest text-muted">{tRsvp("attendees")}</p>
-              <p className="text-xs text-muted">{tRsvp("noAnswerCount", { count: noAnswerCount })}</p>
+              {noAnswerCount > 0 && (
+                <p className="text-xs text-muted">{tRsvp("noAnswerCount", { count: noAnswerCount })}</p>
+              )}
             </div>
-            <div className="space-y-2">
-              {participants.map((participant) => (
-                <div key={participant.id} className="flex items-center justify-between text-sm">
-                  <span className="text-foreground">{participant.fullName}</span>
-                  <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full border ${
-                    participant.status === "yes"
-                      ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
-                      : participant.status === "no"
-                        ? "text-red-400 bg-red-400/10 border-red-400/20"
-                        : participant.status === "maybe"
-                          ? "text-foreground bg-surface-2 border-border"
-                          : "text-muted bg-surface-2 border-border"
-                  }`}>
-                    {participant.status === "yes"
-                      ? tRsvp("yes")
-                      : participant.status === "no"
-                        ? tRsvp("no")
-                        : participant.status === "maybe"
-                          ? tRsvp("maybe")
-                          : tRsvp("noAnswer")}
-                  </span>
+
+            {groups.map(({ status, members }) => {
+              const label =
+                status === "yes" ? tRsvp("yes")
+                : status === "no" ? tRsvp("no")
+                : status === "maybe" ? tRsvp("maybe")
+                : tRsvp("noAnswer");
+
+              const headerColor =
+                status === "yes" ? "text-emerald-400"
+                : status === "no" ? "text-red-400"
+                : "text-muted";
+
+              return (
+                <div key={status ?? "none"}>
+                  {/* Group header */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`text-[11px] font-semibold uppercase tracking-wider ${headerColor}`}>
+                      {label}
+                    </span>
+                    <span className="text-[11px] text-muted font-medium">
+                      {members.length}
+                    </span>
+                  </div>
+
+                  {/* Members */}
+                  <div className="space-y-1">
+                    {members.map((p) => (
+                      <ParticipantRow key={p.id} participant={p} />
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function ParticipantRow({ participant }: { participant: ParticipantStatus }) {
+  const initials = getInitials(participant.fullName);
+  return (
+    <div className="flex items-center gap-3 py-1.5">
+      {/* Avatar */}
+      <div className="relative h-8 w-8 shrink-0 rounded-full overflow-hidden border border-border bg-surface-2">
+        {participant.avatarUrl ? (
+          <Image
+            src={participant.avatarUrl}
+            alt={participant.fullName}
+            fill
+            className="object-cover"
+            sizes="32px"
+          />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center">
+            <span className="text-[11px] font-semibold text-muted">
+              {initials}
+            </span>
+          </div>
+        )}
+      </div>
+      {/* Name */}
+      <span className="text-sm text-foreground flex-1 min-w-0 truncate">
+        {participant.fullName}
+      </span>
     </div>
   );
 }
