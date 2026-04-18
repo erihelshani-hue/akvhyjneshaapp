@@ -14,7 +14,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name")
+    .select("full_name, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -22,6 +22,7 @@ export default async function SettingsPage() {
     <SettingsForm
       userId={user.id}
       initialFullName={profile?.full_name ?? user.email?.split("@")[0] ?? ""}
+      initialAvatarUrl={profile?.avatar_url ?? null}
     />
   );
 }
