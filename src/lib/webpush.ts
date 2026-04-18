@@ -1,17 +1,17 @@
 import webpush from "web-push";
 import { createServiceClient } from "./supabase/server";
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
-
 export async function sendPushToAll(payload: {
   title: string;
   body: string;
   url?: string;
 }) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT!,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  );
+
   const supabase = await createServiceClient();
   const { data: subscriptions } = await supabase
     .from("push_subscriptions")
