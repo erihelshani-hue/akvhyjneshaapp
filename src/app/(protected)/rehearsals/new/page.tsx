@@ -173,7 +173,11 @@ export default function NewRehearsalPage() {
           <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} />
         </div>
 
-        {error && <p className="text-sm text-red-300">{error}</p>}
+        {error && (
+          <p className="text-sm text-red-400 bg-red-400/8 rounded-lg px-3 py-2 border border-red-400/20">
+            {error}
+          </p>
+        )}
 
         <Button type="submit" disabled={loading} className="w-full sm:w-auto">
           {loading ? t("creating") : t("create")}

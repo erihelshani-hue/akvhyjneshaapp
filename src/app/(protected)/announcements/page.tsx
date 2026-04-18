@@ -35,26 +35,25 @@ export default async function AnnouncementsPage({
 
   return (
     <div className="space-y-6">
-      {/* Mark read on client mount */}
       {unreadIds.length > 0 && <AnnouncementsMarkRead unreadIds={unreadIds} userId={user!.id} />}
 
       <div className="flex items-center justify-between">
-        <h1 className="font-playfair text-3xl font-semibold text-foreground">
+        <h1 className="font-playfair text-3xl font-semibold text-foreground tracking-tight">
           {t("title")}
         </h1>
         {isAdmin && (
           <Link href="/announcements/new" aria-label={t("new")}>
-            <Button size="icon" className="rounded-full">
-              <Plus className="h-5 w-5" />
+            <Button size="icon" className="rounded-full h-9 w-9">
+              <Plus className="h-4 w-4" />
             </Button>
           </Link>
         )}
       </div>
 
       {announcements.length === 0 ? (
-        <p className="text-muted text-sm">{t("noAnnouncements")}</p>
+        <p className="text-sm text-muted">{t("noAnnouncements")}</p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {announcements.map((announcement: {
             id: string;
             title: string;
@@ -67,29 +66,37 @@ export default async function AnnouncementsPage({
             return (
               <div
                 key={announcement.id}
-                className={`rounded-md border p-5 transition-colors duration-200 hover:border-accent/50 ${
-                  isUnread ? "border-accent/40 bg-accent/5" : "border-border bg-surface"
+                className={`rounded-xl border p-5 transition-colors duration-200 ${
+                  isUnread
+                    ? "border-accent/30 bg-accent/5"
+                    : "border-border bg-surface"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-2 min-w-0 flex-1">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
                     {isUnread && (
-                      <span className="mt-1.5 shrink-0 h-2 w-2 bg-accent rounded-full" />
+                      <span className="mt-[6px] shrink-0 h-2 w-2 bg-accent rounded-full" />
                     )}
-                    <div className="min-w-0">
-                      <h2 className="font-playfair text-lg font-semibold text-foreground">{title}</h2>
-                      <p className="text-xs text-muted mt-1">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="font-playfair text-lg font-semibold text-foreground leading-tight">
+                        {title}
+                      </h2>
+                      <p className="text-[11px] text-muted mt-1">
                         {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10))}
                       </p>
-                      <p className="text-sm text-foreground/90 mt-3 leading-relaxed whitespace-pre-wrap">
+                      <p className="text-sm text-foreground/80 mt-3 leading-relaxed whitespace-pre-wrap">
                         {body}
                       </p>
                     </div>
                   </div>
                   {isAdmin && (
-                    <div className="flex items-center gap-2">
-                      <Link href={`/announcements/${announcement.id}/edit`} className="inline-flex h-9 w-9 items-center justify-center border border-border text-muted transition-colors hover:border-accent hover:text-foreground" aria-label={t("edit")}>
-                        <Edit className="h-4 w-4" />
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Link
+                        href={`/announcements/${announcement.id}/edit`}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:text-foreground hover:border-zinc-600"
+                        aria-label={t("edit")}
+                      >
+                        <Edit className="h-3.5 w-3.5" />
                       </Link>
                       <AnnouncementDeleteButton announcementId={announcement.id} />
                     </div>

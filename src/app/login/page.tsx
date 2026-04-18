@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Mail } from "lucide-react";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
@@ -37,75 +38,84 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black px-4">
+    <div className="relative flex min-h-screen flex-col items-center justify-center px-4 bg-background overflow-hidden">
+      {/* Background accent */}
       <div
-        className="absolute inset-0 opacity-55"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: "linear-gradient(180deg, rgba(211, 22, 34, 0.18), transparent 42%), linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 56px)",
+          background:
+            "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(211,22,34,0.10) 0%, transparent 65%)",
         }}
       />
 
-      <div className="relative w-full max-w-sm space-y-8 rounded-md border border-white/15 bg-black/88 p-6 shadow-2xl shadow-black backdrop-blur">
-        <div className="flex flex-col items-center gap-4">
-          <Image
-            src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
-            alt="AKV Hyjnesha"
-            width={84}
-            height={84}
-            className="rounded-full border border-accent/60 object-cover"
-            priority
-          />
+      {/* Card */}
+      <div className="relative w-full max-w-sm">
+        {/* Brand */}
+        <div className="flex flex-col items-center gap-3 mb-8">
+          <div className="relative">
+            <Image
+              src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
+              alt="AKV Hyjnesha"
+              width={72}
+              height={72}
+              className="rounded-full object-cover ring-2 ring-border"
+              priority
+            />
+          </div>
           <div className="text-center">
-            <h1 className="font-playfair text-2xl font-semibold text-white">
-              AKV &ldquo;<em className="italic">Hyjnesha</em>&rdquo;
+            <h1 className="font-playfair text-2xl font-semibold text-foreground tracking-tight">
+              AKV <em className="italic">&ldquo;Hyjnesha&rdquo;</em>
             </h1>
-            <p className="mt-1 text-sm text-white/85">{t("subtitle")}</p>
+            <p className="mt-1 text-sm text-muted">{t("subtitle")}</p>
           </div>
         </div>
 
-        <div className="h-px bg-white/15" />
+        {/* Form card */}
+        <div className="rounded-2xl border border-border bg-surface shadow-[0_8px_40px_rgba(0,0,0,0.5)] inset-highlight p-6">
+          {sent ? (
+            <div className="space-y-5 text-center py-2">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-accent/30 bg-accent/10">
+                <Mail className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <h2 className="font-playfair text-lg font-semibold text-foreground">{t("checkEmail")}</h2>
+                <p className="mt-2 text-sm text-muted leading-relaxed">{t("checkEmailDesc", { email })}</p>
+              </div>
+              <button
+                onClick={() => setSent(false)}
+                className="text-sm text-muted hover:text-foreground underline underline-offset-4 transition-colors"
+              >
+                {t("backToLogin")}
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email">{t("emailLabel")}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t("emailPlaceholder")}
+                  required
+                  autoComplete="email"
+                  autoFocus
+                />
+              </div>
 
-        {sent ? (
-          <div className="space-y-4 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md border border-accent/50 bg-accent/15">
-              <svg className="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="font-playfair text-lg font-semibold text-white">{t("checkEmail")}</h2>
-              <p className="mt-2 text-sm text-white/85">{t("checkEmailDesc", { email })}</p>
-            </div>
-            <button
-              onClick={() => setSent(false)}
-              className="text-sm text-white/85 underline underline-offset-4 transition-colors hover:text-white"
-            >
-              {t("backToLogin")}
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-white">
-                {t("emailLabel")}
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t("emailPlaceholder")}
-                required
-                autoComplete="email"
-                autoFocus
-              />
-            </div>
-            {error && <p className="text-sm text-red-200">{error}</p>}
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? t("sending") : t("sendLink")}
-            </Button>
-          </form>
-        )}
+              {error && (
+                <p className="text-sm text-red-400 bg-red-400/8 rounded-lg px-3 py-2 border border-red-400/20">
+                  {error}
+                </p>
+              )}
+
+              <Button type="submit" disabled={loading} className="w-full h-11">
+                {loading ? t("sending") : t("sendLink")}
+              </Button>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

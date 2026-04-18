@@ -44,7 +44,7 @@ export function RSVPBar({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="flex items-center gap-2">
         <RSVPButton
           label={t("yes")}
@@ -52,7 +52,7 @@ export function RSVPBar({
           current={status}
           disabled={isPending}
           onClick={() => handleRSVP("yes")}
-          activeClass="bg-accent text-accent-foreground border-accent"
+          activeClass="bg-accent text-white border-accent shadow-sm"
         />
         <RSVPButton
           label={t("maybe")}
@@ -60,7 +60,7 @@ export function RSVPBar({
           current={status}
           disabled={isPending}
           onClick={() => handleRSVP("maybe")}
-          activeClass="bg-surface-2 text-foreground border-foreground/30"
+          activeClass="bg-surface-2 text-foreground border-zinc-600"
         />
         <RSVPButton
           label={t("no")}
@@ -68,7 +68,7 @@ export function RSVPBar({
           current={status}
           disabled={isPending}
           onClick={() => handleRSVP("no")}
-          activeClass="bg-surface-2 text-muted border-muted"
+          activeClass="bg-surface-2 text-muted border-zinc-700"
         />
       </div>
       <p className="text-xs text-muted">
@@ -99,10 +99,10 @@ function RSVPButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex-1 py-2 text-sm font-medium border transition-colors disabled:opacity-60",
+        "flex-1 h-10 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50",
         isActive
           ? activeClass
-          : "bg-transparent border-border text-muted hover:border-foreground/30 hover:text-foreground"
+          : "bg-transparent border-border text-muted hover:border-zinc-600 hover:text-foreground hover:bg-surface-2/50"
       )}
     >
       {label}

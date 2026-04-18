@@ -34,34 +34,38 @@ export function Header({ unreadCount }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-xl"
+      className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-xl"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <Image
-            src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
-            alt="AKV Hyjnesha Logo"
-            width={32}
-            height={32}
-            className="rounded-full object-cover"
-          />
-          <span className="font-playfair text-base font-semibold text-foreground sm:text-lg">
-            AKV &ldquo;Hyjnesha&rdquo;
+        <Link href="/" className="flex items-center gap-3 shrink-0 group">
+          <div className="relative">
+            <Image
+              src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
+              alt="AKV Hyjnesha Logo"
+              width={30}
+              height={30}
+              className="rounded-full object-cover ring-1 ring-border group-hover:ring-accent/40 transition-all"
+            />
+          </div>
+          <span className="font-playfair text-[15px] font-semibold text-foreground tracking-tight hidden sm:block">
+            AKV <em className="italic">&ldquo;Hyjnesha&rdquo;</em>
           </span>
         </Link>
 
-        {/* Desktop nav — hidden on mobile (bottom nav handles navigation there) */}
-        <nav className="hidden md:flex items-center gap-6">
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-1">
           {navItems.map(({ href, label, badge }) => {
             const isActive = pathname === href || pathname.startsWith(href + "/");
             return (
               <Link
                 key={href}
                 href={href}
-                className={`relative inline-flex items-center text-sm transition-colors ${
-                  isActive ? "text-foreground border-b border-accent pb-0.5" : "text-muted hover:text-foreground"
+                className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                  isActive
+                    ? "text-foreground bg-surface-2 font-medium"
+                    : "text-muted hover:text-foreground hover:bg-surface-2/60"
                 }`}
               >
                 {label}
@@ -71,22 +75,21 @@ export function Header({ unreadCount }: HeaderProps) {
           })}
         </nav>
 
-        {/* Desktop actions */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link href="/settings" className="text-muted hover:text-foreground transition-colors" aria-label={t("settings")}>
+        {/* Actions */}
+        <div className="flex items-center gap-1">
+          <Link
+            href="/settings"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-2 transition-colors"
+            aria-label={t("settings")}
+          >
             <Settings className="h-4 w-4" />
           </Link>
-          <button onClick={handleLogout} className="text-muted hover:text-foreground transition-colors" aria-label={t("logout")}>
+          <button
+            onClick={handleLogout}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:text-foreground hover:bg-surface-2 transition-colors"
+            aria-label={t("logout")}
+          >
             <LogOut className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2 md:hidden">
-          <Link href="/settings" className="text-muted hover:text-foreground transition-colors" aria-label={t("settings")}>
-            <Settings className="h-5 w-5" />
-          </Link>
-          <button onClick={handleLogout} className="text-muted hover:text-foreground transition-colors" aria-label={t("logout")}>
-            <LogOut className="h-5 w-5" />
           </button>
         </div>
       </div>

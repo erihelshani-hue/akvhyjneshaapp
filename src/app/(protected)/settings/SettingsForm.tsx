@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,42 +54,70 @@ export function SettingsForm({ userId, initialFullName }: SettingsFormProps) {
 
   return (
     <div className="max-w-md space-y-8">
-      <h1 className="font-playfair text-3xl font-semibold text-foreground">{t("title")}</h1>
+      <h1 className="font-playfair text-3xl font-semibold text-foreground tracking-tight">
+        {t("title")}
+      </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-1.5">
-          <Label htmlFor="full-name">{t("displayName")}</Label>
-          <Input
-            id="full-name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder={t("displayNamePlaceholder")}
-            required
-          />
+      {/* Profile section */}
+      <div className="rounded-xl border border-border bg-surface p-5 space-y-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-2 border border-border">
+            <User className="h-3.5 w-3.5 text-muted" />
+          </div>
+          <p className="text-sm font-medium text-foreground">{t("displayName")}</p>
         </div>
 
-        {error && <p className="text-sm text-red-300">{error}</p>}
-        {saved && <p className="text-sm text-green-300">{t("saved")}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="full-name" className="text-xs text-muted font-medium">
+              {t("displayName")}
+            </Label>
+            <Input
+              id="full-name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder={t("displayNamePlaceholder")}
+              required
+            />
+          </div>
 
-        <Button type="submit" disabled={loading}>
-          {loading ? t("saving") : t("save")}
-        </Button>
-      </form>
+          {error && (
+            <p className="text-sm text-red-400 bg-red-400/8 rounded-lg px-3 py-2 border border-red-400/20">
+              {error}
+            </p>
+          )}
+          {saved && (
+            <p className="text-sm text-green-400 bg-green-400/8 rounded-lg px-3 py-2 border border-green-400/20">
+              {t("saved")}
+            </p>
+          )}
 
-      <section className="border-t border-border pt-6">
-        <p className="text-xs uppercase tracking-widest text-muted">{t("account")}</p>
-        <p className="mt-2 text-sm text-muted">{t("logoutHint")}</p>
+          <Button type="submit" disabled={loading} size="sm">
+            {loading ? t("saving") : t("save")}
+          </Button>
+        </form>
+      </div>
+
+      {/* Account section */}
+      <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted mb-1">
+            {t("account")}
+          </p>
+          <p className="text-sm text-muted">{t("logoutHint")}</p>
+        </div>
         <Button
           type="button"
           variant="outline"
-          className="mt-4 w-full justify-center sm:w-auto"
+          size="sm"
           onClick={handleLogout}
           disabled={logoutLoading}
+          className="gap-2"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-3.5 w-3.5" />
           {logoutLoading ? t("saving") : t("logout")}
         </Button>
-      </section>
+      </div>
     </div>
   );
 }

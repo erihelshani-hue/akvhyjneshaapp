@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/select";
 import type { Profile } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
-import { formatDate } from "@/lib/utils";
 
 interface MemberCardProps {
   member: Profile;
@@ -42,28 +41,31 @@ export function MemberCard({ member, isAdmin, currentUserId }: MemberCardProps) 
     .slice(0, 2);
 
   return (
-    <div className="flex items-center gap-4 p-4 border border-border bg-surface">
-      <Avatar className="h-12 w-12">
+    <div className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl border border-border bg-surface transition-colors hover:border-border/80">
+      <Avatar className="h-10 w-10 shrink-0">
         {member.avatar_url && <AvatarImage src={member.avatar_url} alt={member.full_name} />}
-        <AvatarFallback className="font-playfair text-sm">{initials}</AvatarFallback>
+        <AvatarFallback className="font-playfair text-xs bg-surface-2 text-foreground border border-border">
+          {initials}
+        </AvatarFallback>
       </Avatar>
+
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-foreground truncate">{member.full_name}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-sm font-medium text-foreground truncate">{member.full_name}</p>
           <RoleBadge role={role} />
           {member.id === currentUserId && (
-            <span className="text-xs text-muted">(du)</span>
+            <span className="text-[10px] font-medium text-muted bg-surface-2 px-1.5 py-0.5 rounded-full border border-border">
+              {t("you") ?? "du"}
+            </span>
           )}
         </div>
-        <p className="text-xs text-muted truncate">{member.email}</p>
-        <p className="text-xs text-muted mt-0.5">
-          {t("joined")} {formatDate(member.created_at.substring(0, 10))}
-        </p>
+        <p className="text-xs text-muted truncate mt-0.5">{member.email}</p>
       </div>
+
       {isAdmin && member.id !== currentUserId && (
         <div className="shrink-0">
           <Select value={role} onValueChange={handleRoleChange}>
-            <SelectTrigger className="w-32 text-xs h-8">
+            <SelectTrigger className="w-28 text-xs h-8 rounded-lg">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

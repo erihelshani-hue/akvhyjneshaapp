@@ -93,12 +93,12 @@ export default async function EventDetailPage({
             <h1 className="font-playfair text-3xl font-semibold text-foreground">{title}</h1>
             <Badge variant="outline" className="text-xs">{t(`type.${event.event_type}`)}</Badge>
           </div>
-          <p className="font-medium text-white">{formatDate(event.date)}</p>
+          <p className="mt-1.5 text-sm font-semibold text-foreground/90">{formatDate(event.date)}</p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-2">
-            <Link href={`/events/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center border border-border text-muted transition-colors hover:border-accent hover:text-foreground" aria-label={t("edit")}>
-              <Edit className="h-4 w-4" />
+            <Link href={`/events/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-zinc-600 hover:text-foreground" aria-label={t("edit")}>
+              <Edit className="h-3.5 w-3.5" />
             </Link>
             <EventDeleteButton eventId={id} />
           </div>
@@ -175,11 +175,14 @@ export default async function EventDetailPage({
               {participants.map((participant) => (
                 <div key={participant.id} className="flex items-center justify-between text-sm">
                   <span className="text-foreground">{participant.fullName}</span>
-                  <span className={`text-xs px-2 py-0.5 ${
-                    participant.status === "yes" ? "text-green-300 bg-green-400/10" :
-                    participant.status === "no" ? "text-red-300 bg-red-400/10" :
-                    participant.status === "maybe" ? "text-white bg-surface-2" :
-                    "text-white/80 bg-surface-2"
+                  <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full border ${
+                    participant.status === "yes"
+                      ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
+                      : participant.status === "no"
+                        ? "text-red-400 bg-red-400/10 border-red-400/20"
+                        : participant.status === "maybe"
+                          ? "text-foreground bg-surface-2 border-border"
+                          : "text-muted bg-surface-2 border-border"
                   }`}>
                     {participant.status === "yes"
                       ? tRsvp("yes")

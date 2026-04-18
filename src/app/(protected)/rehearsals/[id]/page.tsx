@@ -103,8 +103,8 @@ export default async function RehearsalDetailPage({
           </h1>
           {isAdmin && (
             <div className="flex items-center gap-2">
-              <Link href={`/rehearsals/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center border border-border text-muted transition-colors hover:border-accent hover:text-foreground" aria-label={t("edit")}>
-                <Edit className="h-4 w-4" />
+              <Link href={`/rehearsals/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-zinc-600 hover:text-foreground" aria-label={t("edit")}>
+                <Edit className="h-3.5 w-3.5" />
               </Link>
               <RehearsalDeleteButton rehearsalId={id} />
             </div>
@@ -122,10 +122,10 @@ export default async function RehearsalDetailPage({
               <Link
                 key={occ.date}
                 href={`/rehearsals/${id}?date=${occ.date}`}
-                className={`text-xs px-3 py-1.5 border transition-colors ${
+                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
                   occ.date === targetDate
-                    ? "border-accent bg-accent/10 text-foreground"
-                    : "border-border text-muted hover:border-foreground/30"
+                    ? "border-accent/60 bg-accent/10 text-foreground font-medium"
+                    : "border-border text-muted hover:border-zinc-600 hover:text-foreground"
                 }`}
               >
                 {formatDate(occ.date)}
@@ -187,11 +187,14 @@ export default async function RehearsalDetailPage({
               {participants.map((participant) => (
                 <div key={participant.id} className="flex items-center justify-between text-sm">
                   <span className="text-foreground">{participant.fullName}</span>
-                  <span className={`text-xs px-2 py-0.5 ${
-                    participant.status === "yes" ? "text-green-300 bg-green-400/10" :
-                    participant.status === "no" ? "text-red-300 bg-red-400/10" :
-                    participant.status === "maybe" ? "text-white bg-surface-2" :
-                    "text-white/80 bg-surface-2"
+                  <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full border ${
+                    participant.status === "yes"
+                      ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
+                      : participant.status === "no"
+                        ? "text-red-400 bg-red-400/10 border-red-400/20"
+                        : participant.status === "maybe"
+                          ? "text-foreground bg-surface-2 border-border"
+                          : "text-muted bg-surface-2 border-border"
                   }`}>
                     {participant.status === "yes"
                       ? tRsvp("yes")

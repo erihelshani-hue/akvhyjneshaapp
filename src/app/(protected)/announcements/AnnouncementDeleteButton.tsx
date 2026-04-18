@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { createClient } from "@/lib/supabase/client";
 import { Trash2 } from "lucide-react";
@@ -21,9 +20,12 @@ export function AnnouncementDeleteButton({ announcementId }: { announcementId: s
 
   return (
     <>
-      <Button variant="ghost" size="icon" onClick={() => setOpen(true)} className="text-muted hover:text-red-400 shrink-0">
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <button
+        onClick={() => setOpen(true)}
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:text-red-400 hover:border-red-400/30"
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
       <ConfirmDialog
         open={open}
         onOpenChange={setOpen}

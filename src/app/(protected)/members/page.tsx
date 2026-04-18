@@ -21,14 +21,14 @@ export default async function MembersPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-playfair text-3xl font-semibold text-foreground">
+        <h1 className="font-playfair text-3xl font-semibold text-foreground tracking-tight">
           {t("title")}
         </h1>
         {isAdmin && <InviteButton />}
       </div>
 
       {members.length === 0 ? (
-        <p className="text-muted text-sm">{t("noMembers")}</p>
+        <p className="text-sm text-muted">{t("noMembers")}</p>
       ) : (
         <div className="space-y-2">
           {members.map((member) => (
