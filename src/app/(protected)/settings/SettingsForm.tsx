@@ -67,7 +67,7 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl }: Sett
       .upload(storagePath, file, { upsert: true, contentType: file.type });
 
     if (uploadError) {
-      setAvatarError("Upload fehlgeschlagen. Bitte erneut versuchen.");
+      setAvatarError(`Upload fehlgeschlagen: ${uploadError.message}`);
       setAvatarLoading(false);
       return;
     }
