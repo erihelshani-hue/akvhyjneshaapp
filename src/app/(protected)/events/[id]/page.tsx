@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { EventRSVP } from "./EventRSVP";
 import { EventDeleteButton } from "./EventDeleteButton";
 import { Link } from "@/i18n/navigation";
-import { formatDate, formatTime, formatTimeRange } from "@/lib/utils";
+import { formatDateRange, formatTime, formatTimeRange } from "@/lib/utils";
 import { MapPin, Clock, Shirt, Users, ExternalLink, ArrowLeft, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -118,7 +118,9 @@ export default async function EventDetailPage({
             <h1 className="font-playfair text-3xl font-semibold text-foreground">{title}</h1>
             <Badge variant="outline" className="text-xs">{t(`type.${event.event_type}`)}</Badge>
           </div>
-          <p className="mt-1.5 text-sm font-semibold text-foreground/90">{formatDate(event.date)}</p>
+          <p className="mt-1.5 text-sm font-semibold text-foreground/90">
+            {formatDateRange(event.date, event.end_date)}
+          </p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-2">

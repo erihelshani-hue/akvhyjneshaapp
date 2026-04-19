@@ -27,6 +27,11 @@ export function formatShortDate(dateStr: string): string {
   });
 }
 
+export function formatDateRange(startDate: string, endDate?: string | null): string {
+  if (!endDate || endDate === startDate) return formatDate(startDate);
+  return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+}
+
 export function formatTimeRange(start: string, end?: string | null): string {
   const startTime = formatTime(start);
   return end ? `${startTime} - ${formatTime(end)} Uhr` : `${startTime} Uhr`;
@@ -34,4 +39,13 @@ export function formatTimeRange(start: string, end?: string | null): string {
 
 export function isEndAfterStart(start: string, end: string): boolean {
   return end > start;
+}
+
+export function isEndDateTimeAfterStart(
+  startDate: string,
+  startTime: string,
+  endDate: string,
+  endTime: string
+): boolean {
+  return `${endDate}T${endTime}` > `${startDate}T${startTime}`;
 }

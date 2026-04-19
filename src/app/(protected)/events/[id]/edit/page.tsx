@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { isEndAfterStart } from "@/lib/utils";
+import { isEndDateTimeAfterStart } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { Event, EventType } from "@/types/database";
 
-const EVENT_TYPES: EventType[] = ["performance", "wedding", "festival", "other"];
+const EVENT_TYPES: EventType[] = ["performance", "festival", "other"];
 
 export default function EditEventPage() {
   const t = useTranslations("event");
@@ -34,6 +34,7 @@ export default function EditEventPage() {
     title: "",
     date: "",
     time: "",
+    end_date: "",
     end_time: "",
     location: "",
     event_type: "performance" as EventType,
@@ -55,9 +56,10 @@ export default function EditEventPage() {
           title: event.title,
           date: event.date,
           time: event.time?.substring(0, 5) ?? "",
+          end_date: event.end_date ?? "",
           end_time: event.end_time?.substring(0, 5) ?? "",
           location: event.location,
-          event_type: event.event_type,
+          event_type: event.event_type === "wedding" ? "other" : event.event_type,
           dress_code: event.dress_code ?? "",
           meetup_time: event.meetup_time?.substring(0, 5) ?? "",
           location_url: event.location_url ?? "",
@@ -78,7 +80,8 @@ export default function EditEventPage() {
     setLoading(true);
     setError(null);
 
-    if (form.end_time && !isEndAfterStart(form.time, form.end_time)) {
+    const resolvedEndDate = form.end_date || form.date;
+    if (form.end_time && !isEndDateTimeAfterStart(form.date, form.time, resolvedEndDate, form.end_time)) {
       setError(t("form.endAfterStart"));
       setLoading(false);
       return;
@@ -91,6 +94,7 @@ export default function EditEventPage() {
         title: form.title,
         date: form.date,
         time: form.time,
+        end_date: resolvedEndDate !== form.date ? resolvedEndDate : null,
         end_time: form.end_time || null,
         location: form.location,
         event_type: form.event_type,
@@ -129,18 +133,22 @@ export default function EditEventPage() {
           <Label>{t("form.title")}</Label>
           <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>{t("form.date")}</Label>
-            <Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
+            <Input className="sm:max-w-52" type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("form.endDate")}</Label>
+            <Input className="sm:max-w-52" type="date" value={form.end_date} onChange={(e) => update("end_date", e.target.value)} min={form.date || undefined} />
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.time")}</Label>
-            <Input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
+            <Input className="sm:max-w-40" type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.endTime")}</Label>
-            <Input type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
+            <Input className="sm:max-w-40" type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
           </div>
         </div>
         <div className="space-y-1.5">
@@ -159,7 +167,7 @@ export default function EditEventPage() {
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.meetupTime")}</Label>
-            <Input type="time" value={form.meetup_time} onChange={(e) => update("meetup_time", e.target.value)} />
+            <Input className="sm:max-w-40" type="time" value={form.meetup_time} onChange={(e) => update("meetup_time", e.target.value)} />
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

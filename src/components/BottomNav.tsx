@@ -2,10 +2,10 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Music, Calendar, Bell, Users } from "lucide-react";
+import { Footprints, Calendar, Bell, Users } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/rehearsals",    labelKey: "rehearsals",    Icon: Music },
+  { href: "/rehearsals",    labelKey: "rehearsals",    Icon: Footprints },
   { href: "/events",        labelKey: "events",        Icon: Calendar },
   { href: "/announcements", labelKey: "announcements", Icon: Bell },
   { href: "/members",       labelKey: "members",       Icon: Users },

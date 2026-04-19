@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/select";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
-import { isEndAfterStart } from "@/lib/utils";
+import { isEndDateTimeAfterStart } from "@/lib/utils";
 import { revalidateEvents } from "../actions";
 import type { EventInsert, EventType } from "@/types/database";
 
-const EVENT_TYPES: EventType[] = ["performance", "wedding", "festival", "other"];
+const EVENT_TYPES: EventType[] = ["performance", "festival", "other"];
 
 export default function NewEventPage() {
   const t = useTranslations("event");
@@ -32,6 +32,7 @@ export default function NewEventPage() {
     title: "",
     date: "",
     time: "",
+    end_date: "",
     end_time: "",
     location: "",
     event_type: "performance" as EventType,
@@ -50,7 +51,8 @@ export default function NewEventPage() {
     setLoading(true);
     setError(null);
 
-    if (form.end_time && !isEndAfterStart(form.time, form.end_time)) {
+    const resolvedEndDate = form.end_date || form.date;
+    if (form.end_time && !isEndDateTimeAfterStart(form.date, form.time, resolvedEndDate, form.end_time)) {
       setError(t("form.endAfterStart"));
       setLoading(false);
       return;
@@ -69,6 +71,7 @@ export default function NewEventPage() {
       title: form.title,
       date: form.date,
       time: form.time,
+      end_date: resolvedEndDate !== form.date ? resolvedEndDate : null,
       end_time: form.end_time || null,
       location: form.location,
       event_type: form.event_type,
@@ -122,18 +125,22 @@ export default function NewEventPage() {
           <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>{t("form.date")}</Label>
-            <Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
+            <Input className="sm:max-w-52" type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t("form.endDate")}</Label>
+            <Input className="sm:max-w-52" type="date" value={form.end_date} onChange={(e) => update("end_date", e.target.value)} min={form.date || undefined} />
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.time")}</Label>
-            <Input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
+            <Input className="sm:max-w-40" type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.endTime")}</Label>
-            <Input type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
+            <Input className="sm:max-w-40" type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
           </div>
         </div>
 
@@ -158,7 +165,7 @@ export default function NewEventPage() {
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.meetupTime")}</Label>
-            <Input type="time" value={form.meetup_time} onChange={(e) => update("meetup_time", e.target.value)} />
+            <Input className="sm:max-w-40" type="time" value={form.meetup_time} onChange={(e) => update("meetup_time", e.target.value)} />
           </div>
         </div>
 
