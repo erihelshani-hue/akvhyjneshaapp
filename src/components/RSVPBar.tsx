@@ -11,17 +11,20 @@ interface RSVPBarProps {
   entityDate?: string;
   currentStatus: AttendanceStatus | null;
   yesCount: number;
+  noCount: number;
   onRSVP: (status: AttendanceStatus) => Promise<void>;
 }
 
 export function RSVPBar({
   currentStatus,
   yesCount,
+  noCount,
   onRSVP,
 }: RSVPBarProps) {
   const t = useTranslations("rsvp");
   const [status, setStatus] = useState<AttendanceStatus | null>(currentStatus);
   const [optimisticYesCount, setOptimisticYesCount] = useState(yesCount);
+  const [optimisticNoCount, setOptimisticNoCount] = useState(noCount);
   const [isPending, startTransition] = useTransition();
 
   function handleRSVP(newStatus: AttendanceStatus) {
@@ -32,6 +35,11 @@ export function RSVPBar({
       if (previousStatus !== "yes" && newStatus === "yes") return count + 1;
       return count;
     });
+    setOptimisticNoCount((count) => {
+      if (previousStatus === "no" && newStatus !== "no") return Math.max(0, count - 1);
+      if (previousStatus !== "no" && newStatus === "no") return count + 1;
+      return count;
+    });
 
     startTransition(async () => {
       try {
@@ -39,13 +47,14 @@ export function RSVPBar({
       } catch {
         setStatus(previousStatus);
         setOptimisticYesCount(yesCount);
+        setOptimisticNoCount(noCount);
       }
     });
   }
 
   return (
-    <div className="space-y-2.5">
-      <div className="flex items-center gap-2">
+    <div className="grid grid-cols-3 gap-2">
+      <div className="space-y-1.5">
         <RSVPButton
           label={t("yes")}
           value="yes"
@@ -54,6 +63,11 @@ export function RSVPBar({
           onClick={() => handleRSVP("yes")}
           activeClass="bg-accent text-white border-accent shadow-sm"
         />
+        <p className="text-center text-xs text-muted">
+          {optimisticYesCount === 1 ? t("attendingOne") : t("attending", { count: optimisticYesCount })}
+        </p>
+      </div>
+      <div className="space-y-1.5">
         <RSVPButton
           label={t("maybe")}
           value="maybe"
@@ -62,6 +76,8 @@ export function RSVPBar({
           onClick={() => handleRSVP("maybe")}
           activeClass="bg-surface-2 text-foreground border-zinc-600"
         />
+      </div>
+      <div className="space-y-1.5">
         <RSVPButton
           label={t("no")}
           value="no"
@@ -70,10 +86,10 @@ export function RSVPBar({
           onClick={() => handleRSVP("no")}
           activeClass="bg-surface-2 text-muted border-zinc-700"
         />
+        <p className="text-center text-xs text-muted">
+          {optimisticNoCount === 1 ? t("decliningOne") : t("declining", { count: optimisticNoCount })}
+        </p>
       </div>
-      <p className="text-xs text-muted">
-        {optimisticYesCount === 1 ? t("attendingOne") : t("attending", { count: optimisticYesCount })}
-      </p>
     </div>
   );
 }
@@ -99,7 +115,7 @@ function RSVPButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex-1 h-10 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50",
+        "h-10 w-full rounded-lg text-sm font-medium border transition-colors disabled:opacity-50",
         isActive
           ? activeClass
           : "bg-transparent border-border text-muted hover:border-zinc-600 hover:text-foreground hover:bg-surface-2/50"

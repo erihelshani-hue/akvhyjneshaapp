@@ -10,9 +10,10 @@ interface RehearsalRSVPProps {
   entityDate: string;
   currentStatus: AttendanceStatus | null;
   yesCount: number;
+  noCount: number;
 }
 
-export function RehearsalRSVP({ entityId, entityDate, currentStatus, yesCount }: RehearsalRSVPProps) {
+export function RehearsalRSVP({ entityId, entityDate, currentStatus, yesCount, noCount }: RehearsalRSVPProps) {
   const router = useRouter();
 
   async function handleRSVP(status: AttendanceStatus) {
@@ -41,6 +42,7 @@ export function RehearsalRSVP({ entityId, entityDate, currentStatus, yesCount }:
       entityDate={entityDate}
       currentStatus={currentStatus}
       yesCount={yesCount}
+      noCount={noCount}
       onRSVP={handleRSVP}
     />
   );

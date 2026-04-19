@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
-import { isEndAfterStart } from "@/lib/utils";
+import { isEndDateTimeAfterStart } from "@/lib/utils";
 import { revalidateRehearsals } from "../actions";
 import type { RecurrenceDay, RehearsalInsert } from "@/types/database";
 
@@ -35,6 +35,7 @@ export default function NewRehearsalPage() {
     title: "",
     date: "",
     time: "",
+    end_date: "",
     end_time: "",
     location: "",
     notes: "",
@@ -51,8 +52,10 @@ export default function NewRehearsalPage() {
     setLoading(true);
     setError(null);
 
+    const startDate = isRecurring ? new Date().toISOString().substring(0, 10) : form.date;
     const startTime = isRecurring ? form.recurrence_time || form.time : form.time;
-    if (form.end_time && !isEndAfterStart(startTime, form.end_time)) {
+    const resolvedEndDate = form.end_date || startDate;
+    if (form.end_time && !isEndDateTimeAfterStart(startDate, startTime, resolvedEndDate, form.end_time)) {
       setError(t("form.endAfterStart"));
       setLoading(false);
       return;
@@ -69,8 +72,9 @@ export default function NewRehearsalPage() {
 
     const payload: RehearsalInsert = {
       title: form.title,
-      date: isRecurring ? new Date().toISOString().substring(0, 10) : form.date,
+      date: startDate,
       time: startTime,
+      end_date: resolvedEndDate !== startDate ? resolvedEndDate : null,
       end_time: form.end_time || null,
       location: form.location,
       notes: form.notes || null,
@@ -135,7 +139,7 @@ export default function NewRehearsalPage() {
         </div>
 
         {isRecurring ? (
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>{t("form.recurrenceDay")}</Label>
               <Select value={form.recurrence_day} onValueChange={(v) => update("recurrence_day", v)}>
@@ -154,15 +158,23 @@ export default function NewRehearsalPage() {
               <Input type="time" value={form.recurrence_time} onChange={(e) => update("recurrence_time", e.target.value)} required={isRecurring} />
             </div>
             <div className="space-y-1.5">
+              <Label>{t("form.endDate")}</Label>
+              <Input type="date" value={form.end_date} onChange={(e) => update("end_date", e.target.value)} min={new Date().toISOString().substring(0, 10)} />
+            </div>
+            <div className="space-y-1.5">
               <Label>{t("form.endTime")}</Label>
               <Input type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
             </div>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>{t("form.date")}</Label>
               <Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required={!isRecurring} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("form.endDate")}</Label>
+              <Input type="date" value={form.end_date} onChange={(e) => update("end_date", e.target.value)} min={form.date || undefined} />
             </div>
             <div className="space-y-1.5">
               <Label>{t("form.time")}</Label>
