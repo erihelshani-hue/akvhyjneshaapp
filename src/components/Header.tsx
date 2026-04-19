@@ -52,7 +52,7 @@ export function Header({ unreadCount }: HeaderProps) {
               <Home className="h-2 w-2 text-muted" />
             </span>
           </div>
-          <span className="font-playfair text-[15px] font-semibold tracking-tight hidden sm:block text-foreground group-hover:text-accent/80 transition-colors">
+          <span className="font-playfair text-sm sm:text-[15px] font-semibold tracking-tight text-foreground group-hover:text-accent/80 transition-colors">
             AKV <em className="italic">&ldquo;Hyjnesha&rdquo;</em>
           </span>
         </Link>
