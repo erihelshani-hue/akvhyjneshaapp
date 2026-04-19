@@ -31,7 +31,7 @@ export function BottomNav({ unreadCount }: BottomNavProps) {
             <Link
               key={href}
               href={href}
-              className={`flex flex-1 flex-col items-center justify-center gap-1 relative transition-colors duration-150 ${
+              className={`flex flex-1 flex-col items-center justify-center gap-1 relative transition-colors duration-150 active:opacity-60 ${
                 isActive ? "text-accent" : "text-muted"
               }`}
             >

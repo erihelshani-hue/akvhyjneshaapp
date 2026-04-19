@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,17 +11,10 @@ import type { Event } from "@/types/database";
 export default async function EventsPage({
 }: Record<string, never>) {
   const t = await getTranslations("event");
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user!.id)
-    .single();
-
-  const isAdmin = profile?.role === "admin";
   const today = new Date().toISOString().substring(0, 10);
+
+  const [role, supabase] = await Promise.all([getUserRole(), createClient()]);
+  const isAdmin = role === "admin";
 
   const { data: events }: { data: Event[] | null } = await supabase
     .from("events")
@@ -54,7 +48,7 @@ export default async function EventsPage({
               <Link
                 key={event.id}
                 href={`/events/${event.id}`}
-                className="flex items-start gap-3 p-4 rounded-xl border border-border bg-surface hover:border-border/80 hover:bg-surface/80 transition-colors group"
+                className="flex items-start gap-3 p-4 rounded-xl border border-border bg-surface hover:border-border/80 hover:bg-surface/80 active:bg-surface/60 transition-colors group"
               >
                 {/* Date column */}
                 <div className="shrink-0 w-12 text-center pt-0.5">

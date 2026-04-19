@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { getUserRole } from "@/lib/auth";
 import { getUpcomingOccurrences } from "@/lib/recurring";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,16 +11,9 @@ import { Plus, MapPin, Clock, ChevronRight } from "lucide-react";
 export default async function RehearsalsPage({
 }: Record<string, never>) {
   const t = await getTranslations("rehearsal");
-  const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user!.id)
-    .single();
-
-  const isAdmin = profile?.role === "admin";
+  const [role, supabase] = await Promise.all([getUserRole(), createClient()]);
+  const isAdmin = role === "admin";
 
   const { data: rehearsals } = await supabase
     .from("rehearsals")
@@ -54,7 +48,7 @@ export default async function RehearsalsPage({
               <Link
                 key={`${occ.rehearsal.id}-${occ.date}`}
                 href={`/rehearsals/${occ.rehearsal.id}`}
-                className="flex items-start gap-3 p-4 rounded-xl border border-border bg-surface hover:border-border/80 hover:bg-surface/80 transition-colors group"
+                className="flex items-start gap-3 p-4 rounded-xl border border-border bg-surface hover:border-border/80 hover:bg-surface/80 active:bg-surface/60 transition-colors group"
               >
                 {/* Date column */}
                 <div className="shrink-0 w-12 text-center pt-0.5">

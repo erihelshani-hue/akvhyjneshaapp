@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
 import { DashboardCard } from "@/components/DashboardCard";
 import { getNextOccurrence } from "@/lib/recurring";
 import { Link } from "@/i18n/navigation";
@@ -11,9 +12,8 @@ export default async function DashboardPage({
 }: Record<string, never>) {
   const t = await getTranslations("dashboard");
   const tCommon = await getTranslations("common");
-  const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const [user, supabase] = await Promise.all([getUser(), createClient()]);
 
   const [rehearsalsRes, eventsRes, announcementsRes, readsRes] = await Promise.all([
     supabase.from("rehearsals").select("*").order("date"),
@@ -96,7 +96,7 @@ export default async function DashboardPage({
                 <Link
                   key={announcement.id}
                   href="/announcements"
-                  className="flex items-start gap-3 p-4 rounded-xl border border-border bg-surface hover:border-border/80 hover:bg-surface/80 transition-colors group"
+                  className="flex items-start gap-3 p-4 rounded-xl border border-border bg-surface hover:border-border/80 hover:bg-surface/80 active:bg-surface/60 transition-colors group"
                 >
                   {isUnread ? (
                     <span className="mt-[5px] shrink-0 h-2 w-2 rounded-full bg-accent" />
