@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getUser, getUserRole } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 
@@ -13,8 +13,7 @@ export default async function ProtectedLayout({
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const [role, { count: totalCount }, { count: readCount }] = await Promise.all([
-    getUserRole(),
+  const [{ count: totalCount }, { count: readCount }] = await Promise.all([
     supabase.from("announcements").select("*", { count: "exact", head: true }),
     supabase
       .from("announcement_reads")
@@ -23,11 +22,10 @@ export default async function ProtectedLayout({
   ]);
 
   const unreadCount = Math.max(0, (totalCount ?? 0) - (readCount ?? 0));
-  const isAdmin = role === "admin";
 
   return (
     <div className="min-h-screen bg-background">
-      <Header unreadCount={unreadCount} isAdmin={isAdmin} />
+      <Header unreadCount={unreadCount} />
       <main className="max-w-6xl mx-auto px-4 pt-6 pb-safe-nav sm:px-6">
         {children}
       </main>
