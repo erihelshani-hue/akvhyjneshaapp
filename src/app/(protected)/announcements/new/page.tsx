@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
+import { revalidateAnnouncements } from "../actions";
 import type { AnnouncementInsert } from "@/types/database";
 
 export default function NewAnnouncementPage() {
@@ -65,8 +66,8 @@ export default function NewAnnouncementPage() {
       }),
     }).catch(() => {});
 
+    await revalidateAnnouncements();
     router.push("/announcements");
-    router.refresh();
     setLoading(false);
   }
 

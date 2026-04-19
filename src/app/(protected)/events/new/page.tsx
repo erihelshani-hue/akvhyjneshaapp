@@ -18,6 +18,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
 import { isEndAfterStart } from "@/lib/utils";
+import { revalidateEvents } from "../actions";
 import type { EventInsert, EventType } from "@/types/database";
 
 const EVENT_TYPES: EventType[] = ["performance", "wedding", "festival", "other"];
@@ -101,8 +102,8 @@ export default function NewEventPage() {
       }),
     }).catch(() => {});
 
+    await revalidateEvents();
     router.push(`/events/${data.id}`);
-    router.refresh();
     setLoading(false);
   }
 

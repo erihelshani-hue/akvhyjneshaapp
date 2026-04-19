@@ -19,6 +19,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
 import { isEndAfterStart } from "@/lib/utils";
+import { revalidateRehearsals } from "../actions";
 import type { RecurrenceDay, RehearsalInsert } from "@/types/database";
 
 const DAYS: RecurrenceDay[] = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
@@ -102,8 +103,8 @@ export default function NewRehearsalPage() {
       }),
     }).catch(() => {});
 
+    await revalidateRehearsals();
     router.push(`/rehearsals/${data.id}`);
-    router.refresh();
     setLoading(false);
   }
 
