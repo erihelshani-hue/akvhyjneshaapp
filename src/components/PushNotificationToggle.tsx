@@ -30,11 +30,14 @@ export function PushNotificationToggle() {
       setStatus("denied");
       return;
     }
-    navigator.serviceWorker.ready.then((reg) =>
+    const timeout = setTimeout(() => setStatus("unsubscribed"), 3000);
+    navigator.serviceWorker.ready.then((reg) => {
+      clearTimeout(timeout);
       reg.pushManager.getSubscription().then((sub) =>
         setStatus(sub ? "subscribed" : "unsubscribed")
-      )
-    );
+      );
+    });
+    return () => clearTimeout(timeout);
   }, []);
 
   async function subscribe() {
