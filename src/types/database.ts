@@ -76,6 +76,15 @@ export interface AnnouncementRead {
   read_at: string;
 }
 
+export interface PushSubscription {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  created_at: string;
+}
+
 export interface RehearsalOccurrence {
   rehearsal: Rehearsal;
   date: string;
@@ -140,6 +149,12 @@ export type Database = {
         Row: AnnouncementRead;
         Insert: Omit<AnnouncementRead, "id" | "read_at">;
         Update: never;
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: PushSubscription;
+        Insert: Omit<PushSubscription, "id" | "created_at">;
+        Update: Partial<Omit<PushSubscription, "id" | "created_at">>;
         Relationships: [];
       };
     };

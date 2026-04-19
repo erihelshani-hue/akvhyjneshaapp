@@ -133,6 +133,30 @@ function subscriptionToBody(subscription: PushSubscription) {
   };
 }
 
+async function saveSubscriptionToServer(subscription: PushSubscription) {
+  const response = await fetch("/api/push/subscribe", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(subscriptionToBody(subscription)),
+  });
+
+  const responseBody = await response.json().catch(() => null);
+  logPush("/api/push/subscribe response", {
+    ok: response.ok,
+    status: response.status,
+    body: responseBody,
+  });
+
+  if (!response.ok) {
+    throw new PushSetupError(
+      "error",
+      responseBody?.error ?? "Subscription could not be saved on the server."
+    );
+  }
+
+  return responseBody;
+}
+
 export function PushNotificationToggle() {
   const [status, setStatus] = useState<Status>("checking");
   const [busy, setBusy] = useState(false);
@@ -175,7 +199,29 @@ export function PushNotificationToggle() {
           endpoint: subscription?.endpoint,
         });
 
-        if (!cancelled) setStatus(subscription ? "subscribed" : "unsubscribed");
+        if (!subscription) {
+          if (!cancelled) setStatus("unsubscribed");
+          return;
+        }
+
+        try {
+          logPush("Local subscription exists; syncing it to the server");
+          await saveSubscriptionToServer(subscription);
+          if (!cancelled) {
+            setStatus("subscribed");
+            setMessage("Benachrichtigungen sind aktiv.");
+          }
+        } catch (error) {
+          logPushError("Existing subscription could not be synced to server", error);
+          if (!cancelled) {
+            setStatus("error");
+            setMessage(
+              error instanceof Error
+                ? `Subscription konnte nicht gespeichert werden: ${error.message}`
+                : "Subscription konnte nicht gespeichert werden."
+            );
+          }
+        }
       } catch (error) {
         logPushError("Initial push status check failed", error);
         if (!cancelled) {
@@ -241,26 +287,15 @@ export function PushNotificationToggle() {
         });
       }
 
-      const response = await fetch("/api/push/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscriptionToBody(subscription)),
-      });
-
-      const responseBody = await response.json().catch(() => null);
-      logPush("/api/push/subscribe response", {
-        ok: response.ok,
-        status: response.status,
-        body: responseBody,
-      });
-
-      if (!response.ok) {
+      try {
+        await saveSubscriptionToServer(subscription);
+      } catch (error) {
         if (createdSubscription) {
           await subscription.unsubscribe().catch((error) => {
             logPushError("Cleanup unsubscribe after failed server save failed", error);
           });
         }
-        throw new PushSetupError("error", "Subscription could not be saved on the server.");
+        throw error;
       }
 
       setStatus("subscribed");
@@ -345,10 +380,19 @@ export function PushNotificationToggle() {
         throw new Error(responseBody?.error ?? "Test notification failed.");
       }
 
-      setMessage("Test-Benachrichtigung wurde gesendet.");
+      const result = responseBody?.result;
+      setMessage(
+        typeof result?.sent === "number"
+          ? `Test gesendet: ${result.sent}/${result.total} zugestellt, ${result.failed} fehlgeschlagen.`
+          : "Test-Benachrichtigung wurde gesendet."
+      );
     } catch (error) {
       logPushError("Test notification failed", error);
-      setMessage("Test-Benachrichtigung konnte nicht gesendet werden.");
+      setMessage(
+        error instanceof Error
+          ? `Test-Benachrichtigung fehlgeschlagen: ${error.message}`
+          : "Test-Benachrichtigung konnte nicht gesendet werden."
+      );
     } finally {
       setTestBusy(false);
     }

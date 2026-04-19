@@ -10,11 +10,20 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const result = await sendPushToUser(user.id, {
-    title: "AKV Hyjnesha",
-    body: "Test-Benachrichtigung erfolgreich gesendet.",
-    url: "/settings",
-  });
+  let result;
+  try {
+    result = await sendPushToUser(user.id, {
+      title: "AKV Hyjnesha",
+      body: "Test-Benachrichtigung erfolgreich gesendet.",
+      url: "/settings",
+    });
+  } catch (error) {
+    console.error("[Push] Test notification failed on server", error);
+    return NextResponse.json(
+      { ok: false, error: "Failed to send test notification" },
+      { status: 500 }
+    );
+  }
 
   if (result.total === 0) {
     return NextResponse.json(

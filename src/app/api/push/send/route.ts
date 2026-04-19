@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
   const { title, body, url } = await req.json();
 
-  await sendPushToAll({ title, body, url });
+  const result = await sendPushToAll({ title, body, url });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, result });
 }

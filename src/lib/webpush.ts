@@ -18,6 +18,11 @@ type PushSendResult = {
   removed: number;
   failed: number;
   total: number;
+  errors: Array<{
+    endpoint: string;
+    statusCode: number | null;
+    message: string;
+  }>;
 };
 
 type WebPushSendError = {
@@ -48,6 +53,7 @@ async function sendToSubscriptions(
     removed: 0,
     failed: 0,
     total: subscriptions?.length ?? 0,
+    errors: [],
   };
 
   if (!subscriptions || subscriptions.length === 0) return result;
@@ -64,8 +70,14 @@ async function sendToSubscriptions(
         );
         result.sent += 1;
       } catch (error) {
+        const pushError = error as WebPushSendError;
         if (isExpiredSubscriptionError(error)) {
           result.removed += 1;
+          result.errors.push({
+            endpoint: sub.endpoint,
+            statusCode: pushError.statusCode ?? null,
+            message: pushError.message ?? "Subscription expired or gone",
+          });
           await supabase
             .from("push_subscriptions")
             .delete()
@@ -74,6 +86,11 @@ async function sendToSubscriptions(
         }
 
         result.failed += 1;
+        result.errors.push({
+          endpoint: sub.endpoint,
+          statusCode: pushError.statusCode ?? null,
+          message: pushError.message ?? pushError.body ?? "Unknown push send error",
+        });
         console.error("[Push] sendNotification failed without removing subscription", {
           endpoint: sub.endpoint,
           error,
@@ -87,19 +104,29 @@ async function sendToSubscriptions(
 
 export async function sendPushToAll(payload: PushPayload) {
   const supabase = await createServiceClient();
-  const { data: subscriptions } = await supabase
+  const { data: subscriptions, error } = await supabase
     .from("push_subscriptions")
     .select("endpoint, p256dh, auth");
+
+  if (error) {
+    console.error("[Push] Failed to load push subscriptions", error);
+    throw error;
+  }
 
   return sendToSubscriptions(subscriptions, payload);
 }
 
 export async function sendPushToUser(userId: string, payload: PushPayload) {
   const supabase = await createServiceClient();
-  const { data: subscriptions } = await supabase
+  const { data: subscriptions, error } = await supabase
     .from("push_subscriptions")
     .select("endpoint, p256dh, auth")
     .eq("user_id", userId);
+
+  if (error) {
+    console.error("[Push] Failed to load user push subscriptions", { userId, error });
+    throw error;
+  }
 
   return sendToSubscriptions(subscriptions, payload);
 }
