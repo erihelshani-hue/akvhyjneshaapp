@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getUser, getUserRole } from "@/lib/auth";
 import { getRehearsalById } from "@/lib/cached-data";
 import { getOccurrencesForRehearsal } from "@/lib/recurring";
@@ -83,8 +83,9 @@ export default async function RehearsalDetailPage({
       .eq("status", "no"),
   ]);
 
+  const serviceClient = await createServiceClient();
   const [membersRes, attendancesRes] = await Promise.all([
-    supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
+    serviceClient.from("profiles").select("id, full_name, avatar_url").order("full_name"),
     supabase
       .from("attendances")
       .select("user_id, status")
