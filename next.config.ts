@@ -25,6 +25,13 @@ export default withNextIntl(withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
+  buildExcludes: [
+    /app-build-manifest\.json$/,
+    /middleware-manifest\.json$/,
+    /middleware-build-manifest\.js$/,
+    /react-loadable-manifest\.json$/,
+    /build-manifest\.json$/,
+  ],
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/akv-hyjnesha\.com\/.*/i,
