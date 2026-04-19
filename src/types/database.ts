@@ -19,6 +19,7 @@ export interface Rehearsal {
   title: string;
   date: string;
   time: string;
+  end_date: string | null;
   end_time: string | null;
   location: string;
   notes: string | null;
@@ -34,6 +35,7 @@ export interface Event {
   title: string;
   date: string;
   time: string;
+  end_date: string | null;
   end_time: string | null;
   location: string;
   event_type: EventType;
@@ -82,15 +84,17 @@ export interface RehearsalOccurrence {
 
 export type RehearsalInsert = Omit<
   Rehearsal,
-  "id" | "created_at" | "end_time"
+  "id" | "created_at" | "end_date" | "end_time"
 > & {
+  end_date?: string | null;
   end_time?: string | null;
 };
 
 export type EventInsert = Omit<
   Event,
-  "id" | "created_at" | "end_time"
+  "id" | "created_at" | "end_date" | "end_time"
 > & {
+  end_date?: string | null;
   end_time?: string | null;
 };
 

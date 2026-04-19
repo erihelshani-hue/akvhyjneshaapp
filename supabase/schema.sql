@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS public.rehearsals (
   title          text NOT NULL,
   date           date NOT NULL,
   time           time NOT NULL,
+  end_date       date,
   end_time       time,
   location       text NOT NULL,
   notes          text,
@@ -33,7 +34,9 @@ CREATE TABLE IF NOT EXISTS public.rehearsals (
   recurrence_time time,
   created_by     uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   created_at     timestamptz DEFAULT now(),
-  CONSTRAINT rehearsals_end_after_start CHECK (end_time IS NULL OR end_time > time)
+  CONSTRAINT rehearsals_end_after_start CHECK (
+    end_time IS NULL OR (COALESCE(end_date, date), end_time) > (date, time)
+  )
 );
 
 -- events
@@ -42,6 +45,7 @@ CREATE TABLE IF NOT EXISTS public.events (
   title        text NOT NULL,
   date         date NOT NULL,
   time         time NOT NULL,
+  end_date     date,
   end_time     time,
   location     text NOT NULL,
   event_type   text DEFAULT 'performance'
@@ -52,7 +56,9 @@ CREATE TABLE IF NOT EXISTS public.events (
   notes        text,
   created_by   uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   created_at   timestamptz DEFAULT now(),
-  CONSTRAINT events_end_after_start CHECK (end_time IS NULL OR end_time > time)
+  CONSTRAINT events_end_after_start CHECK (
+    end_time IS NULL OR (COALESCE(end_date, date), end_time) > (date, time)
+  )
 );
 
 -- attendances

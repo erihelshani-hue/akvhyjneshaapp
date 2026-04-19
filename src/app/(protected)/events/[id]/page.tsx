@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { EventRSVP } from "./EventRSVP";
 import { EventDeleteButton } from "./EventDeleteButton";
 import { Link } from "@/i18n/navigation";
-import { formatDate, formatTime, formatTimeRange } from "@/lib/utils";
+import { formatDateRange, formatTime, formatTimeRange } from "@/lib/utils";
 import { MapPin, Clock, Shirt, Users, ExternalLink, ArrowLeft, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -38,6 +38,7 @@ export default async function EventDetailPage({
   const tCommon = await getTranslations("common");
   const tRsvp = await getTranslations("rsvp");
   const supabase = await createClient();
+  const serviceSupabase = await createServiceClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   const [eventRes, profileRes] = await Promise.all([
@@ -59,7 +60,7 @@ export default async function EventDetailPage({
     .eq("entity_date", event.date)
     .single();
 
-  const { count: yesCount } = await supabase
+  const { count: yesCount } = await serviceSupabase
     .from("attendances")
     .select("*", { count: "exact", head: true })
     .eq("entity_type", "event")
@@ -68,8 +69,8 @@ export default async function EventDetailPage({
     .eq("status", "yes");
 
   const [membersRes, attendancesRes] = await Promise.all([
-    supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
-    supabase
+    serviceSupabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
+    serviceSupabase
       .from("attendances")
       .select("user_id, status")
       .eq("entity_type", "event")
@@ -101,6 +102,7 @@ export default async function EventDetailPage({
     .filter((g) => g.members.length > 0);
 
   const noAnswerCount = allParticipants.filter((p) => !p.status).length;
+  const noCount = allParticipants.filter((p) => p.status === "no").length;
 
   const title = event.title;
   const notes = event.notes;
@@ -118,7 +120,9 @@ export default async function EventDetailPage({
             <h1 className="font-playfair text-3xl font-semibold text-foreground">{title}</h1>
             <Badge variant="outline" className="text-xs">{t(`type.${event.event_type}`)}</Badge>
           </div>
-          <p className="mt-1.5 text-sm font-semibold text-foreground/90">{formatDate(event.date)}</p>
+          <p className="mt-1.5 text-sm font-semibold text-foreground/90">
+            {formatDateRange(event.date, event.end_date)}
+          </p>
         </div>
         {isAdmin && (
           <div className="flex items-center gap-2">
@@ -170,7 +174,8 @@ export default async function EventDetailPage({
         )}
         {notes && (
           <div className="flex items-start gap-2 text-sm pt-1">
-            <span className="text-muted w-32 shrink-0">{t("notes")}:</span>
+            <span className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-muted w-28 shrink-0">{t("notes")}:</span>
             <span className="text-foreground">{notes}</span>
           </div>
         )}
@@ -185,6 +190,7 @@ export default async function EventDetailPage({
           eventDate={event.date}
           currentStatus={attendance?.status as AttendanceStatus ?? null}
           yesCount={yesCount ?? 0}
+          noCount={noCount}
         />
       </div>
 

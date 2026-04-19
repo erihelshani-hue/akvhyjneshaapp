@@ -39,14 +39,19 @@ export function Header({ unreadCount }: HeaderProps) {
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 shrink-0 group">
+        <Link
+          href="/"
+          className="group -m-1 flex shrink-0 cursor-pointer items-center gap-3 rounded-md p-1 transition-colors hover:bg-surface-2/60"
+          aria-label="Zur Startseite"
+          title="Zur Startseite"
+        >
           <div className="relative">
             <Image
               src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
               alt="AKV Hyjnesha Logo"
               width={30}
               height={30}
-              className="rounded-full object-cover ring-1 ring-border group-hover:ring-accent/40 transition-all"
+              className="rounded-full object-cover ring-1 ring-border transition-all group-hover:ring-accent/40"
             />
           </div>
           <span className="font-playfair text-[15px] font-semibold text-foreground tracking-tight hidden sm:block">

@@ -10,9 +10,10 @@ interface EventRSVPProps {
   eventDate: string;
   currentStatus: AttendanceStatus | null;
   yesCount: number;
+  noCount: number;
 }
 
-export function EventRSVP({ entityId, eventDate, currentStatus, yesCount }: EventRSVPProps) {
+export function EventRSVP({ entityId, eventDate, currentStatus, yesCount, noCount }: EventRSVPProps) {
   const router = useRouter();
 
   async function handleRSVP(status: AttendanceStatus) {
@@ -41,6 +42,7 @@ export function EventRSVP({ entityId, eventDate, currentStatus, yesCount }: Even
       entityDate={eventDate}
       currentStatus={currentStatus}
       yesCount={yesCount}
+      noCount={noCount}
       onRSVP={handleRSVP}
     />
   );
