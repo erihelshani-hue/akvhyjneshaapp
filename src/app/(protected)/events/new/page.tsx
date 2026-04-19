@@ -105,7 +105,7 @@ export default function NewEventPage() {
       }),
     }).catch(() => {});
 
-    await revalidateEvents();
+    await revalidateEvents(data.id);
     router.push(`/events/${data.id}`);
     setLoading(false);
   }

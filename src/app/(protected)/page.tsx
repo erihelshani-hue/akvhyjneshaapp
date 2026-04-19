@@ -1,12 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/auth";
+import { getAllRehearsals, getRecentAnnouncements, getUpcomingEvents } from "@/lib/cached-data";
 import { DashboardCard } from "@/components/DashboardCard";
 import { getNextOccurrence } from "@/lib/recurring";
 import { Link } from "@/i18n/navigation";
 import { formatDate } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import type { Rehearsal, Event, Announcement, AnnouncementRead } from "@/types/database";
+import type { AnnouncementRead } from "@/types/database";
 
 export default async function DashboardPage({
 }: Record<string, never>) {
@@ -15,15 +16,12 @@ export default async function DashboardPage({
 
   const [user, supabase] = await Promise.all([getUser(), createClient()]);
 
-  const [rehearsalsRes, eventsRes, announcementsRes] = await Promise.all([
-    supabase.from("rehearsals").select("*").order("date"),
-    supabase.from("events").select("*").order("date").gte("date", new Date().toISOString().substring(0, 10)),
-    supabase.from("announcements").select("*").order("created_at", { ascending: false }).limit(3),
+  const [rehearsals, events, announcements] = await Promise.all([
+    getAllRehearsals(),
+    getUpcomingEvents(new Date().toISOString().substring(0, 10)),
+    getRecentAnnouncements(3),
   ]);
 
-  const rehearsals: Rehearsal[] = rehearsalsRes.data ?? [];
-  const events: Event[] = eventsRes.data ?? [];
-  const announcements: Announcement[] = announcementsRes.data ?? [];
   const announcementIds = announcements.map((announcement) => announcement.id);
   const { data: readsData } = announcementIds.length > 0
     ? await supabase

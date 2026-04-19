@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { createClient } from "@/lib/supabase/client";
 import { Trash2 } from "lucide-react";
+import { revalidateRehearsals } from "../actions";
 
 interface RehearsalDeleteButtonProps {
   rehearsalId: string;
@@ -19,6 +20,7 @@ export function RehearsalDeleteButton({ rehearsalId }: RehearsalDeleteButtonProp
   async function handleDelete() {
     const supabase = createClient();
     await supabase.from("rehearsals").delete().eq("id", rehearsalId);
+    await revalidateRehearsals(rehearsalId);
     router.push("/rehearsals");
     router.refresh();
   }

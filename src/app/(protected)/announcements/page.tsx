@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getUser, getUserRole } from "@/lib/auth";
+import { getAllAnnouncements } from "@/lib/cached-data";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { AnnouncementsMarkRead } from "./AnnouncementsMarkRead";
@@ -19,12 +20,11 @@ export default async function AnnouncementsPage({
   ]);
   const isAdmin = role === "admin";
 
-  const [announcementsRes, readsRes] = await Promise.all([
-    supabase.from("announcements").select("*").order("created_at", { ascending: false }),
+  const [announcements, readsRes] = await Promise.all([
+    getAllAnnouncements(),
     supabase.from("announcement_reads").select("announcement_id").eq("user_id", user!.id),
   ]);
 
-  const announcements = announcementsRes.data ?? [];
   const readIds = new Set(readsRes.data?.map((r: { announcement_id: string }) => r.announcement_id) ?? []);
   const unreadIds = announcements
     .filter((a: { id: string }) => !readIds.has(a.id))

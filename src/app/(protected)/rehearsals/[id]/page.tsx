@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getUser, getUserRole } from "@/lib/auth";
+import { getRehearsalById } from "@/lib/cached-data";
 import { getOccurrencesForRehearsal } from "@/lib/recurring";
 import { RecurringTag } from "@/components/RecurringTag";
 import { RehearsalDeleteButton } from "./RehearsalDeleteButton";
@@ -44,15 +45,13 @@ export default async function RehearsalDetailPage({
   const tRsvp = await getTranslations("rsvp");
   const supabase = await createClient();
 
-  const [user, role, rehearsalRes] = await Promise.all([
+  const [user, role, rehearsal] = await Promise.all([
     getUser(),
     getUserRole(),
-    supabase.from("rehearsals").select("*").eq("id", id).single(),
+    getRehearsalById(id),
   ]);
 
-  if (!rehearsalRes.data) notFound();
-
-  const rehearsal = rehearsalRes.data;
+  if (!rehearsal) notFound();
   const isAdmin = role === "admin";
 
   const occurrences = getOccurrencesForRehearsal(rehearsal, 8);

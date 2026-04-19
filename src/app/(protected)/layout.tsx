@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/auth";
+import { getAnnouncementCount } from "@/lib/cached-data";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 
@@ -13,15 +14,15 @@ export default async function ProtectedLayout({
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const [{ count: totalCount }, { count: readCount }] = await Promise.all([
-    supabase.from("announcements").select("*", { count: "exact", head: true }),
+  const [totalCount, { count: readCount }] = await Promise.all([
+    getAnnouncementCount(),
     supabase
       .from("announcement_reads")
       .select("*", { count: "exact", head: true })
       .eq("user_id", user.id),
   ]);
 
-  const unreadCount = Math.max(0, (totalCount ?? 0) - (readCount ?? 0));
+  const unreadCount = Math.max(0, totalCount - (readCount ?? 0));
 
   return (
     <div className="min-h-screen bg-background">

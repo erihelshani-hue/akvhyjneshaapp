@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { revalidateEvents } from "../../actions";
 import type { Event, EventType } from "@/types/database";
 
 const EVENT_TYPES: EventType[] = ["performance", "festival", "other"];
@@ -111,6 +112,7 @@ export default function EditEventPage() {
       return;
     }
 
+    await revalidateEvents(id);
     router.push(`/events/${id}`);
     router.refresh();
   }

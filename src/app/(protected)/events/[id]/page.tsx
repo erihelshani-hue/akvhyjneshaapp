@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getUser, getUserRole } from "@/lib/auth";
+import { getEventById } from "@/lib/cached-data";
 import { EventRSVP } from "./EventRSVP";
 import { EventDeleteButton } from "./EventDeleteButton";
 import { Link } from "@/i18n/navigation";
@@ -40,15 +41,13 @@ export default async function EventDetailPage({
   const tRsvp = await getTranslations("rsvp");
   const supabase = await createClient();
 
-  const [user, role, eventRes] = await Promise.all([
+  const [user, role, event] = await Promise.all([
     getUser(),
     getUserRole(),
-    supabase.from("events").select("*").eq("id", id).single(),
+    getEventById(id),
   ]);
 
-  if (!eventRes.data) notFound();
-
-  const event = eventRes.data;
+  if (!event) notFound();
   const isAdmin = role === "admin";
 
   const { data: attendance } = await supabase

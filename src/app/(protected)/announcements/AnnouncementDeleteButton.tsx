@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { createClient } from "@/lib/supabase/client";
 import { Trash2 } from "lucide-react";
+import { revalidateAnnouncements } from "./actions";
 
 export function AnnouncementDeleteButton({ announcementId }: { announcementId: string }) {
   const t = useTranslations("announcement");
@@ -15,6 +16,7 @@ export function AnnouncementDeleteButton({ announcementId }: { announcementId: s
   async function handleDelete() {
     const supabase = createClient();
     await supabase.from("announcements").delete().eq("id", announcementId);
+    await revalidateAnnouncements();
     router.refresh();
   }
 

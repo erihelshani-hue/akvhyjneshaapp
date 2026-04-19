@@ -1,26 +1,19 @@
 import { getTranslations } from "next-intl/server";
-import { createClient } from "@/lib/supabase/server";
 import { getUserRole } from "@/lib/auth";
+import { getUpcomingEvents } from "@/lib/cached-data";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatTimeRange } from "@/lib/utils";
 import { Plus, MapPin, Clock, ChevronRight } from "lucide-react";
-import type { Event } from "@/types/database";
 
 export default async function EventsPage({
 }: Record<string, never>) {
   const t = await getTranslations("event");
   const today = new Date().toISOString().substring(0, 10);
 
-  const [role, supabase] = await Promise.all([getUserRole(), createClient()]);
+  const [role, events] = await Promise.all([getUserRole(), getUpcomingEvents(today)]);
   const isAdmin = role === "admin";
-
-  const { data: events }: { data: Event[] | null } = await supabase
-    .from("events")
-    .select("*")
-    .gte("date", today)
-    .order("date");
 
   return (
     <div className="space-y-6">
@@ -37,7 +30,7 @@ export default async function EventsPage({
         )}
       </div>
 
-      {(!events || events.length === 0) ? (
+      {events.length === 0 ? (
         <p className="text-sm text-muted">{t("noUpcoming")}</p>
       ) : (
         <div className="space-y-2">

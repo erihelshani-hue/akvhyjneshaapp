@@ -103,7 +103,7 @@ export default function NewRehearsalPage() {
       }),
     }).catch(() => {});
 
-    await revalidateRehearsals();
+    await revalidateRehearsals(data.id);
     router.push(`/rehearsals/${data.id}`);
     setLoading(false);
   }

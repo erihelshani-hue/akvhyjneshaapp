@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { revalidateRehearsals } from "../../actions";
 import type { RecurrenceDay, Rehearsal } from "@/types/database";
 
 const DAYS: RecurrenceDay[] = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
@@ -126,6 +127,7 @@ export default function EditRehearsalPage() {
       return;
     }
 
+    await revalidateRehearsals(id);
     router.push(`/rehearsals/${id}`);
     router.refresh();
   }

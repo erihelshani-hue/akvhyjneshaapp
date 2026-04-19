@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { createClient } from "@/lib/supabase/client";
 import { Trash2 } from "lucide-react";
+import { revalidateEvents } from "../actions";
 
 export function EventDeleteButton({ eventId }: { eventId: string }) {
   const t = useTranslations("event");
@@ -15,6 +16,7 @@ export function EventDeleteButton({ eventId }: { eventId: string }) {
   async function handleDelete() {
     const supabase = createClient();
     await supabase.from("events").delete().eq("id", eventId);
+    await revalidateEvents(eventId);
     router.push("/events");
     router.refresh();
   }

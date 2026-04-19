@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { createClient } from "@/lib/supabase/server";
 import { getUserRole } from "@/lib/auth";
+import { getAllRehearsals } from "@/lib/cached-data";
 import { getUpcomingOccurrences } from "@/lib/recurring";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,15 +12,10 @@ export default async function RehearsalsPage({
 }: Record<string, never>) {
   const t = await getTranslations("rehearsal");
 
-  const [role, supabase] = await Promise.all([getUserRole(), createClient()]);
+  const [role, rehearsals] = await Promise.all([getUserRole(), getAllRehearsals()]);
   const isAdmin = role === "admin";
 
-  const { data: rehearsals } = await supabase
-    .from("rehearsals")
-    .select("*")
-    .order("date");
-
-  const occurrences = getUpcomingOccurrences(rehearsals ?? [], 16);
+  const occurrences = getUpcomingOccurrences(rehearsals, 16);
 
   return (
     <div className="space-y-6">

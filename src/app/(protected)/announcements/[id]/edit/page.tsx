@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { revalidateAnnouncements } from "../../actions";
 import type { Announcement } from "@/types/database";
 
 export default function EditAnnouncementPage() {
@@ -58,6 +59,7 @@ export default function EditAnnouncementPage() {
       return;
     }
 
+    await revalidateAnnouncements();
     router.push("/announcements");
     router.refresh();
   }
