@@ -13,12 +13,13 @@ export function PageTransition({ children, className }: PageTransitionProps) {
   const pathname = usePathname();
 
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={pathname}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.12, ease: "easeOut" }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15, ease: "easeInOut" }}
         className={className}
       >
         {children}
