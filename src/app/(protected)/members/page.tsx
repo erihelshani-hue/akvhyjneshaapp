@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { getUser, getUserRole } from "@/lib/auth";
 import { MemberCard } from "@/components/MemberCard";
 import { InviteButton } from "./InviteButton";
 import type { Profile } from "@/types/database";
@@ -7,16 +8,15 @@ import type { Profile } from "@/types/database";
 export default async function MembersPage({
 }: Record<string, never>) {
   const t = await getTranslations("member");
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const [profileRes, membersRes] = await Promise.all([
-    supabase.from("profiles").select("role").eq("id", user!.id).single(),
-    supabase.from("profiles").select("*").order("full_name"),
+  const [user, role, supabase] = await Promise.all([
+    getUser(),
+    getUserRole(),
+    createClient(),
   ]);
 
-  const isAdmin = profileRes.data?.role === "admin";
-  const members: Profile[] = membersRes.data ?? [];
+  const { data: membersData } = await supabase.from("profiles").select("*").order("full_name");
+  const isAdmin = role === "admin";
+  const members: Profile[] = membersData ?? [];
 
   return (
     <div className="space-y-6">

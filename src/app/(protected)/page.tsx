@@ -15,17 +15,25 @@ export default async function DashboardPage({
 
   const [user, supabase] = await Promise.all([getUser(), createClient()]);
 
-  const [rehearsalsRes, eventsRes, announcementsRes, readsRes] = await Promise.all([
+  const [rehearsalsRes, eventsRes, announcementsRes] = await Promise.all([
     supabase.from("rehearsals").select("*").order("date"),
     supabase.from("events").select("*").order("date").gte("date", new Date().toISOString().substring(0, 10)),
     supabase.from("announcements").select("*").order("created_at", { ascending: false }).limit(3),
-    supabase.from("announcement_reads").select("announcement_id").eq("user_id", user!.id),
   ]);
 
   const rehearsals: Rehearsal[] = rehearsalsRes.data ?? [];
   const events: Event[] = eventsRes.data ?? [];
   const announcements: Announcement[] = announcementsRes.data ?? [];
-  const reads = (readsRes.data ?? []) as Pick<AnnouncementRead, "announcement_id">[];
+  const announcementIds = announcements.map((announcement) => announcement.id);
+  const { data: readsData } = announcementIds.length > 0
+    ? await supabase
+      .from("announcement_reads")
+      .select("announcement_id")
+      .eq("user_id", user!.id)
+      .in("announcement_id", announcementIds)
+    : { data: [] };
+
+  const reads = (readsData ?? []) as Pick<AnnouncementRead, "announcement_id">[];
   const readIds = new Set(reads.map((r) => r.announcement_id));
 
   const nextRehearsal = getNextOccurrence(rehearsals);

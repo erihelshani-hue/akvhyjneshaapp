@@ -10,7 +10,6 @@ import { useRouter } from "@/i18n/navigation";
 
 interface HeaderProps {
   unreadCount: number;
-  isAdmin: boolean;
 }
 
 export function Header({ unreadCount }: HeaderProps) {

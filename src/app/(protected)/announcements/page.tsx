@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { getUser, getUserRole } from "@/lib/auth";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { AnnouncementsMarkRead } from "./AnnouncementsMarkRead";
@@ -11,16 +12,12 @@ export default async function AnnouncementsPage({
 }: Record<string, never>) {
   const t = await getTranslations("announcement");
   const tCommon = await getTranslations("common");
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user!.id)
-    .single();
-
-  const isAdmin = profile?.role === "admin";
+  const [user, role, supabase] = await Promise.all([
+    getUser(),
+    getUserRole(),
+    createClient(),
+  ]);
+  const isAdmin = role === "admin";
 
   const [announcementsRes, readsRes] = await Promise.all([
     supabase.from("announcements").select("*").order("created_at", { ascending: false }),
