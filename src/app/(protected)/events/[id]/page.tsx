@@ -79,7 +79,7 @@ export default async function EventDetailPage({
   const serviceClient = await createServiceClient();
   const [membersRes, attendancesRes] = await Promise.all([
     serviceClient.from("profiles").select("id, full_name, avatar_url").order("full_name"),
-    supabase
+    serviceClient
       .from("attendances")
       .select("user_id, status")
       .eq("entity_type", "event")
