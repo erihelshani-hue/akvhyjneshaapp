@@ -59,13 +59,22 @@ export default async function EventDetailPage({
     .eq("entity_date", event.date)
     .single();
 
-  const { count: yesCount } = await supabase
-    .from("attendances")
-    .select("*", { count: "exact", head: true })
-    .eq("entity_type", "event")
-    .eq("entity_id", id)
-    .eq("entity_date", event.date)
-    .eq("status", "yes");
+  const [{ count: yesCount }, { count: noCount }] = await Promise.all([
+    supabase
+      .from("attendances")
+      .select("*", { count: "exact", head: true })
+      .eq("entity_type", "event")
+      .eq("entity_id", id)
+      .eq("entity_date", event.date)
+      .eq("status", "yes"),
+    supabase
+      .from("attendances")
+      .select("*", { count: "exact", head: true })
+      .eq("entity_type", "event")
+      .eq("entity_id", id)
+      .eq("entity_date", event.date)
+      .eq("status", "no"),
+  ]);
 
   const [membersRes, attendancesRes] = await Promise.all([
     supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
@@ -172,7 +181,8 @@ export default async function EventDetailPage({
         )}
         {notes && (
           <div className="flex items-start gap-2 text-sm pt-1">
-            <span className="text-muted w-32 shrink-0">{t("notes")}:</span>
+            <span className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-muted w-28 shrink-0">{t("notes")}:</span>
             <span className="text-foreground">{notes}</span>
           </div>
         )}
@@ -187,6 +197,7 @@ export default async function EventDetailPage({
           eventDate={event.date}
           currentStatus={attendance?.status as AttendanceStatus ?? null}
           yesCount={yesCount ?? 0}
+          noCount={noCount ?? 0}
         />
       </div>
 

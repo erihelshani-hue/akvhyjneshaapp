@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, Home } from "lucide-react";
 import { UnreadBadge } from "@/components/UnreadBadge";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/navigation";
@@ -38,8 +38,8 @@ export function Header({ unreadCount }: HeaderProps) {
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-6">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 shrink-0 group">
+        {/* Logo – klickbar zur Startseite */}
+        <Link href="/" title="Zur Startseite" className="flex items-center gap-3 shrink-0 group">
           <div className="relative">
             <Image
               src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
@@ -48,8 +48,11 @@ export function Header({ unreadCount }: HeaderProps) {
               height={30}
               className="rounded-full object-cover ring-1 ring-border group-hover:ring-accent/40 transition-all"
             />
+            <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-background ring-1 ring-border opacity-0 group-hover:opacity-100 transition-opacity">
+              <Home className="h-2 w-2 text-muted" />
+            </span>
           </div>
-          <span className="font-playfair text-[15px] font-semibold text-foreground tracking-tight hidden sm:block">
+          <span className="font-playfair text-[15px] font-semibold tracking-tight hidden sm:block text-foreground group-hover:text-accent/80 transition-colors">
             AKV <em className="italic">&ldquo;Hyjnesha&rdquo;</em>
           </span>
         </Link>

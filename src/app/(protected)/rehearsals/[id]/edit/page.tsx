@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { isEndAfterStart } from "@/lib/utils";
+import { isEndAfterStart, isEndDateTimeAfterStart } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,7 @@ export default function EditRehearsalPage() {
     title: "",
     date: "",
     time: "",
+    end_date: "",
     end_time: "",
     location: "",
     notes: "",
@@ -61,6 +62,7 @@ export default function EditRehearsalPage() {
           title: rehearsal.title,
           date: rehearsal.date,
           time: rehearsal.time?.substring(0, 5) ?? "",
+          end_date: rehearsal.end_date ?? "",
           end_time: rehearsal.end_time?.substring(0, 5) ?? "",
           location: rehearsal.location,
           notes: rehearsal.notes ?? "",
@@ -83,11 +85,23 @@ export default function EditRehearsalPage() {
     setError(null);
 
     const startTime = isRecurring ? form.recurrence_time || form.time : form.time;
-    if (form.end_time && !isEndAfterStart(startTime, form.end_time)) {
-      setError(t("form.endAfterStart"));
-      setLoading(false);
-      return;
+
+    if (isRecurring) {
+      if (form.end_time && !isEndAfterStart(startTime, form.end_time)) {
+        setError(t("form.endAfterStart"));
+        setLoading(false);
+        return;
+      }
+    } else {
+      const resolvedEndDate = form.end_date || form.date;
+      if (form.end_time && !isEndDateTimeAfterStart(form.date, startTime, resolvedEndDate, form.end_time)) {
+        setError(t("form.endAfterStart"));
+        setLoading(false);
+        return;
+      }
     }
+
+    const resolvedEndDate = !isRecurring && form.end_date ? form.end_date : null;
 
     const supabase = createClient();
     const { error: updateError } = await supabase
@@ -96,6 +110,7 @@ export default function EditRehearsalPage() {
         title: form.title,
         date: isRecurring ? new Date().toISOString().substring(0, 10) : form.date,
         time: startTime,
+        end_date: resolvedEndDate !== form.date ? resolvedEndDate : null,
         end_time: form.end_time || null,
         location: form.location,
         notes: form.notes || null,
@@ -162,18 +177,22 @@ export default function EditRehearsalPage() {
             </div>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>{t("form.date")}</Label>
-              <Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
+              <Input className="max-w-52" type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("form.endDate")}</Label>
+              <Input className="max-w-52" type="date" value={form.end_date} onChange={(e) => update("end_date", e.target.value)} min={form.date || undefined} />
             </div>
             <div className="space-y-1.5">
               <Label>{t("form.time")}</Label>
-              <Input type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
+              <Input className="max-w-40" type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
             </div>
             <div className="space-y-1.5">
               <Label>{t("form.endTime")}</Label>
-              <Input type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
+              <Input className="max-w-40" type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
             </div>
           </div>
         )}

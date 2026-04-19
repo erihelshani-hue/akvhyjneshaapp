@@ -133,28 +133,31 @@ export default function EditEventPage() {
           <Label>{t("form.title")}</Label>
           <Input value={form.title} onChange={(e) => update("title", e.target.value)} required />
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>{t("form.date")}</Label>
-            <Input className="sm:max-w-52" type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
+            <Input className="max-w-52" type="date" value={form.date} onChange={(e) => update("date", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.endDate")}</Label>
-            <Input className="sm:max-w-52" type="date" value={form.end_date} onChange={(e) => update("end_date", e.target.value)} min={form.date || undefined} />
+            <Input className="max-w-52" type="date" value={form.end_date} onChange={(e) => update("end_date", e.target.value)} min={form.date || undefined} />
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.time")}</Label>
-            <Input className="sm:max-w-40" type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
+            <Input className="max-w-40" type="time" value={form.time} onChange={(e) => update("time", e.target.value)} required />
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.endTime")}</Label>
-            <Input className="sm:max-w-40" type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
+            <Input className="max-w-40" type="time" value={form.end_time} onChange={(e) => update("end_time", e.target.value)} required />
           </div>
         </div>
+
         <div className="space-y-1.5">
           <Label>{t("form.location")}</Label>
           <Input value={form.location} onChange={(e) => update("location", e.target.value)} required />
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>{t("form.eventType")}</Label>
@@ -167,23 +170,20 @@ export default function EditEventPage() {
           </div>
           <div className="space-y-1.5">
             <Label>{t("form.meetupTime")}</Label>
-            <Input className="sm:max-w-40" type="time" value={form.meetup_time} onChange={(e) => update("meetup_time", e.target.value)} />
+            <Input className="max-w-40" type="time" value={form.meetup_time} onChange={(e) => update("meetup_time", e.target.value)} />
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("form.dressCode")}</Label>
-            <Input value={form.dress_code} onChange={(e) => update("dress_code", e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>{t("form.locationUrl")}</Label>
-            <Input type="url" value={form.location_url} onChange={(e) => update("location_url", e.target.value)} />
-          </div>
+
+        <div className="space-y-1.5">
+          <Label>{t("form.locationUrl")}</Label>
+          <Input type="url" value={form.location_url} onChange={(e) => update("location_url", e.target.value)} />
         </div>
+
         <div className="space-y-1.5">
           <Label>{t("form.notes")}</Label>
           <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} />
         </div>
+
         {error && <p className="text-sm text-red-300">{error}</p>}
         <Button type="submit" disabled={loading}>{loading ? t("creating") : t("edit")}</Button>
       </form>

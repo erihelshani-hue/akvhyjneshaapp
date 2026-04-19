@@ -66,13 +66,22 @@ export default async function RehearsalDetailPage({
     .eq("entity_date", targetDate)
     .single();
 
-  const { count: yesCount } = await supabase
-    .from("attendances")
-    .select("*", { count: "exact", head: true })
-    .eq("entity_type", "rehearsal")
-    .eq("entity_id", id)
-    .eq("entity_date", targetDate)
-    .eq("status", "yes");
+  const [{ count: yesCount }, { count: noCount }] = await Promise.all([
+    supabase
+      .from("attendances")
+      .select("*", { count: "exact", head: true })
+      .eq("entity_type", "rehearsal")
+      .eq("entity_id", id)
+      .eq("entity_date", targetDate)
+      .eq("status", "yes"),
+    supabase
+      .from("attendances")
+      .select("*", { count: "exact", head: true })
+      .eq("entity_type", "rehearsal")
+      .eq("entity_id", id)
+      .eq("entity_date", targetDate)
+      .eq("status", "no"),
+  ]);
 
   const [membersRes, attendancesRes] = await Promise.all([
     supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
@@ -161,10 +170,14 @@ export default async function RehearsalDetailPage({
 
       <div className="space-y-3">
         <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted w-20 shrink-0">{t("form.date")}:</span>
+          <span className="text-foreground">{formatDate(targetDate)}</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm">
           <span className="text-muted w-20 shrink-0">{t("time")}:</span>
           <span className="text-foreground flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5 text-muted" />
-            {formatDate(targetDate)} {tCommon("at")} {formatTimeRange(rehearsal.recurrence_time ?? rehearsal.time, rehearsal.end_time)}
+            {formatTimeRange(rehearsal.recurrence_time ?? rehearsal.time, rehearsal.end_time)}
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm">
@@ -175,7 +188,7 @@ export default async function RehearsalDetailPage({
           </span>
         </div>
         {notes && (
-          <div className="flex items-start gap-2 text-sm">
+          <div className="flex items-start gap-2 text-sm pt-1">
             <span className="text-muted w-20 shrink-0 pt-0.5">{t("notes")}:</span>
             <span className="text-foreground">{notes}</span>
           </div>
@@ -191,6 +204,7 @@ export default async function RehearsalDetailPage({
           entityDate={targetDate}
           currentStatus={attendance?.status as AttendanceStatus ?? null}
           yesCount={yesCount ?? 0}
+          noCount={noCount ?? 0}
         />
       </div>
 
