@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Cake, PartyPopper } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RoleBadge } from "@/components/RoleBadge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,8 +39,8 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
 
   return (
     <div className={`flex items-center gap-4 px-4 py-4 rounded-sm glass transition-all duration-200 hover:border-border-strong ${hasBirthdayToday ? "!border-gold/40 !bg-gold/[0.04]" : ""}`}>
-      <div className="relative shrink-0">
-        <Avatar className="h-12 w-12 ring-1 ring-border-strong">
+      <Link href={`/members/${member.id}`} className="relative shrink-0 group">
+        <Avatar className="h-12 w-12 ring-1 ring-border-strong group-hover:ring-accent/40 transition-all">
           {member.avatar_url && <AvatarImage src={member.avatar_url} alt={member.full_name} />}
           <AvatarFallback className="font-display text-sm font-medium bg-surface-2 text-foreground">{initials}</AvatarFallback>
         </Avatar>
@@ -48,10 +49,10 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
             <PartyPopper className="h-3.5 w-3.5" />
           </span>
         )}
-      </div>
+      </Link>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-[15px] font-semibold text-foreground truncate">{member.full_name}</p>
+          <Link href={`/members/${member.id}`} className="text-[15px] font-semibold text-foreground truncate hover:text-accent transition-colors">{member.full_name}</Link>
           <RoleBadge role={role} />
           {member.id === currentUserId && (
             <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/25">

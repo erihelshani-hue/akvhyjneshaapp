@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Bell, Camera, Check, KeyRound, LogOut, User } from "lucide-react";
+import { Bell, Camera, Check, KeyRound, LogOut, Music, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,20 +11,40 @@ import { Label } from "@/components/ui/label";
 import { PushNotificationToggle } from "@/components/PushNotificationToggle";
 import { useRouter } from "@/i18n/navigation";
 
+const DANCE_OPTIONS = [
+  { value: "lirik",     label: "Lirik" },
+  { value: "perdrin",   label: "Perdrin" },
+  { value: "rugove",    label: "Rugove" },
+  { value: "kollazh",   label: "Kollazh" },
+  { value: "librazhd",  label: "Librazhd" },
+  { value: "tropoje",   label: "Tropojë" },
+] as const;
+
 interface SettingsFormProps {
   userId: string;
   initialFullName: string;
   initialAvatarUrl: string | null;
+  initialFavoriteDance: string | null;
+  initialMemberSince: string | null;
+  initialAvailableRehearsals: boolean;
+  initialAvailableEvents: boolean;
   contributionSummary?: React.ReactNode;
 }
 
-export function SettingsForm({ userId, initialFullName, initialAvatarUrl, contributionSummary }: SettingsFormProps) {
+export function SettingsForm({ userId, initialFullName, initialAvatarUrl, initialFavoriteDance, initialMemberSince, initialAvailableRehearsals, initialAvailableEvents, contributionSummary }: SettingsFormProps) {
   const t = useTranslations("settings");
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [fullName, setFullName] = useState(initialFullName);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
+  const [favoriteDance, setFavoriteDance] = useState<string>(initialFavoriteDance ?? "");
+  const [memberSince, setMemberSince] = useState(initialMemberSince ?? "");
+  const [availableRehearsals, setAvailableRehearsals] = useState(initialAvailableRehearsals);
+  const [availableEvents, setAvailableEvents] = useState(initialAvailableEvents);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -295,6 +315,93 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl, contri
             {loading ? t("saving") : t("save")}
           </Button>
         </form>
+      </div>
+
+      {/* Profile details section */}
+      <div className="rounded-xl border border-border bg-surface p-5 space-y-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-2 border border-border">
+            <Music className="h-3.5 w-3.5 text-muted" />
+          </div>
+          <p className="text-sm font-medium text-foreground">Profil-Details</p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Lieblingstanz */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted font-medium">Lieblingstanz</label>
+            <select
+              value={favoriteDance}
+              onChange={(e) => setFavoriteDance(e.target.value)}
+              className="w-full h-9 rounded-md border border-border bg-surface-2 px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-accent/50"
+            >
+              <option value="">— kein Favorit —</option>
+              {DANCE_OPTIONS.map((d) => (
+                <option key={d.value} value={d.value}>{d.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Mitglied seit */}
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted font-medium">Mitglied seit</label>
+            <input
+              type="date"
+              value={memberSince}
+              onChange={(e) => setMemberSince(e.target.value)}
+              className="w-full h-9 rounded-md border border-border bg-surface-2 px-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-accent/50"
+            />
+          </div>
+
+          {/* Verfügbarkeit */}
+          <div className="space-y-2">
+            <p className="text-xs text-muted font-medium">Verfügbarkeit</p>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div
+                onClick={() => setAvailableRehearsals((v) => !v)}
+                className={`relative h-5 w-9 rounded-full transition-colors cursor-pointer ${availableRehearsals ? "bg-emerald-500" : "bg-surface-3"}`}
+              >
+                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${availableRehearsals ? "translate-x-4" : "translate-x-0.5"}`} />
+              </div>
+              <span className="text-sm text-foreground">Verfügbar für Proben</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div
+                onClick={() => setAvailableEvents((v) => !v)}
+                className={`relative h-5 w-9 rounded-full transition-colors cursor-pointer ${availableEvents ? "bg-emerald-500" : "bg-surface-3"}`}
+              >
+                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${availableEvents ? "translate-x-4" : "translate-x-0.5"}`} />
+              </div>
+              <span className="text-sm text-foreground">Verfügbar für Auftritte</span>
+            </label>
+          </div>
+        </div>
+
+        {profileError && <p className="text-sm text-red-400">{profileError}</p>}
+        {profileSaved && <p className="text-sm text-emerald-400">Gespeichert ✓</p>}
+
+        <Button
+          type="button"
+          size="sm"
+          disabled={profileLoading}
+          onClick={async () => {
+            setProfileLoading(true);
+            setProfileError(null);
+            setProfileSaved(false);
+            const supabase = createClient();
+            const { error } = await supabase.from("profiles").update({
+              favorite_dance: favoriteDance || null,
+              member_since: memberSince || null,
+              available_for_rehearsals: availableRehearsals,
+              available_for_events: availableEvents,
+            }).eq("id", userId);
+            if (error) setProfileError("Fehler beim Speichern.");
+            else { setProfileSaved(true); router.refresh(); }
+            setProfileLoading(false);
+          }}
+        >
+          {profileLoading ? "Speichere..." : "Speichern"}
+        </Button>
       </div>
 
       {/* Push notifications section */}

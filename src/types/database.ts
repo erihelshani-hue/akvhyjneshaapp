@@ -4,6 +4,8 @@ export type EntityType = "rehearsal" | "event";
 export type EventType = "performance" | "wedding" | "festival" | "other";
 export type RecurrenceDay = "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
 
+export type FavoriteDance = "lirik" | "perdrin" | "rugove" | "kollazh" | "librazhd" | "tropoje";
+
 export interface Profile {
   id: string;
   full_name: string;
@@ -12,7 +14,11 @@ export interface Profile {
   avatar_url: string | null;
   language_preference: string;
   created_at: string;
-  birthday: string | null; // ISO date "YYYY-MM-DD", admin-managed
+  birthday: string | null;
+  favorite_dance: FavoriteDance | null;
+  member_since: string | null;
+  available_for_rehearsals: boolean;
+  available_for_events: boolean;
 }
 
 export interface BirthdayNotification {
@@ -145,7 +151,12 @@ export type Database = {
     Tables: {
       profiles: {
         Row: Profile;
-        Insert: Omit<Profile, "created_at">;
+        Insert: Omit<Profile, "created_at" | "favorite_dance" | "member_since" | "available_for_rehearsals" | "available_for_events"> & {
+          favorite_dance?: FavoriteDance | null;
+          member_since?: string | null;
+          available_for_rehearsals?: boolean;
+          available_for_events?: boolean;
+        };
         Update: Partial<Omit<Profile, "id" | "created_at">>;
         Relationships: [];
       };

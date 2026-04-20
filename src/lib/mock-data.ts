@@ -9,6 +9,10 @@ export const DEV_USER: Profile = {
   language_preference: "de",
   created_at: "2025-01-01T00:00:00Z",
   birthday: null,
+  favorite_dance: null,
+  member_since: null,
+  available_for_rehearsals: true,
+  available_for_events: true,
 };
 
 export const MOCK_REHEARSALS: Rehearsal[] = [
@@ -109,10 +113,10 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
 
 export const MOCK_MEMBERS: Profile[] = [
   DEV_USER,
-  { id: "m2", full_name: "Mimoza Berisha", email: "mimoza@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-03-15T00:00:00Z", birthday: null },
-  { id: "m3", full_name: "Arben Krasniqi", email: "arben@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-04-01T00:00:00Z", birthday: null },
-  { id: "m4", full_name: "Fjolla Rama", email: "fjolla@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-05-10T00:00:00Z", birthday: null },
-  { id: "m5", full_name: "Blerim Hoxha", email: "blerim@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-06-20T00:00:00Z", birthday: null },
+  { id: "m2", full_name: "Mimoza Berisha", email: "mimoza@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-03-15T00:00:00Z", birthday: null, favorite_dance: null, member_since: null, available_for_rehearsals: true, available_for_events: true },
+  { id: "m3", full_name: "Arben Krasniqi", email: "arben@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-04-01T00:00:00Z", birthday: null, favorite_dance: null, member_since: null, available_for_rehearsals: true, available_for_events: true },
+  { id: "m4", full_name: "Fjolla Rama", email: "fjolla@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-05-10T00:00:00Z", birthday: null, favorite_dance: null, member_since: null, available_for_rehearsals: true, available_for_events: true },
+  { id: "m5", full_name: "Blerim Hoxha", email: "blerim@example.com", role: "member", avatar_url: null, language_preference: "de", created_at: "2025-06-20T00:00:00Z", birthday: null, favorite_dance: null, member_since: null, available_for_rehearsals: true, available_for_events: true },
 ];
 
 export const DEV_READ_IDS = new Set(["ann-3"]);
