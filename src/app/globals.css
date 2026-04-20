@@ -34,7 +34,7 @@
       #0b0b0c;
     background-attachment: fixed;
     color: var(--foreground);
-    font-family: var(--font-inter), Manrope, system-ui, sans-serif;
+    font-family: var(--font-inter), system-ui, sans-serif;
     font-size: 15px;
     line-height: 1.55;
     letter-spacing: -0.005em;
@@ -182,7 +182,7 @@
   }
 
   .brand-eyebrow {
-    font-family: var(--font-mono), JetBrains Mono, ui-monospace, monospace;
+    font-family: var(--font-inter), system-ui, sans-serif;
     font-size: 11px;
     letter-spacing: 0.18em;
     text-transform: uppercase;

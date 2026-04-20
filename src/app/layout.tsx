@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, JetBrains_Mono, Manrope } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import "./globals.css";
@@ -13,15 +13,9 @@ const displayFont = Cormorant_Garamond({
   display: "swap",
 });
 
-const bodyFont = Manrope({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap",
-});
-
-const monoFont = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
   display: "swap",
 });
 
@@ -96,7 +90,7 @@ export default async function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <head />
-      <body className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} font-inter`}>
+      <body className={`${displayFont.variable} ${inter.variable} font-inter`}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

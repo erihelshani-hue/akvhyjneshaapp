@@ -65,8 +65,8 @@ const config: Config = {
       fontFamily: {
         playfair: ["var(--font-display)", "Cormorant Garamond", "Georgia", "serif"],
         display: ["var(--font-display)", "Cormorant Garamond", "Georgia", "serif"],
-        inter: ["var(--font-inter)", "Manrope", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "monospace"],
+        inter: ["var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "14px",
