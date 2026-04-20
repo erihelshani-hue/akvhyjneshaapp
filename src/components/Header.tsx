@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Bell, Calendar, FolderOpen, Home, LogOut, PersonStanding, Settings, ShieldCheck, Users } from "lucide-react";
+import { Bell, Calendar, FolderOpen, Home, LogOut, Settings, ShieldCheck, Users } from "lucide-react";
+import { DanceIcon } from "@/components/icons/DanceIcon";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/navigation";
 
@@ -25,7 +26,7 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
   }
 
   const navItems = [
-    { href: "/rehearsals",   label: t("rehearsals"),   Icon: PersonStanding },
+    { href: "/rehearsals",   label: t("rehearsals"),   Icon: DanceIcon },
     { href: "/events",       label: t("events"),        Icon: Calendar },
     { href: "/announcements",label: t("announcements"), Icon: Bell, badge: unreadCount },
     { href: "/members",      label: t("members"),       Icon: Users },
