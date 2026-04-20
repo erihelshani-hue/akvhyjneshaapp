@@ -91,10 +91,15 @@ export default async function MembersPage({}: Record<string, never>) {
   );
 
   const todayBirthdays = members.filter((m) => m.birthday && isTodayBirthday(m.birthday));
+  const nowUTC = new Date();
+  const currentMonth = nowUTC.getUTCMonth();
   const upcomingBirthdays = members
-    .filter((m) => m.birthday && !isTodayBirthday(m.birthday))
+    .filter((m) => {
+      if (!m.birthday || isTodayBirthday(m.birthday)) return false;
+      const bdMonth = new Date(m.birthday + "T12:00:00Z").getUTCMonth();
+      return bdMonth === currentMonth;
+    })
     .map((m) => ({ member: m, daysUntil: daysUntilBirthday(m.birthday!) }))
-    .filter(({ daysUntil }) => daysUntil <= 30)
     .sort((a, b) => a.daysUntil - b.daysUntil);
 
   const hasBirthdaySections = todayBirthdays.length > 0 || upcomingBirthdays.length > 0;
@@ -121,7 +126,7 @@ export default async function MembersPage({}: Record<string, never>) {
       )}
       {upcomingBirthdays.length > 0 && (
         <section className="rounded-lg glass p-5">
-          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted mb-2">Nächste Geburtstage</p>
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted mb-2">{monthLabel} Geburtstage</p>
           <div className="divide-y divide-white/5">
             {upcomingBirthdays.map(({ member, daysUntil }) => (
               <UpcomingBirthdayRow key={member.id} member={member} daysUntil={daysUntil} />
