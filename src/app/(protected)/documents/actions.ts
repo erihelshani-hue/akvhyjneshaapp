@@ -21,7 +21,6 @@ export async function uploadDocument(formData: FormData) {
 
   if (!file || !title || !category) throw new Error("Fehlende Felder");
 
-  const ext = file.name.split(".").pop();
   const path = `${category}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
 
   const { error: storageError } = await supabase.storage.from("documents").upload(path, file);

@@ -19,7 +19,7 @@ function isAudio(mime: string | null) {
   return !!mime?.startsWith("audio/");
 }
 
-function AudioPlayer({ url, title }: { url: string; title: string }) {
+function AudioPlayer({ url }: { url: string }) {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -110,7 +110,7 @@ function DocumentCard({ doc, isAdmin, onDelete }: { doc: DocumentRow; isAdmin: b
           )}
         </div>
       </div>
-      {audio && <AudioPlayer url={doc.url} title={doc.title} />}
+      {audio && <AudioPlayer url={doc.url} />}
     </div>
   );
 }
@@ -196,7 +196,7 @@ export function DocumentsClient({
   const [docs, setDocs] = useState(initialDocs);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [showUpload, setShowUpload] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   function handleDelete(doc: DocumentRow) {
     if (!window.confirm(`"${doc.title}" wirklich löschen?`)) return;
