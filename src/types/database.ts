@@ -36,6 +36,9 @@ export interface Rehearsal {
   recurrence_time: string | null;
   created_by: string | null;
   created_at: string;
+  is_archived: boolean;
+  archived_at: string | null;
+  archived_by: string | null;
 }
 
 export interface Event {
@@ -53,6 +56,21 @@ export interface Event {
   notes: string | null;
   created_by: string | null;
   created_at: string;
+  is_archived: boolean;
+  archived_at: string | null;
+  archived_by: string | null;
+}
+
+export interface MemberContribution {
+  id: string;
+  user_id: string;
+  contribution_month: string; // ISO date "YYYY-MM-01"
+  amount_due: number;
+  amount_paid: number;
+  paid_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Attendance {
@@ -101,7 +119,7 @@ export interface RehearsalOccurrence {
 
 export type RehearsalInsert = Omit<
   Rehearsal,
-  "id" | "created_at" | "end_date" | "end_time"
+  "id" | "created_at" | "end_date" | "end_time" | "is_archived" | "archived_at" | "archived_by"
 > & {
   end_date?: string | null;
   end_time?: string | null;
@@ -109,11 +127,13 @@ export type RehearsalInsert = Omit<
 
 export type EventInsert = Omit<
   Event,
-  "id" | "created_at" | "end_date" | "end_time"
+  "id" | "created_at" | "end_date" | "end_time" | "is_archived" | "archived_at" | "archived_by"
 > & {
   end_date?: string | null;
   end_time?: string | null;
 };
+
+export type MemberContributionInsert = Omit<MemberContribution, "id" | "created_at" | "updated_at">;
 
 export type AnnouncementInsert = Omit<
   Announcement,
@@ -169,6 +189,12 @@ export type Database = {
         Row: BirthdayNotification;
         Insert: Omit<BirthdayNotification, "id" | "created_at">;
         Update: never;
+        Relationships: [];
+      };
+      member_contributions: {
+        Row: MemberContribution;
+        Insert: MemberContributionInsert;
+        Update: Partial<Omit<MemberContribution, "id" | "created_at">>;
         Relationships: [];
       };
     };

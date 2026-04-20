@@ -16,13 +16,20 @@ import type { Profile } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
 import { isTodayBirthday, formatBirthdayShort } from "@/lib/birthday";
 
+interface ContributionStatus {
+  paid: boolean;
+  hasDue: boolean;
+}
+
 interface MemberCardProps {
   member: Profile;
   isAdmin: boolean;
   currentUserId: string;
+  contributionStatus?: ContributionStatus | null;
+  contributionMonthLabel?: string;
 }
 
-export function MemberCard({ member, isAdmin, currentUserId }: MemberCardProps) {
+export function MemberCard({ member, isAdmin, currentUserId, contributionStatus, contributionMonthLabel }: MemberCardProps) {
   const t = useTranslations("member");
   const [role, setRole] = useState(member.role);
 
@@ -73,6 +80,11 @@ export function MemberCard({ member, isAdmin, currentUserId }: MemberCardProps) 
             <Cake className="h-3 w-3 shrink-0" />
             {formatBirthdayShort(member.birthday)}
             {hasBirthdayToday && " · Heute Geburtstag! 🎉"}
+          </p>
+        )}
+        {contributionStatus?.hasDue && contributionMonthLabel && (
+          <p className={`text-xs mt-0.5 ${contributionStatus.paid ? "text-emerald-400" : "text-red-400"}`}>
+            Beitrag {contributionMonthLabel}: {contributionStatus.paid ? "bezahlt ✓" : "offen"}
           </p>
         )}
       </div>

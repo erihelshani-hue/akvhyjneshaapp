@@ -3,16 +3,17 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { LogOut, Settings, Home } from "lucide-react";
+import { LogOut, Settings, Home, ShieldCheck } from "lucide-react";
 import { UnreadBadge } from "@/components/UnreadBadge";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/navigation";
 
 interface HeaderProps {
   unreadCount: number;
+  isAdmin: boolean;
 }
 
-export function Header({ unreadCount }: HeaderProps) {
+export function Header({ unreadCount, isAdmin }: HeaderProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const router = useRouter();
@@ -29,6 +30,7 @@ export function Header({ unreadCount }: HeaderProps) {
     { href: "/events",        label: t("events") },
     { href: "/announcements", label: t("announcements"), badge: unreadCount },
     { href: "/members",       label: t("members") },
+    ...(isAdmin ? [{ href: "/admin", label: t("admin"), badge: undefined }] : []),
   ];
 
   return (
@@ -70,6 +72,7 @@ export function Header({ unreadCount }: HeaderProps) {
                     : "text-muted hover:text-foreground hover:bg-surface-2/60"
                 }`}
               >
+                {href === "/admin" && <ShieldCheck className="h-3 w-3" />}
                 {label}
                 {badge !== undefined && badge > 0 && <UnreadBadge count={badge} />}
               </Link>

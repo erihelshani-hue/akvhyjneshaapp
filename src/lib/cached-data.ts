@@ -75,6 +75,7 @@ export const getUpcomingEvents = unstable_cache(
       .from("events")
       .select("*")
       .gte("date", today)
+      .eq("is_archived", false)
       .order("date");
 
     if (error) throw error;
@@ -106,6 +107,7 @@ export const getAllRehearsals = unstable_cache(
     const { data, error } = await supabase
       .from("rehearsals")
       .select("*")
+      .eq("is_archived", false)
       .order("date");
 
     if (error) throw error;

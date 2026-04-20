@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Bell, Camera, Check, KeyRound, LogOut, User } from "lucide-react";
@@ -15,9 +15,10 @@ interface SettingsFormProps {
   userId: string;
   initialFullName: string;
   initialAvatarUrl: string | null;
+  contributionSummary?: React.ReactNode;
 }
 
-export function SettingsForm({ userId, initialFullName, initialAvatarUrl }: SettingsFormProps) {
+export function SettingsForm({ userId, initialFullName, initialAvatarUrl, contributionSummary }: SettingsFormProps) {
   const t = useTranslations("settings");
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -306,6 +307,9 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl }: Sett
         </div>
         <PushNotificationToggle />
       </div>
+
+      {/* Contribution summary (server-rendered slot) */}
+      {contributionSummary}
 
       {/* Password section */}
       <div className="rounded-xl border border-border bg-surface p-5 space-y-5">

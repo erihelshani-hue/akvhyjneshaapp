@@ -26,6 +26,7 @@ export const MOCK_REHEARSALS: Rehearsal[] = [
     recurrence_time: "19:00:00",
     created_by: "dev-user-id",
     created_at: "2026-01-01T00:00:00Z",
+    is_archived: false, archived_at: null, archived_by: null,
   },
   {
     id: "reh-2",
@@ -41,6 +42,7 @@ export const MOCK_REHEARSALS: Rehearsal[] = [
     recurrence_time: null,
     created_by: "dev-user-id",
     created_at: "2026-01-15T00:00:00Z",
+    is_archived: false, archived_at: null, archived_by: null,
   },
 ];
 
@@ -60,6 +62,7 @@ export const MOCK_EVENTS: Event[] = [
     notes: "Großes Frühjahresfest mit albanischen Ensembles aus ganz Österreich.",
     created_by: "dev-user-id",
     created_at: "2026-02-01T00:00:00Z",
+    is_archived: false, archived_at: null, archived_by: null,
   },
   {
     id: "evt-2",
@@ -76,6 +79,7 @@ export const MOCK_EVENTS: Event[] = [
     notes: null,
     created_by: "dev-user-id",
     created_at: "2026-02-10T00:00:00Z",
+    is_archived: false, archived_at: null, archived_by: null,
   },
 ];
 

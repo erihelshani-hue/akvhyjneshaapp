@@ -2,22 +2,27 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { PersonStanding, Calendar, Bell, Users } from "lucide-react";
+import { PersonStanding, Calendar, Bell, Users, ShieldCheck } from "lucide-react";
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: "/rehearsals",    labelKey: "rehearsals",    Icon: PersonStanding },
   { href: "/events",        labelKey: "events",        Icon: Calendar },
   { href: "/announcements", labelKey: "announcements", Icon: Bell },
   { href: "/members",       labelKey: "members",       Icon: Users },
 ] as const;
 
+const ADMIN_NAV_ITEM = { href: "/admin", labelKey: "admin", Icon: ShieldCheck } as const;
+
 interface BottomNavProps {
   unreadCount: number;
+  isAdmin: boolean;
 }
 
-export function BottomNav({ unreadCount }: BottomNavProps) {
+export function BottomNav({ unreadCount, isAdmin }: BottomNavProps) {
   const t = useTranslations("nav");
   const pathname = usePathname();
+
+  const navItems = isAdmin ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS;
 
   return (
     <nav
@@ -25,7 +30,7 @@ export function BottomNav({ unreadCount }: BottomNavProps) {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-stretch justify-around h-[3.5rem]">
-        {NAV_ITEMS.map(({ href, labelKey, Icon }) => {
+        {navItems.map(({ href, labelKey, Icon }) => {
           const isActive = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link

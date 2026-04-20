@@ -8,6 +8,7 @@ import { EventDeleteButton } from "./EventDeleteButton";
 import { Link } from "@/i18n/navigation";
 import { formatDateRange, formatTime, formatTimeRange } from "@/lib/utils";
 import { MapPin, Clock, Shirt, Users, ExternalLink, ArrowLeft, Edit } from "lucide-react";
+import { ArchiveButton } from "@/components/ArchiveButton";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import type { AttendanceStatus } from "@/types/database";
@@ -137,6 +138,7 @@ export default async function EventDetailPage({
             <Link href={`/events/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-zinc-600 hover:text-foreground" aria-label={t("edit")}>
               <Edit className="h-3.5 w-3.5" />
             </Link>
+            <ArchiveButton type="event" id={id} isArchived={event.is_archived} />
             <EventDeleteButton eventId={id} />
           </div>
         )}

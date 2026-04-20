@@ -1,11 +1,26 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getUser, getUserRole } from "@/lib/auth";
 import { MemberCard } from "@/components/MemberCard";
 import { InviteButton } from "./InviteButton";
 import { isTodayBirthday, daysUntilBirthday, formatBirthdayShort } from "@/lib/birthday";
 import type { Profile } from "@/types/database";
+
+function currentMonthStart() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
+    .toISOString()
+    .split("T")[0];
+}
+
+function currentMonthLabel() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toLocaleDateString("de-DE", {
+    month: "long",
+    timeZone: "UTC",
+  });
+}
 
 function getInitials(name: string) {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -60,15 +75,33 @@ function UpcomingBirthdayRow({ member, daysUntil }: { member: Profile; daysUntil
 
 export default async function MembersPage({}: Record<string, never>) {
   const t = await getTranslations("member");
-  const [user, role, supabase] = await Promise.all([
+  const [user, role, supabase, serviceClient] = await Promise.all([
     getUser(),
     getUserRole(),
     createClient(),
+    createServiceClient(),
   ]);
 
-  const { data: membersData } = await supabase.from("profiles").select("*").order("full_name");
+  const month = currentMonthStart();
+  const monthLabel = currentMonthLabel();
+
+  const [{ data: membersData }, { data: contributions }] = await Promise.all([
+    supabase.from("profiles").select("*").order("full_name"),
+    serviceClient
+      .from("member_contributions")
+      .select("user_id, amount_due, amount_paid")
+      .eq("contribution_month", month),
+  ]);
+
   const isAdmin = role === "admin";
   const members: Profile[] = membersData ?? [];
+
+  const contributionMap = new Map(
+    (contributions ?? []).map((c) => [
+      c.user_id,
+      { paid: c.amount_paid >= c.amount_due && c.amount_due > 0, hasDue: c.amount_due > 0 },
+    ])
+  );
 
   const todayBirthdays = members.filter((m) => m.birthday && isTodayBirthday(m.birthday));
 
@@ -132,6 +165,8 @@ export default async function MembersPage({}: Record<string, never>) {
                 member={member}
                 isAdmin={isAdmin}
                 currentUserId={user!.id}
+                contributionStatus={contributionMap.get(member.id) ?? null}
+                contributionMonthLabel={monthLabel}
               />
             ))}
           </div>

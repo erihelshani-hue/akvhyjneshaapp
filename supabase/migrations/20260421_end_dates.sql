@@ -21,3 +21,4 @@ alter table public.events
       end_time is null
       or (coalesce(end_date, date), end_time) > (date, time)
     );
+ 

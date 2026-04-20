@@ -10,6 +10,7 @@ import { RehearsalRSVP } from "./RehearsalRSVP";
 import { Link } from "@/i18n/navigation";
 import { formatDate, formatTimeRange } from "@/lib/utils";
 import { Edit, MapPin, Clock, ArrowLeft } from "lucide-react";
+import { ArchiveButton } from "@/components/ArchiveButton";
 import Image from "next/image";
 import type { AttendanceStatus } from "@/types/database";
 
@@ -139,6 +140,7 @@ export default async function RehearsalDetailPage({
               <Link href={`/rehearsals/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-zinc-600 hover:text-foreground" aria-label={t("edit")}>
                 <Edit className="h-3.5 w-3.5" />
               </Link>
+              <ArchiveButton type="rehearsal" id={id} isArchived={rehearsal.is_archived} />
               <RehearsalDeleteButton rehearsalId={id} />
             </div>
           )}

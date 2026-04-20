@@ -5,7 +5,8 @@
     "announcements": "Ankündigungen",
     "members": "Mitglieder",
     "settings": "Einstellungen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "admin": "Admin"
   },
   "auth": {
     "title": "Anmelden",
