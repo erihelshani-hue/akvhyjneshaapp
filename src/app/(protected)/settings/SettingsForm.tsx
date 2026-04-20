@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Bell, Camera, Check, LogOut, User } from "lucide-react";
+import { Bell, Camera, Check, KeyRound, LogOut, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,12 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl }: Sett
   const [avatarSaved, setAvatarSaved] = useState(false);
 
   const [logoutLoading, setLogoutLoading] = useState(false);
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const initials = fullName
     .split(" ")
@@ -117,6 +123,34 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl }: Sett
       router.refresh();
     }
     setLoading(false);
+  }
+
+  async function handlePasswordSet(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSaved(false);
+
+    if (newPassword.length < 8) {
+      setPasswordError(t("passwordTooShort"));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError(t("passwordMismatch"));
+      return;
+    }
+
+    setPasswordLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      setPasswordError(t("passwordError"));
+    } else {
+      setPasswordSaved(true);
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    setPasswordLoading(false);
   }
 
   async function handleLogout() {
@@ -271,6 +305,62 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl }: Sett
           <p className="text-sm font-medium text-foreground">Benachrichtigungen</p>
         </div>
         <PushNotificationToggle />
+      </div>
+
+      {/* Password section */}
+      <div className="rounded-xl border border-border bg-surface p-5 space-y-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-2 border border-border">
+            <KeyRound className="h-3.5 w-3.5 text-muted" />
+          </div>
+          <p className="text-sm font-medium text-foreground">{t("passwordSection")}</p>
+        </div>
+        <p className="text-xs text-muted leading-relaxed">{t("passwordHint")}</p>
+        <form onSubmit={handlePasswordSet} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="new-password" className="text-xs text-muted font-medium">
+              {t("passwordNew")}
+            </Label>
+            <Input
+              id="new-password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={8}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password" className="text-xs text-muted font-medium">
+              {t("passwordConfirm")}
+            </Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={8}
+              required
+            />
+          </div>
+
+          {passwordError && (
+            <p className="text-sm text-red-400 bg-red-400/8 rounded-lg px-3 py-2 border border-red-400/20">
+              {passwordError}
+            </p>
+          )}
+          {passwordSaved && (
+            <p className="text-sm text-green-400 bg-green-400/8 rounded-lg px-3 py-2 border border-green-400/20">
+              {t("passwordSaved")}
+            </p>
+          )}
+
+          <Button type="submit" disabled={passwordLoading} size="sm">
+            {passwordLoading ? t("passwordSaving") : t("passwordSave")}
+          </Button>
+        </form>
       </div>
 
       {/* Account section */}

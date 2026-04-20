@@ -4,7 +4,8 @@ export const supabaseCookieOptions: CookieOptionsWithName = {
   path: "/",
   sameSite: "lax",
   secure: process.env.NODE_ENV === "production",
-  maxAge: 400 * 24 * 60 * 60,
+  // 90 days — must match "Refresh Token Expiry" in Supabase Dashboard → Auth → JWT Settings
+  maxAge: 90 * 24 * 60 * 60,
 };
 
 export const supabaseAuthOptions = {
