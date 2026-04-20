@@ -86,11 +86,6 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
     save(due, paid, notes);
   }
 
-  function handleMarkPaid() {
-    setAmountPaid(amountDue);
-    save(due, due, notes);
-  }
-
   function handleDelete() {
     if (!window.confirm(`Beitrag fuer ${row.fullName} wirklich loeschen?`)) return;
 
@@ -194,12 +189,6 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
             <Button size="sm" onClick={handleSave} disabled={isPending} className="h-8 text-xs">
               {isPending ? "Speichere..." : "Speichern"}
             </Button>
-
-            {due > 0 && paid < due && (
-              <Button size="sm" variant="outline" onClick={handleMarkPaid} disabled={isPending} className="h-8 text-xs">
-                Als bezahlt markieren
-              </Button>
-            )}
 
             <Button
               size="sm"

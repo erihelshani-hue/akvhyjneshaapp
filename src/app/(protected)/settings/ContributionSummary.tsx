@@ -27,6 +27,9 @@ export function ContributionSummary({ contributions }: ContributionSummaryProps)
     (sum, c) => sum + Math.max(0, c.amount_due - c.amount_paid),
     0
   );
+  const openContributions = contributions
+    .map((c) => ({ ...c, openAmount: Math.max(0, c.amount_due - c.amount_paid) }))
+    .filter((c) => c.openAmount > 0);
 
   const currentMonth = currentMonthStart();
   const currentMonthEntry = contributions.find((c) => c.contribution_month === currentMonth);
@@ -55,6 +58,28 @@ export function ContributionSummary({ contributions }: ContributionSummaryProps)
                 Offen
               </span>
             ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* Open months */}
+      {openContributions.length > 0 && (
+        <div className="space-y-2 pt-1 border-t border-border">
+          <p className="text-xs font-medium text-muted">Offene Monate</p>
+          <div className="space-y-1.5">
+            {openContributions.map((contribution) => (
+              <div
+                key={contribution.id}
+                className="flex items-center justify-between gap-3 text-sm"
+              >
+                <span className="min-w-0 truncate text-muted">
+                  {formatMonth(contribution.contribution_month)}
+                </span>
+                <span className="shrink-0 font-medium text-red-400">
+                  â‚¬{contribution.openAmount.toFixed(2)} offen
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}
