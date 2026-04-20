@@ -2,13 +2,14 @@
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Bell, Calendar, PersonStanding, ShieldCheck, Users } from "lucide-react";
+import { Bell, Calendar, FolderOpen, PersonStanding, ShieldCheck, Users } from "lucide-react";
 
 const BASE_NAV_ITEMS = [
   { href: "/rehearsals",    labelKey: "rehearsals",    Icon: PersonStanding },
   { href: "/events",        labelKey: "events",        Icon: Calendar },
   { href: "/announcements", labelKey: "announcements", Icon: Bell },
   { href: "/members",       labelKey: "members",       Icon: Users },
+  { href: "/documents",     labelKey: "documents",     Icon: FolderOpen },
 ] as const;
 
 const ADMIN_NAV_ITEM = { href: "/admin", labelKey: "admin", Icon: ShieldCheck } as const;

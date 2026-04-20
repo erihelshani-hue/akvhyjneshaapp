@@ -5,6 +5,7 @@ import { getUser, getUserRole } from "@/lib/auth";
 import { getEventById } from "@/lib/cached-data";
 import { EventRSVP } from "./EventRSVP";
 import { EventDeleteButton } from "./EventDeleteButton";
+import { EventChecklist } from "./EventChecklist";
 import { Link } from "@/i18n/navigation";
 import { formatDateRange, formatTime, formatTimeRange } from "@/lib/utils";
 import { MapPin, Clock, Shirt, Users, ExternalLink, ArrowLeft, Edit } from "lucide-react";
@@ -78,7 +79,7 @@ export default async function EventDetailPage({
       .eq("entity_date", event.date)
       .eq("status", "no"),
   ]);
-  const [membersRes, attendancesRes] = await Promise.all([
+  const [membersRes, attendancesRes, checklistRes] = await Promise.all([
     serviceClient.from("profiles").select("id, full_name, avatar_url").order("full_name"),
     serviceClient
       .from("attendances")
@@ -86,6 +87,11 @@ export default async function EventDetailPage({
       .eq("entity_type", "event")
       .eq("entity_id", id)
       .eq("entity_date", event.date),
+    serviceClient
+      .from("event_checklist_items")
+      .select("id, label, is_done, sort_order")
+      .eq("event_id", id)
+      .order("sort_order"),
   ]);
 
   const statusByUser = new Map<string, AttendanceStatus>(
@@ -190,6 +196,14 @@ export default async function EventDetailPage({
           </div>
         )}
       </div>
+
+      <div className="h-px bg-border" />
+
+      <EventChecklist
+        eventId={id}
+        items={checklistRes.data ?? []}
+        isAdmin={isAdmin}
+      />
 
       <div className="h-px bg-border" />
 

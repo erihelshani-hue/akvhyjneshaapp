@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Bell, Calendar, LogOut, PersonStanding, Settings, ShieldCheck, Users } from "lucide-react";
+import { Bell, Calendar, FolderOpen, Home, LogOut, PersonStanding, Settings, ShieldCheck, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "@/i18n/navigation";
 
@@ -29,6 +29,7 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
     { href: "/events",       label: t("events"),        Icon: Calendar },
     { href: "/announcements",label: t("announcements"), Icon: Bell, badge: unreadCount },
     { href: "/members",      label: t("members"),       Icon: Users },
+    { href: "/documents",    label: t("documents"),     Icon: FolderOpen },
     ...(isAdmin ? [{ href: "/admin", label: t("admin"), Icon: ShieldCheck, badge: undefined }] : []),
   ];
 
@@ -61,6 +62,10 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
           </div>
           <span className="hidden sm:block font-display text-[1.125rem] font-semibold text-foreground">
             AKV <em className="italic text-foreground">&ldquo;Hyjnesha&rdquo;</em>
+          </span>
+          <span className="sm:hidden flex items-center gap-1 text-[10px] font-medium text-muted/60 tracking-wider">
+            <Home className="h-3 w-3" />
+            Home
           </span>
         </Link>
 

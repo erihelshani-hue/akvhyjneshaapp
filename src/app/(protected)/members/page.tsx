@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getUser, getUserRole } from "@/lib/auth";
 import { MemberCard } from "@/components/MemberCard";
-import { InviteButton } from "./InviteButton";
 import { isTodayBirthday, daysUntilBirthday, formatBirthdayShort } from "@/lib/birthday";
 import { PartyPopper } from "lucide-react";
 import type { Profile } from "@/types/database";
@@ -112,7 +111,6 @@ export default async function MembersPage({}: Record<string, never>) {
           <h1 className="font-display text-4xl font-medium text-foreground tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted mt-1">{members.length} Mitglieder</p>
         </div>
-        {isAdmin && <InviteButton />}
       </header>
       {todayBirthdays.length > 0 && (
         <section className="space-y-3">
