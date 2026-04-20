@@ -10,6 +10,10 @@ export const CACHE_TAGS = {
 
 const LIST_REVALIDATE_SECONDS = 60;
 
+function isMissingArchiveColumn(error: { code?: string; message?: string }) {
+  return error.code === "42703" && error.message?.includes("is_archived");
+}
+
 function createReadClient() {
   return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -78,6 +82,17 @@ export const getUpcomingEvents = unstable_cache(
       .eq("is_archived", false)
       .order("date");
 
+    if (error && isMissingArchiveColumn(error)) {
+      const fallback = await supabase
+        .from("events")
+        .select("*")
+        .gte("date", today)
+        .order("date");
+
+      if (fallback.error) throw fallback.error;
+      return (fallback.data ?? []) as Event[];
+    }
+
     if (error) throw error;
     return (data ?? []) as Event[];
   },
@@ -109,6 +124,16 @@ export const getAllRehearsals = unstable_cache(
       .select("*")
       .eq("is_archived", false)
       .order("date");
+
+    if (error && isMissingArchiveColumn(error)) {
+      const fallback = await supabase
+        .from("rehearsals")
+        .select("*")
+        .order("date");
+
+      if (fallback.error) throw fallback.error;
+      return (fallback.data ?? []) as Rehearsal[];
+    }
 
     if (error) throw error;
     return (data ?? []) as Rehearsal[];
