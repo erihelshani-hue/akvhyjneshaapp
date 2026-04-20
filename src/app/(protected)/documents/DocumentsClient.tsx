@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { FileAudio, FileText, FileImage, File, Download, Trash2, Upload, Lock, Play, Pause, ExternalLink } from "lucide-react";
 import { uploadDocument, deleteDocument } from "./actions";
-import type { DocumentRow, CATEGORIES } from "./page";
+import { CATEGORIES, type DocumentRow } from "./types";
 
 type CategoryDef = (typeof CATEGORIES)[number];
 
