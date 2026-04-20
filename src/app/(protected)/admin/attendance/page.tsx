@@ -2,7 +2,7 @@ import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { AttendanceStatus, EntityType } from "@/types/database";
 
-type AttendanceRow = { user_id: string; entity_type: EntityType; status: AttendanceStatus };
+type AttendanceRow = { user_id: string; entity_type: EntityType; entity_id: string; status: AttendanceStatus };
 type Profile = { id: string; full_name: string; avatar_url: string | null };
 
 type MemberStats = {
@@ -36,10 +36,15 @@ function AttendanceBar({ yes, total }: { yes: number; total: number }) {
 export default async function AttendancePage() {
   const supabase = await createServiceClient();
 
-  const [{ data: profiles }, { data: attendances }] = await Promise.all([
+  const [{ data: profiles }, { data: rehearsals }, { data: events }, { data: attendances }] = await Promise.all([
     supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
-    supabase.from("attendances").select("user_id, entity_type, status"),
+    supabase.from("rehearsals").select("id"),
+    supabase.from("events").select("id"),
+    supabase.from("attendances").select("user_id, entity_type, entity_id, status"),
   ]);
+
+  const rehearsalIds = new Set((rehearsals ?? []).map((r: { id: string }) => r.id));
+  const eventIds     = new Set((events     ?? []).map((e: { id: string }) => e.id));
 
   const statsMap = new Map<string, MemberStats>();
 
@@ -54,6 +59,9 @@ export default async function AttendancePage() {
   for (const row of (attendances ?? []) as AttendanceRow[]) {
     const entry = statsMap.get(row.user_id);
     if (!entry) continue;
+    // Skip orphaned records (entity was deleted)
+    if (row.entity_type === "rehearsal" && !rehearsalIds.has(row.entity_id)) continue;
+    if (row.entity_type === "event"     && !eventIds.has(row.entity_id))     continue;
     const bucket = row.entity_type === "rehearsal" ? entry.rehearsal : entry.event;
     bucket[row.status] += 1;
     bucket.total += 1;
