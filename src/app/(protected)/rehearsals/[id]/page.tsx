@@ -67,15 +67,17 @@ export default async function RehearsalDetailPage({
     .eq("entity_date", targetDate)
     .single();
 
+  const serviceClient = await createServiceClient();
+
   const [{ count: yesCount }, { count: noCount }] = await Promise.all([
-    supabase
+    serviceClient
       .from("attendances")
       .select("*", { count: "exact", head: true })
       .eq("entity_type", "rehearsal")
       .eq("entity_id", id)
       .eq("entity_date", targetDate)
       .eq("status", "yes"),
-    supabase
+    serviceClient
       .from("attendances")
       .select("*", { count: "exact", head: true })
       .eq("entity_type", "rehearsal")
@@ -83,8 +85,6 @@ export default async function RehearsalDetailPage({
       .eq("entity_date", targetDate)
       .eq("status", "no"),
   ]);
-
-  const serviceClient = await createServiceClient();
   const [membersRes, attendancesRes] = await Promise.all([
     serviceClient.from("profiles").select("id, full_name, avatar_url").order("full_name"),
     serviceClient
