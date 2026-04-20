@@ -1,6 +1,6 @@
 export const CATEGORIES = [
   { key: "musik",     label: "Musik",          emoji: "🎵" },
-  { key: "tracht",   label: "Trachteninfos",  emoji: "👗" },
+  { key: "tracht",   label: "Veshjet",        emoji: "👗" },
   { key: "auftritte",label: "Auftrittspläne", emoji: "📋" },
   { key: "intern",   label: "Intern",          emoji: "🔒" },
   { key: "sonstiges",label: "Sonstiges",       emoji: "📎" },
