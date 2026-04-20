@@ -48,15 +48,15 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
           className="group flex items-center gap-3 shrink-0"
         >
           <div
-            className="relative h-[54px] w-[54px] shrink-0 rounded-full overflow-hidden border border-border-strong group-hover:border-accent/40 transition-all duration-300"
-            style={{ boxShadow: "0 0 0 3px rgba(245,237,226,0.08)" }}
+            className="relative h-9 w-9 shrink-0 rounded-full overflow-hidden border border-border-strong group-hover:border-accent/40 transition-all duration-300"
+            style={{ boxShadow: "0 0 0 2px rgba(245,237,226,0.08)" }}
           >
             <Image
               src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
               alt="AKV Hyjnesha"
               fill
               className="object-cover"
-              sizes="54px"
+              sizes="36px"
               priority
             />
           </div>
