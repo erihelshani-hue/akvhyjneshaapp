@@ -1,15 +1,31 @@
 "use server";
 
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createServiceClient } from "@/lib/supabase/server";
-import { getUser, getUserRole } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { CACHE_TAGS } from "@/lib/cached-data";
 import type { AttendanceStatus, EntityType } from "@/types/database";
 
 async function requireAdmin() {
-  const [role, user] = await Promise.all([getUserRole(), getUser()]);
-  if (role !== "admin" || !user) throw new Error("Unauthorized");
+  const user = await getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const supabase = await createServiceClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (error || data?.role !== "admin") throw new Error("Unauthorized");
   return user;
+}
+
+function revalidateContributions() {
+  revalidatePath("/admin");
+  revalidatePath("/admin/contributions");
+  revalidatePath("/members");
+  revalidatePath("/settings");
 }
 
 // ─── Archive / Restore ───────────────────────────────────────────────────────
@@ -96,6 +112,7 @@ export async function upsertContribution(
   );
 
   if (error) throw new Error(error.message);
+  revalidateContributions();
 }
 
 export async function createMonthContributions(month: string, defaultAmountDue: number) {
@@ -120,4 +137,19 @@ export async function createMonthContributions(month: string, defaultAmountDue: 
   );
 
   if (error) throw new Error(error.message);
+  revalidateContributions();
+}
+
+export async function deleteContribution(userId: string, month: string) {
+  await requireAdmin();
+  const supabase = await createServiceClient();
+
+  const { error } = await supabase
+    .from("member_contributions")
+    .delete()
+    .eq("user_id", userId)
+    .eq("contribution_month", month);
+
+  if (error) throw new Error(error.message);
+  revalidateContributions();
 }

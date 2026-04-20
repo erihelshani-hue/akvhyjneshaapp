@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { upsertContribution, createMonthContributions } from "../actions";
-import { Check, Euro, ChevronDown, ChevronUp } from "lucide-react";
+import { upsertContribution, createMonthContributions, deleteContribution } from "../actions";
+import { Check, Euro, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 
 type ContributionRow = {
   userId: string;
@@ -29,12 +30,31 @@ function getInitials(name: string) {
 }
 
 function StatusBadge({ due, paid }: { due: number; paid: number }) {
-  if (due === 0) return <span className="text-[10px] text-muted bg-surface-2 border border-border px-2 py-0.5 rounded-full">—</span>;
-  if (paid >= due) return <span className="text-[10px] font-medium text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">Bezahlt</span>;
-  return <span className="text-[10px] font-medium text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-full">Offen</span>;
+  if (due === 0) {
+    return (
+      <span className="text-[10px] text-muted bg-surface-2 border border-border px-2 py-0.5 rounded-full">
+        -
+      </span>
+    );
+  }
+
+  if (paid >= due) {
+    return (
+      <span className="text-[10px] font-medium text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">
+        Bezahlt
+      </span>
+    );
+  }
+
+  return (
+    <span className="text-[10px] font-medium text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-full">
+      Offen
+    </span>
+  );
 }
 
 function ContributionRowItem({ row, month }: { row: ContributionRow; month: string }) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [amountDue, setAmountDue] = useState(String(row.amountDue));
   const [amountPaid, setAmountPaid] = useState(String(row.amountPaid));
@@ -47,11 +67,6 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
   const due = parseFloat(amountDue) || 0;
   const paid = parseFloat(amountPaid) || 0;
 
-  function handleMarkPaid() {
-    setAmountPaid(amountDue);
-    save(due, due, notes);
-  }
-
   function save(d: number, p: number, n: string) {
     setError(null);
     startTransition(async () => {
@@ -59,9 +74,10 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
         await upsertContribution(row.userId, month, d, p, n || null);
         setSaved(true);
         setIsEditing(false);
+        router.refresh();
         setTimeout(() => setSaved(false), 2000);
-      } catch {
-        setError("Fehler beim Speichern.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Fehler beim Speichern.");
       }
     });
   }
@@ -70,9 +86,32 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
     save(due, paid, notes);
   }
 
+  function handleMarkPaid() {
+    setAmountPaid(amountDue);
+    save(due, due, notes);
+  }
+
+  function handleDelete() {
+    if (!window.confirm(`Beitrag fuer ${row.fullName} wirklich loeschen?`)) return;
+
+    setError(null);
+    startTransition(async () => {
+      try {
+        await deleteContribution(row.userId, month);
+        setAmountDue("0");
+        setAmountPaid("0");
+        setNotes("");
+        setSaved(false);
+        setIsEditing(false);
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Fehler beim Loeschen.");
+      }
+    });
+  }
+
   return (
     <div className="rounded-xl border border-border bg-surface overflow-hidden">
-      {/* Row header */}
       <button
         type="button"
         className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-2/30 transition-colors"
@@ -87,25 +126,33 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
             </div>
           )}
         </div>
+
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground truncate">{row.fullName}</p>
           <p className="text-xs text-muted">
-            {due > 0 ? `€${paid.toFixed(2)} / €${due.toFixed(2)}` : "Kein Betrag"}
+            {due > 0 ? `EUR ${paid.toFixed(2)} / EUR ${due.toFixed(2)}` : "Kein Betrag"}
           </p>
         </div>
+
         <div className="flex items-center gap-2 shrink-0">
           <StatusBadge due={due} paid={paid} />
           {saved && <Check className="h-3.5 w-3.5 text-emerald-400" />}
-          {isEditing ? <ChevronUp className="h-3.5 w-3.5 text-muted" /> : <ChevronDown className="h-3.5 w-3.5 text-muted" />}
+          <span className="hidden sm:inline text-xs text-muted">
+            {isEditing ? "Schliessen" : "Bearbeiten"}
+          </span>
+          {isEditing ? (
+            <ChevronUp className="h-3.5 w-3.5 text-muted" />
+          ) : (
+            <ChevronDown className="h-3.5 w-3.5 text-muted" />
+          )}
         </div>
       </button>
 
-      {/* Inline edit form */}
       {isEditing && (
         <div className="px-4 pb-4 pt-2 border-t border-border space-y-3 bg-surface-2/20">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs text-muted font-medium">Soll-Betrag (€)</label>
+              <label className="text-xs text-muted font-medium">Soll-Betrag (EUR)</label>
               <div className="relative">
                 <Euro className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
                 <Input
@@ -119,7 +166,7 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted font-medium">Bezahlt (€)</label>
+              <label className="text-xs text-muted font-medium">Bezahlt (EUR)</label>
               <div className="relative">
                 <Euro className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
                 <Input
@@ -133,22 +180,37 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
               </div>
             </div>
           </div>
+
           <Input
             placeholder="Notiz (optional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="h-9 text-sm"
           />
+
           {error && <p className="text-xs text-red-400">{error}</p>}
-          <div className="flex gap-2">
+
+          <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={handleSave} disabled={isPending} className="h-8 text-xs">
-              {isPending ? "Speichere…" : "Speichern"}
+              {isPending ? "Speichere..." : "Speichern"}
             </Button>
+
             {due > 0 && paid < due && (
               <Button size="sm" variant="outline" onClick={handleMarkPaid} disabled={isPending} className="h-8 text-xs">
                 Als bezahlt markieren
               </Button>
             )}
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDelete}
+              disabled={isPending}
+              className="h-8 text-xs gap-1.5 text-red-400 hover:text-red-300"
+            >
+              <Trash2 className="h-3 w-3" />
+              Loeschen
+            </Button>
           </div>
         </div>
       )}
@@ -157,6 +219,7 @@ function ContributionRowItem({ row, month }: { row: ContributionRow; month: stri
 }
 
 export function ContributionsManager({ month, monthName, rows, hasEntries }: ContributionsManagerProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [defaultAmount, setDefaultAmount] = useState("0");
   const [error, setError] = useState<string | null>(null);
@@ -167,8 +230,9 @@ export function ContributionsManager({ month, monthName, rows, hasEntries }: Con
     startTransition(async () => {
       try {
         await createMonthContributions(month, amount);
-      } catch {
-        setError("Fehler beim Erstellen.");
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Fehler beim Erstellen.");
       }
     });
   }
@@ -179,33 +243,31 @@ export function ContributionsManager({ month, monthName, rows, hasEntries }: Con
 
   return (
     <div className="space-y-5">
-      {/* Summary bar */}
       {hasEntries && (
         <div className="flex flex-wrap gap-4 rounded-xl border border-border bg-surface p-4 text-sm">
           <div>
             <p className="text-xs text-muted">Gesamt Soll</p>
-            <p className="font-semibold text-foreground">€{totalDue.toFixed(2)}</p>
+            <p className="font-semibold text-foreground">EUR {totalDue.toFixed(2)}</p>
           </div>
           <div>
             <p className="text-xs text-muted">Bezahlt</p>
-            <p className="font-semibold text-emerald-400">€{totalPaid.toFixed(2)}</p>
+            <p className="font-semibold text-emerald-400">EUR {totalPaid.toFixed(2)}</p>
           </div>
           <div>
             <p className="text-xs text-muted">Offen</p>
-            <p className="font-semibold text-red-400">€{(totalDue - totalPaid).toFixed(2)}</p>
+            <p className="font-semibold text-red-400">EUR {(totalDue - totalPaid).toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-xs text-muted">Offene Beiträge</p>
+            <p className="text-xs text-muted">Offene Beitraege</p>
             <p className="font-semibold text-foreground">{unpaidCount}</p>
           </div>
         </div>
       )}
 
-      {/* Create month button */}
       {!hasEntries && (
         <div className="rounded-xl border border-border bg-surface p-5 space-y-3">
-          <p className="text-sm text-foreground font-medium">Beiträge für {monthName} anlegen</p>
-          <p className="text-xs text-muted">Erstellt Einträge für alle aktiven Mitglieder für diesen Monat.</p>
+          <p className="text-sm text-foreground font-medium">Beitraege fuer {monthName} anlegen</p>
+          <p className="text-xs text-muted">Erstellt Eintraege fuer alle aktiven Mitglieder fuer diesen Monat.</p>
           <div className="flex gap-3 items-center">
             <div className="relative">
               <Euro className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
@@ -220,14 +282,13 @@ export function ContributionsManager({ month, monthName, rows, hasEntries }: Con
               />
             </div>
             <Button size="sm" onClick={handleCreate} disabled={isPending}>
-              {isPending ? "Wird erstellt…" : `Monat anlegen`}
+              {isPending ? "Wird erstellt..." : "Monat anlegen"}
             </Button>
           </div>
           {error && <p className="text-xs text-red-400">{error}</p>}
         </div>
       )}
 
-      {/* Member rows */}
       {hasEntries && (
         <div className="space-y-2">
           {rows.map((row) => (

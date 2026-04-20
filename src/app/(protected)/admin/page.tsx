@@ -9,28 +9,42 @@ function currentMonthStart() {
     .split("T")[0];
 }
 
+function todayDate() {
+  return new Date().toISOString().substring(0, 10);
+}
+
 export default async function AdminOverviewPage() {
   const supabase = await createServiceClient();
   const month = currentMonthStart();
+  const today = todayDate();
 
   const [
     { count: memberCount },
-    { count: rehearsalCount },
-    { count: eventCount },
-    { count: archivedRehearsalCount },
-    { count: archivedEventCount },
+    { data: rehearsals },
+    { data: events },
     { data: contributions },
   ] = await Promise.all([
     supabase.from("profiles").select("*", { count: "exact", head: true }),
-    supabase.from("rehearsals").select("*", { count: "exact", head: true }).eq("is_archived", false),
-    supabase.from("events").select("*", { count: "exact", head: true }).eq("is_archived", false),
-    supabase.from("rehearsals").select("*", { count: "exact", head: true }).eq("is_archived", true),
-    supabase.from("events").select("*", { count: "exact", head: true }).eq("is_archived", true),
+    supabase.from("rehearsals").select("date, is_recurring, is_archived"),
+    supabase.from("events").select("date, is_archived"),
     supabase
       .from("member_contributions")
       .select("amount_due, amount_paid")
       .eq("contribution_month", month),
   ]);
+
+  const activeRehearsalCount = (rehearsals ?? []).filter(
+    (rehearsal) =>
+      !rehearsal.is_archived && (rehearsal.is_recurring || rehearsal.date >= today)
+  ).length;
+
+  const activeEventCount = (events ?? []).filter(
+    (event) => !event.is_archived && event.date >= today
+  ).length;
+
+  const archivedCount =
+    (rehearsals ?? []).filter((rehearsal) => rehearsal.is_archived).length +
+    (events ?? []).filter((event) => event.is_archived).length;
 
   const unpaidCount = (contributions ?? []).filter(
     (c) => c.amount_due > 0 && c.amount_paid < c.amount_due
@@ -38,9 +52,9 @@ export default async function AdminOverviewPage() {
 
   const stats = [
     { label: "Mitglieder", value: memberCount ?? 0, href: "/members", Icon: Users },
-    { label: "Aktive Proben", value: rehearsalCount ?? 0, href: "/rehearsals", Icon: BarChart2 },
-    { label: "Aktive Veranstaltungen", value: eventCount ?? 0, href: "/events", Icon: BarChart2 },
-    { label: "Archivierte Einträge", value: (archivedRehearsalCount ?? 0) + (archivedEventCount ?? 0), href: "/admin/archive", Icon: Archive },
+    { label: "Aktive Proben", value: activeRehearsalCount, href: "/rehearsals", Icon: BarChart2 },
+    { label: "Aktive Veranstaltungen", value: activeEventCount, href: "/events", Icon: BarChart2 },
+    { label: "Archivierte Einträge", value: archivedCount, href: "/admin/archive", Icon: Archive },
   ];
 
   const monthName = new Date(month + "T12:00:00Z").toLocaleDateString("de-DE", {
@@ -52,7 +66,7 @@ export default async function AdminOverviewPage() {
   const sections = [
     { href: "/admin/attendance", label: "Anwesenheitsstatistik", desc: "Ja/Nein/Vielleicht-Auswertung pro Mitglied", Icon: BarChart2 },
     { href: "/admin/archive", label: "Archiv", desc: "Archivierte Proben und Veranstaltungen verwalten", Icon: Archive },
-    { href: "/admin/contributions", label: "Mitgliedsbeiträge", desc: `Beiträge für ${monthName} — ${unpaidCount} offen`, Icon: CreditCard },
+    { href: "/admin/contributions", label: "Mitgliedsbeiträge", desc: `Beiträge für ${monthName} - ${unpaidCount} offen`, Icon: CreditCard },
   ];
 
   return (

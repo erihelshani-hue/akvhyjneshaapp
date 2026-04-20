@@ -30,6 +30,7 @@ export default function NewRehearsalPage() {
 
   const [loading, setLoading] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
+  const [sendNotification, setSendNotification] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
@@ -92,16 +93,18 @@ export default function NewRehearsalPage() {
       return;
     }
 
-    // Fire-and-forget push notification
-    fetch("/api/push/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: "Neue Probe",
-        body: form.title,
-        url: `/rehearsals/${data.id}`,
-      }),
-    }).catch(() => {});
+    if (sendNotification) {
+      // Fire-and-forget push notification
+      fetch("/api/push/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "Neue Probe",
+          body: form.title,
+          url: `/rehearsals/${data.id}`,
+        }),
+      }).catch(() => {});
+    }
 
     await revalidateRehearsals(data.id);
     router.push(`/rehearsals/${data.id}`);
@@ -183,6 +186,17 @@ export default function NewRehearsalPage() {
         <div className="space-y-1.5">
           <Label>{t("form.notes")}</Label>
           <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="send-notification"
+            checked={sendNotification}
+            onCheckedChange={(v) => setSendNotification(!!v)}
+          />
+          <Label htmlFor="send-notification" className="cursor-pointer text-foreground">
+            Benachrichtigung senden
+          </Label>
         </div>
 
         {error && (

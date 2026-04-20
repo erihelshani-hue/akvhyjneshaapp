@@ -38,14 +38,12 @@ export function AttendanceEditor({
   const [attendance, setAttendance] = useState<AttendanceMap>(initialAttendance);
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState<Record<string, boolean>>({});
-  const [, setRowErrors] = useState<Record<string, string>>({});
   const [, startTransition] = useTransition();
 
   async function handleChange(userId: string, status: AttendanceStatus | null) {
     setAttendance((prev) => ({ ...prev, [userId]: status }));
     setSaving((prev) => ({ ...prev, [userId]: true }));
     setSaved((prev) => ({ ...prev, [userId]: false }));
-    setRowErrors((prev) => ({ ...prev, [userId]: "" }));
 
     startTransition(async () => {
       try {
@@ -53,7 +51,6 @@ export function AttendanceEditor({
         setSaved((prev) => ({ ...prev, [userId]: true }));
         setTimeout(() => setSaved((prev) => ({ ...prev, [userId]: false })), 1500);
       } catch {
-        setRowErrors((prev) => ({ ...prev, [userId]: "Fehler beim Speichern" }));
         setAttendance((prev) => ({ ...prev, [userId]: initialAttendance[userId] ?? null }));
       } finally {
         setSaving((prev) => ({ ...prev, [userId]: false }));

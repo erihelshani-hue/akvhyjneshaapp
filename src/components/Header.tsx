@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LogOut, Settings, Home, ShieldCheck } from "lucide-react";
@@ -26,10 +25,10 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
   }
 
   const navItems = [
-    { href: "/rehearsals",    label: t("rehearsals") },
-    { href: "/events",        label: t("events") },
+    { href: "/rehearsals", label: t("rehearsals") },
+    { href: "/events", label: t("events") },
     { href: "/announcements", label: t("announcements"), badge: unreadCount },
-    { href: "/members",       label: t("members") },
+    { href: "/members", label: t("members") },
     ...(isAdmin ? [{ href: "/admin", label: t("admin"), badge: undefined }] : []),
   ];
 
@@ -39,23 +38,14 @@ export function Header({ unreadCount, isAdmin }: HeaderProps) {
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-6">
-        {/* Logo – klickbar zur Startseite */}
-        <Link href="/" title="Zur Startseite" className="flex items-center gap-3 shrink-0 group">
-          <div className="relative">
-            <Image
-              src="https://akv-hyjnesha.com/images/Logo/470894537_17891580084134476_2369760557983885793_n.jpg"
-              alt="AKV Hyjnesha Logo"
-              width={30}
-              height={30}
-              className="rounded-full object-cover ring-1 ring-border group-hover:ring-accent/40 transition-all"
-            />
-            <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-background ring-1 ring-border opacity-0 group-hover:opacity-100 transition-opacity">
-              <Home className="h-2 w-2 text-muted" />
-            </span>
-          </div>
-          <span className="font-playfair text-sm sm:text-[15px] font-semibold tracking-tight text-foreground group-hover:text-accent/80 transition-colors">
-            AKV <em className="italic">&ldquo;Hyjnesha&rdquo;</em>
-          </span>
+        <Link
+          href="/"
+          title="Zur Startseite"
+          aria-label="Zur Startseite"
+          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-medium text-foreground hover:border-zinc-600 hover:bg-surface-2 transition-colors"
+        >
+          <Home className="h-4 w-4 text-accent" />
+          <span>Home</span>
         </Link>
 
         {/* Desktop nav */}
