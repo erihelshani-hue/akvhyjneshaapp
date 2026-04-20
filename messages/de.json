@@ -142,7 +142,8 @@
     "roleAdmin": "Administrator",
     "roleMember": "Mitglied",
     "joined": "Mitglied seit",
-    "noMembers": "Keine Mitglieder gefunden"
+    "noMembers": "Keine Mitglieder gefunden",
+    "you": "du"
   },
   "settings": {
     "title": "Einstellungen",

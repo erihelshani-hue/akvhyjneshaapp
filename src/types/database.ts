@@ -12,6 +12,14 @@ export interface Profile {
   avatar_url: string | null;
   language_preference: string;
   created_at: string;
+  birthday: string | null; // ISO date "YYYY-MM-DD", admin-managed
+}
+
+export interface BirthdayNotification {
+  id: string;
+  birthday_person_id: string;
+  notification_date: string;
+  created_at: string;
 }
 
 export interface Rehearsal {
@@ -155,6 +163,12 @@ export type Database = {
         Row: PushSubscription;
         Insert: Omit<PushSubscription, "id" | "created_at">;
         Update: Partial<Omit<PushSubscription, "id" | "created_at">>;
+        Relationships: [];
+      };
+      birthday_notifications: {
+        Row: BirthdayNotification;
+        Insert: Omit<BirthdayNotification, "id" | "created_at">;
+        Update: never;
         Relationships: [];
       };
     };

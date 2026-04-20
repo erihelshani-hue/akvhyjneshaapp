@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Cake } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RoleBadge } from "@/components/RoleBadge";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import type { Profile } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
+import { isTodayBirthday, formatBirthdayShort } from "@/lib/birthday";
 
 interface MemberCardProps {
   member: Profile;
@@ -40,8 +42,12 @@ export function MemberCard({ member, isAdmin, currentUserId }: MemberCardProps) 
     .toUpperCase()
     .slice(0, 2);
 
+  const hasBirthdayToday = member.birthday ? isTodayBirthday(member.birthday) : false;
+
   return (
-    <div className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl border border-border bg-surface transition-colors hover:border-border/80">
+    <div className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl border bg-surface transition-colors hover:border-border/80 ${
+      hasBirthdayToday ? "border-accent/40" : "border-border"
+    }`}>
       <Avatar className="h-10 w-10 shrink-0">
         {member.avatar_url && <AvatarImage src={member.avatar_url} alt={member.full_name} />}
         <AvatarFallback className="font-playfair text-xs bg-surface-2 text-foreground border border-border">
@@ -55,11 +61,20 @@ export function MemberCard({ member, isAdmin, currentUserId }: MemberCardProps) 
           <RoleBadge role={role} />
           {member.id === currentUserId && (
             <span className="text-[10px] font-medium text-muted bg-surface-2 px-1.5 py-0.5 rounded-full border border-border">
-              {t("you") ?? "du"}
+              {t("you")}
             </span>
           )}
         </div>
         <p className="text-xs text-muted truncate mt-0.5">{member.email}</p>
+        {member.birthday && (
+          <p className={`text-xs mt-0.5 flex items-center gap-1 ${
+            hasBirthdayToday ? "text-accent" : "text-muted"
+          }`}>
+            <Cake className="h-3 w-3 shrink-0" />
+            {formatBirthdayShort(member.birthday)}
+            {hasBirthdayToday && " · Heute Geburtstag! 🎉"}
+          </p>
+        )}
       </div>
 
       {isAdmin && member.id !== currentUserId && (

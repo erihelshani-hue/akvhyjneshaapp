@@ -70,6 +70,7 @@ export async function GET(request: Request) {
         role: "member",
         language_preference: "de",
         avatar_url: null,
+        birthday: null,
       };
 
       await supabase.from("profiles").upsert(profileInsert, {
