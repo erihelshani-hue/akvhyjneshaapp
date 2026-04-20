@@ -5,10 +5,10 @@ import { useTranslations } from "next-intl";
 import { Bell, Calendar, PersonStanding, ShieldCheck, Users } from "lucide-react";
 
 const BASE_NAV_ITEMS = [
-  { href: "/rehearsals", labelKey: "rehearsals", Icon: PersonStanding },
-  { href: "/events", labelKey: "events", Icon: Calendar },
+  { href: "/rehearsals",    labelKey: "rehearsals",    Icon: PersonStanding },
+  { href: "/events",        labelKey: "events",        Icon: Calendar },
   { href: "/announcements", labelKey: "announcements", Icon: Bell },
-  { href: "/members", labelKey: "members", Icon: Users },
+  { href: "/members",       labelKey: "members",       Icon: Users },
 ] as const;
 
 const ADMIN_NAV_ITEM = { href: "/admin", labelKey: "admin", Icon: ShieldCheck } as const;
@@ -25,9 +25,10 @@ export function BottomNav({ unreadCount, isAdmin }: BottomNavProps) {
 
   return (
     <>
+      {/* Fade vignette above nav — warm-tinted like website */}
       <div
         className="fixed bottom-0 inset-x-0 z-40 md:hidden h-24 pointer-events-none"
-        style={{ background: "linear-gradient(to top, rgba(11,11,12,0.94), transparent)" }}
+        style={{ background: "linear-gradient(to top, rgba(10,7,5,0.94), transparent)" }}
       />
       <nav
         className="fixed bottom-0 inset-x-0 z-50 md:hidden glass-nav border-t"
@@ -48,12 +49,13 @@ export function BottomNav({ unreadCount, isAdmin }: BottomNavProps) {
               >
                 {isActive && (
                   <>
-                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-[3px] rounded-b-full bg-accent" />
-                    <span className="absolute inset-x-3 top-2 bottom-2 rounded-lg bg-accent/8 -z-10" />
+                    {/* Top indicator line — matches website's red accent pattern */}
+                    <span className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-[2px] bg-accent" />
+                    <span className="absolute inset-x-3 top-2 bottom-2 rounded-sm bg-accent/8 -z-10" />
                   </>
                 )}
                 <span className="relative">
-                  <Icon className="h-6 w-6" strokeWidth={isActive ? 2.3 : 1.85} />
+                  <Icon className="h-6 w-6" strokeWidth={isActive ? 2.2 : 1.8} />
                   {showBadge && (
                     <span className="absolute -top-1.5 -right-2 flex h-[16px] min-w-[16px] items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold leading-none text-white ring-2 ring-background">
                       {unreadCount > 9 ? "9+" : unreadCount}

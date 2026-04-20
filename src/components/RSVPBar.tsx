@@ -50,9 +50,9 @@ export function RSVPBar({ currentStatus, yesCount, noCount, onRSVP }: RSVPBarPro
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-3 gap-2">
-        <RSVPButton label={t("yes")} Icon={Check} value="yes" current={status} disabled={isPending} onClick={() => handleRSVP("yes")} activeClass="bg-emerald-500/90 text-white border-emerald-400 shadow-[0_4px_16px_-4px_rgba(16,185,129,0.6)]" />
-        <RSVPButton label={t("maybe")} Icon={Minus} value="maybe" current={status} disabled={isPending} onClick={() => handleRSVP("maybe")} activeClass="bg-gold text-background border-gold" />
-        <RSVPButton label={t("no")} Icon={X} value="no" current={status} disabled={isPending} onClick={() => handleRSVP("no")} activeClass="bg-accent text-white border-accent" />
+        <RSVPButton label={t("yes")} Icon={Check} value="yes" current={status} disabled={isPending} onClick={() => handleRSVP("yes")} activeClass="bg-emerald-600/90 text-white border-emerald-500 shadow-[0_8px_24px_-8px_rgba(22,163,74,0.55)]" />
+        <RSVPButton label={t("maybe")} Icon={Minus} value="maybe" current={status} disabled={isPending} onClick={() => handleRSVP("maybe")} activeClass="bg-warm/90 text-background border-warm" />
+        <RSVPButton label={t("no")} Icon={X} value="no" current={status} disabled={isPending} onClick={() => handleRSVP("no")} activeClass="bg-accent text-white border-accent shadow-[0_8px_24px_-8px_rgba(211,22,34,0.55)]" />
       </div>
       <div className="grid grid-cols-3 gap-2 text-xs text-muted">
         <span className="text-center font-medium text-emerald-400/80">
@@ -82,8 +82,8 @@ function RSVPButton({ label, Icon, value, current, disabled, onClick, activeClas
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex h-14 items-center justify-center gap-2 rounded-lg text-sm font-semibold border transition-all duration-200 disabled:opacity-50 active:scale-95",
-        isActive ? activeClass : "bg-surface border-border text-foreground/80 hover:bg-surface-2 hover:border-border-strong"
+        "flex h-14 items-center justify-center gap-2 rounded-sm text-[0.78rem] font-bold uppercase tracking-[0.1em] border transition-all duration-300 disabled:opacity-50 active:scale-95",
+        isActive ? activeClass : "bg-[rgba(245,237,226,0.04)] border-border text-foreground/80 hover:bg-[rgba(245,237,226,0.08)] hover:border-border-strong"
       )}
     >
       <Icon className="h-4 w-4" />

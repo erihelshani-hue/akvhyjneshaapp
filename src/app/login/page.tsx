@@ -64,8 +64,9 @@ export default function LoginPage() {
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5"
       style={{ minHeight: "-webkit-fill-available" }}
     >
-      <div className="absolute inset-8 pointer-events-none rounded-[28px] border border-border/40" />
-      <div className="absolute inset-14 pointer-events-none rounded-[22px] border border-border/25" />
+      {/* Editorial frame lines — matches website grid overlay aesthetic */}
+      <div className="absolute inset-8 pointer-events-none border border-[rgba(245,237,226,0.06)]" />
+      <div className="absolute inset-16 pointer-events-none border border-[rgba(245,237,226,0.035)]" />
 
       <div className="relative w-full max-w-sm animate-fade-in-up">
         <div className="mb-8 flex flex-col items-center gap-4">
@@ -90,10 +91,10 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-lg glass-strong p-7">
+        <div className="relative overflow-hidden rounded-sm glass-strong p-7">
           {mode === "magic" && sent ? (
             <div className="space-y-5 py-3 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg glass-accent">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-sm glass-accent">
                 <Mail className="h-6 w-6 text-accent" />
               </div>
               <div>
@@ -136,7 +137,7 @@ export default function LoginPage() {
                     placeholder={t("passwordPlaceholder")} required autoComplete="current-password" className="pl-10" />
                 </div>
               </div>
-              {error && <p className="text-sm text-red-300 bg-red-500/8 rounded-lg px-3.5 py-2.5 border border-red-500/25">{error}</p>}
+              {error && <p className="text-sm text-red-300 bg-red-500/8 rounded-sm px-3.5 py-2.5 border border-red-500/25">{error}</p>}
               <Button type="submit" disabled={loading} size="lg" className="w-full group">
                 {loading ? t("signingIn") : t("signIn")}
                 {!loading && <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-0.5 transition-transform" />}
@@ -167,7 +168,7 @@ export default function LoginPage() {
                     placeholder={t("emailPlaceholder")} required autoComplete="email" autoFocus className="pl-10" />
                 </div>
               </div>
-              {error && <p className="text-sm text-red-300 bg-red-500/8 rounded-lg px-3.5 py-2.5 border border-red-500/25">{error}</p>}
+              {error && <p className="text-sm text-red-300 bg-red-500/8 rounded-sm px-3.5 py-2.5 border border-red-500/25">{error}</p>}
               <Button type="submit" disabled={loading} size="lg" className="w-full">
                 {loading ? t("sending") : t("sendLink")}
               </Button>

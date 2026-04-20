@@ -37,7 +37,7 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
   const hasBirthdayToday = member.birthday ? isTodayBirthday(member.birthday) : false;
 
   return (
-    <div className={`flex items-center gap-4 px-4 py-4 rounded-lg glass transition-all duration-200 hover:border-border-strong ${hasBirthdayToday ? "!border-gold/40 !bg-gold/[0.04]" : ""}`}>
+    <div className={`flex items-center gap-4 px-4 py-4 rounded-sm glass transition-all duration-200 hover:border-border-strong ${hasBirthdayToday ? "!border-gold/40 !bg-gold/[0.04]" : ""}`}>
       <div className="relative shrink-0">
         <Avatar className="h-12 w-12 ring-1 ring-border-strong">
           {member.avatar_url && <AvatarImage src={member.avatar_url} alt={member.full_name} />}
@@ -77,7 +77,7 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
       {isAdmin && member.id !== currentUserId && (
         <div className="shrink-0">
           <Select value={role} onValueChange={handleRoleChange}>
-            <SelectTrigger className="w-[110px] text-xs h-9 rounded-lg bg-surface border-border">
+            <SelectTrigger className="w-[110px] text-xs h-9 rounded-sm bg-surface border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
