@@ -28,6 +28,10 @@ function revalidateContributions() {
   revalidatePath("/settings");
 }
 
+function isMissingNotesColumn(error: { message?: string }) {
+  return error.message?.includes("'notes' column") || error.message?.includes("member_contributions.notes");
+}
+
 // ─── Archive / Restore ───────────────────────────────────────────────────────
 
 export async function archiveEntity(
@@ -98,8 +102,7 @@ export async function upsertContribution(
   await requireAdmin();
   const supabase = await createServiceClient();
 
-  const { error } = await supabase.from("member_contributions").upsert(
-    {
+  const payload = {
       user_id: userId,
       contribution_month: month,
       amount_due: amountDue,
@@ -107,9 +110,31 @@ export async function upsertContribution(
       paid_at: amountPaid > 0 ? new Date().toISOString() : null,
       notes,
       updated_at: new Date().toISOString(),
-    },
+    };
+
+  const { error } = await supabase.from("member_contributions").upsert(
+    payload,
     { onConflict: "user_id,contribution_month" }
   );
+
+  if (error && isMissingNotesColumn(error)) {
+    const payloadWithoutNotes = {
+      user_id: payload.user_id,
+      contribution_month: payload.contribution_month,
+      amount_due: payload.amount_due,
+      amount_paid: payload.amount_paid,
+      paid_at: payload.paid_at,
+      updated_at: payload.updated_at,
+    };
+    const retry = await supabase.from("member_contributions").upsert(
+      payloadWithoutNotes,
+      { onConflict: "user_id,contribution_month" }
+    );
+
+    if (retry.error) throw new Error(retry.error.message);
+    revalidateContributions();
+    return;
+  }
 
   if (error) throw new Error(error.message);
   revalidateContributions();
