@@ -4,8 +4,9 @@ import { ContributionsManager } from "./ContributionsManager";
 function getMonthOptions() {
   const now = new Date();
   const months: { value: string; label: string }[] = [];
-  for (let i = 0; i < 6; i++) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+  const monthOffsets = [0, -1, 1, 2, 3, 4, 5];
+  for (const offset of monthOffsets) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - offset, 1));
     months.push({
       value: d.toISOString().split("T")[0],
       label: d.toLocaleDateString("de-DE", { month: "long", year: "numeric", timeZone: "UTC" }),
