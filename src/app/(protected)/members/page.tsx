@@ -25,14 +25,13 @@ function getInitials(name: string) {
 function TodayBirthdayCard({ member }: { member: Profile }) {
   const initials = getInitials(member.full_name);
   return (
-    <div className="relative flex items-center gap-4 rounded-2xl glass-gold px-5 py-4 overflow-hidden">
-      <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-gold/20 blur-3xl pointer-events-none" />
+    <div className="relative flex items-center gap-4 rounded-lg glass-gold px-5 py-4 overflow-hidden">
       <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden border-2 border-gold/40 ring-2 ring-gold/20">
         {member.avatar_url ? (
           <Image src={member.avatar_url} alt={member.full_name} fill className="object-cover" sizes="48px" />
         ) : (
           <div className="h-full w-full flex items-center justify-center bg-white/[0.06]">
-            <span className="font-display text-base font-semibold text-foreground">{initials}</span>
+            <span className="font-display text-base font-medium text-foreground">{initials}</span>
           </div>
         )}
       </div>
@@ -104,15 +103,15 @@ export default async function MembersPage({}: Record<string, never>) {
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold mb-1.5">Anëtarët e ansamblit</p>
-          <h1 className="font-display text-4xl font-semibold text-foreground tracking-tight">{t("title")}</h1>
+          <p className="brand-eyebrow mb-1.5">Anëtarët e ansamblit</p>
+          <h1 className="font-display text-4xl font-medium text-foreground tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted mt-1">{members.length} Mitglieder</p>
         </div>
         {isAdmin && <InviteButton />}
       </header>
       {todayBirthdays.length > 0 && (
         <section className="space-y-3">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gold flex items-center gap-2">
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-gold flex items-center gap-2">
             <PartyPopper className="h-3.5 w-3.5" />Heute Geburtstag
           </p>
           <div className="space-y-2.5">
@@ -121,8 +120,8 @@ export default async function MembersPage({}: Record<string, never>) {
         </section>
       )}
       {upcomingBirthdays.length > 0 && (
-        <section className="rounded-2xl glass p-5">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted mb-2">Nächste Geburtstage</p>
+        <section className="rounded-lg glass p-5">
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted mb-2">Nächste Geburtstage</p>
           <div className="divide-y divide-white/5">
             {upcomingBirthdays.map(({ member, daysUntil }) => (
               <UpcomingBirthdayRow key={member.id} member={member} daysUntil={daysUntil} />
@@ -132,7 +131,7 @@ export default async function MembersPage({}: Record<string, never>) {
       )}
       <section className="space-y-3">
         {hasBirthdaySections && (
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted">Alle Mitglieder</p>
+          <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted">Alle Mitglieder</p>
         )}
         {members.length === 0 ? (
           <p className="text-sm text-muted">{t("noMembers")}</p>

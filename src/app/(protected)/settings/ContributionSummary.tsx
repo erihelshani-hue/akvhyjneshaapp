@@ -76,7 +76,7 @@ export function ContributionSummary({ contributions }: ContributionSummaryProps)
                   {formatMonth(contribution.contribution_month)}
                 </span>
                 <span className="shrink-0 font-medium text-red-400">
-                  â‚¬{contribution.openAmount.toFixed(2)} offen
+                  €{contribution.openAmount.toFixed(2)} offen
                 </span>
               </div>
             ))}

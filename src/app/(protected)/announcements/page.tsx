@@ -28,18 +28,18 @@ export default async function AnnouncementsPage({}: Record<string, never>) {
       {unreadIds.length > 0 && <AnnouncementsMarkRead unreadIds={unreadIds} userId={user!.id} />}
       <header className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold mb-1.5">Njoftimet e ansamblit</p>
-          <h1 className="font-display text-4xl font-semibold text-foreground tracking-tight">{t("title")}</h1>
+          <p className="brand-eyebrow mb-1.5">Njoftimet e ansamblit</p>
+          <h1 className="font-display text-4xl font-medium text-foreground tracking-tight">{t("title")}</h1>
         </div>
         {isAdmin && (
           <Link href="/announcements/new" aria-label={t("new")}>
-            <Button size="icon" className="rounded-full shadow-glass-accent"><Plus className="h-5 w-5" /></Button>
+            <Button size="icon"><Plus className="h-5 w-5" /></Button>
           </Link>
         )}
       </header>
       {announcements.length === 0 ? (
-        <div className="rounded-2xl glass p-10 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.05] border border-white/10 mb-4">
+        <div className="rounded-lg glass p-10 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-surface-2 border border-border mb-4">
             <Bell className="h-6 w-6 text-muted" />
           </div>
           <p className="text-sm text-muted">{t("noAnnouncements")}</p>
@@ -50,15 +50,15 @@ export default async function AnnouncementsPage({}: Record<string, never>) {
             const isUnread = !readIds.has(announcement.id);
             return (
               <article key={announcement.id}
-                className={`relative rounded-2xl p-6 transition-all duration-200 ${isUnread ? "glass-accent" : "glass hover:border-white/20"}`}>
+                className={`relative rounded-lg p-6 transition-all duration-200 ${isUnread ? "glass-accent" : "glass hover:border-border-strong"}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
                     {isUnread && (
-                      <span className="mt-2 shrink-0 h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_10px_rgba(211,22,34,0.8)]" />
+                      <span className="mt-2 shrink-0 h-2.5 w-2.5 rounded-full bg-accent" />
                     )}
                     <div className="min-w-0 flex-1">
-                      <h2 className="font-display text-xl font-semibold text-foreground leading-tight">{announcement.title}</h2>
-                      <p className="text-[10px] text-muted mt-1.5 font-semibold uppercase tracking-wider">
+                      <h2 className="font-display text-xl font-medium text-foreground leading-tight">{announcement.title}</h2>
+                      <p className="font-mono text-[10px] text-muted mt-1.5 font-medium uppercase tracking-[0.16em]">
                         {tCommon("postedOn")} {formatDate(announcement.created_at.substring(0, 10))}
                       </p>
                       <p className="text-sm text-foreground/85 mt-4 leading-relaxed whitespace-pre-wrap">{announcement.body}</p>

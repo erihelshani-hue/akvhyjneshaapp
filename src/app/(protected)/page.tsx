@@ -39,7 +39,7 @@ export default async function DashboardPage({}: Record<string, never>) {
   return (
     <div className="space-y-10 animate-fade-in-up">
       <div className="space-y-2.5 pt-2">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gold">{greeting}</p>
+        <p className="brand-eyebrow">{greeting}</p>
         <h1 className="font-display text-[2.5rem] md:text-5xl font-semibold text-foreground tracking-tight leading-[1.05]">
           {firstName ? (
             <>Willkommen, <em className="italic text-gradient-accent">{firstName}</em></>
@@ -48,7 +48,7 @@ export default async function DashboardPage({}: Record<string, never>) {
           )}
         </h1>
         <p className="text-sm text-muted pt-1">
-          AKV <span className="hyjnesha-italic text-gold">&ldquo;Hyjnesha&rdquo;</span> · Graz · Tradition trifft Leidenschaft
+          AKV <span className="hyjnesha-italic text-muted">&ldquo;Hyjnesha&rdquo;</span> · Graz · Tradition trifft Leidenschaft
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export default async function DashboardPage({}: Record<string, never>) {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10 border border-accent/20">
               <Bell className="h-4 w-4 text-accent" />
             </div>
-            <h2 className="font-display text-2xl font-semibold text-foreground">{t("recentAnnouncements")}</h2>
+            <h2 className="font-display text-2xl font-medium text-foreground">{t("recentAnnouncements")}</h2>
           </div>
           <Link href="/announcements" className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted hover:text-foreground transition-colors">
             {t("viewAll")}
@@ -105,7 +105,7 @@ export default async function DashboardPage({}: Record<string, never>) {
                 >
                   <div className="mt-1 shrink-0">
                     {isUnread
-                      ? <span className="block h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_10px_rgba(211,22,34,0.8)]" />
+                      ? <span className="block h-2.5 w-2.5 rounded-full bg-accent" />
                       : <span className="block h-2.5 w-2.5 rounded-full border border-white/20" />
                     }
                   </div>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Cormorant_Garamond, JetBrains_Mono, Manrope } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import "./globals.css";
@@ -13,15 +13,21 @@ const displayFont = Cormorant_Garamond({
   display: "swap",
 });
 
-const inter = Inter({
+const bodyFont = Manrope({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
 
+const monoFont = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: 'AKV "Hyjnesha"',
-  description: "Internes Koordinationssystem von AKV Hyjnesha, Graz",
+  description: "Internes Koordinationssystem des Ansambli i Këngëve dhe Valleve Hyjnesha, Graz",
   manifest: "/manifest.json",
   icons: {
     apple: "/icons/apple-touch-icon.png",
@@ -73,7 +79,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07070b",
+  themeColor: "#0B0B0C",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -90,7 +96,7 @@ export default async function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <head />
-      <body className={`${displayFont.variable} ${inter.variable} font-inter`}>
+      <body className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} font-inter`}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

@@ -37,14 +37,14 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
   const hasBirthdayToday = member.birthday ? isTodayBirthday(member.birthday) : false;
 
   return (
-    <div className={`flex items-center gap-4 px-4 py-4 rounded-2xl glass transition-all duration-200 hover:border-white/20 ${hasBirthdayToday ? "!border-gold/40 !bg-gold/[0.04]" : ""}`}>
+    <div className={`flex items-center gap-4 px-4 py-4 rounded-lg glass transition-all duration-200 hover:border-border-strong ${hasBirthdayToday ? "!border-gold/40 !bg-gold/[0.04]" : ""}`}>
       <div className="relative shrink-0">
-        <Avatar className="h-12 w-12 ring-2 ring-white/8">
+        <Avatar className="h-12 w-12 ring-1 ring-border-strong">
           {member.avatar_url && <AvatarImage src={member.avatar_url} alt={member.full_name} />}
-          <AvatarFallback className="font-display text-sm font-semibold bg-white/[0.08] text-foreground">{initials}</AvatarFallback>
+          <AvatarFallback className="font-display text-sm font-medium bg-surface-2 text-foreground">{initials}</AvatarFallback>
         </Avatar>
         {hasBirthdayToday && (
-          <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-black shadow-[0_0_12px_rgba(212,175,55,0.6)] animate-pulse-glow">
+          <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-background">
             <PartyPopper className="h-3.5 w-3.5" />
           </span>
         )}
@@ -54,7 +54,7 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
           <p className="text-[15px] font-semibold text-foreground truncate">{member.full_name}</p>
           <RoleBadge role={role} />
           {member.id === currentUserId && (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/25">
+            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/25">
               {t("you")}
             </span>
           )}
@@ -64,7 +64,7 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
           <p className={`text-xs mt-1 flex items-center gap-1.5 font-medium ${hasBirthdayToday ? "text-gold" : "text-muted"}`}>
             <Cake className="h-3 w-3 shrink-0" />
             {formatBirthdayShort(member.birthday)}
-            {hasBirthdayToday && <span className="text-gold font-bold">· Heute Geburtstag!</span>}
+            {hasBirthdayToday && <span className="text-gold font-semibold">· Heute Geburtstag!</span>}
           </p>
         )}
         {contributionStatus?.hasDue && contributionMonthLabel && (
@@ -77,7 +77,7 @@ export function MemberCard({ member, isAdmin, currentUserId, contributionStatus,
       {isAdmin && member.id !== currentUserId && (
         <div className="shrink-0">
           <Select value={role} onValueChange={handleRoleChange}>
-            <SelectTrigger className="w-[110px] text-xs h-9 rounded-lg bg-white/[0.05] border-white/10">
+            <SelectTrigger className="w-[110px] text-xs h-9 rounded-lg bg-surface border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
