@@ -60,9 +60,6 @@ export function BottomNav({ unreadCount, isAdmin }: BottomNavProps) {
                     </span>
                   )}
                 </span>
-                <span className={`font-mono text-[9px] font-medium uppercase tracking-[0.08em] mt-0.5 ${isActive ? "text-accent" : "text-muted"}`}>
-                  {t(labelKey)}
-                </span>
               </Link>
             );
           })}
