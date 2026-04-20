@@ -1,13 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import "./globals.css";
 import { PWAInstall } from "@/components/PWAInstall";
 
-const playfair = Playfair_Display({
+const displayFont = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -21,6 +23,9 @@ export const metadata: Metadata = {
   title: 'AKV "Hyjnesha"',
   description: "Internes Koordinationssystem von AKV Hyjnesha, Graz",
   manifest: "/manifest.json",
+  icons: {
+    apple: "/icons/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -68,7 +73,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#07070b",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -84,10 +89,8 @@ export default async function RootLayout({
 
   return (
     <html lang="de" suppressHydrationWarning>
-      <head>
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-      </head>
-      <body className={`${playfair.variable} ${inter.variable} font-inter`}>
+      <head />
+      <body className={`${displayFont.variable} ${inter.variable} font-inter`}>
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>
