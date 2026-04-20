@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { Check, Minus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AttendanceStatus } from "@/types/database";
 
@@ -15,12 +16,7 @@ interface RSVPBarProps {
   onRSVP: (status: AttendanceStatus) => Promise<void>;
 }
 
-export function RSVPBar({
-  currentStatus,
-  yesCount,
-  noCount,
-  onRSVP,
-}: RSVPBarProps) {
+export function RSVPBar({ currentStatus, yesCount, noCount, onRSVP }: RSVPBarProps) {
   const t = useTranslations("rsvp");
   const [status, setStatus] = useState<AttendanceStatus | null>(currentStatus);
   const [optimisticYesCount, setOptimisticYesCount] = useState(yesCount);
@@ -40,7 +36,6 @@ export function RSVPBar({
       if (previousStatus !== "no" && newStatus === "no") return count + 1;
       return count;
     });
-
     startTransition(async () => {
       try {
         await onRSVP(newStatus);
@@ -53,39 +48,18 @@ export function RSVPBar({
   }
 
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center gap-2">
-        <RSVPButton
-          label={t("yes")}
-          value="yes"
-          current={status}
-          disabled={isPending}
-          onClick={() => handleRSVP("yes")}
-          activeClass="bg-accent text-white border-accent shadow-sm"
-        />
-        <RSVPButton
-          label={t("maybe")}
-          value="maybe"
-          current={status}
-          disabled={isPending}
-          onClick={() => handleRSVP("maybe")}
-          activeClass="bg-surface-2 text-foreground border-zinc-600"
-        />
-        <RSVPButton
-          label={t("no")}
-          value="no"
-          current={status}
-          disabled={isPending}
-          onClick={() => handleRSVP("no")}
-          activeClass="bg-surface-2 text-muted border-zinc-700"
-        />
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        <RSVPButton label={t("yes")} Icon={Check} value="yes" current={status} disabled={isPending} onClick={() => handleRSVP("yes")} activeClass="bg-emerald-500/90 text-white border-emerald-400 shadow-[0_4px_16px_-4px_rgba(16,185,129,0.6)]" />
+        <RSVPButton label={t("maybe")} Icon={Minus} value="maybe" current={status} disabled={isPending} onClick={() => handleRSVP("maybe")} activeClass="bg-gold text-black border-gold shadow-[0_4px_16px_-4px_rgba(212,175,55,0.6)]" />
+        <RSVPButton label={t("no")} Icon={X} value="no" current={status} disabled={isPending} onClick={() => handleRSVP("no")} activeClass="bg-accent text-white border-accent shadow-[0_4px_16px_-4px_rgba(211,22,34,0.6)]" />
       </div>
-      <div className="flex gap-2 text-xs text-muted">
-        <span className="flex-1 text-center">
+      <div className="grid grid-cols-3 gap-2 text-xs text-muted">
+        <span className="text-center font-medium text-emerald-400/80">
           {optimisticYesCount === 1 ? t("attendingOne") : t("attending", { count: optimisticYesCount })}
         </span>
-        <span className="flex-1" />
-        <span className="flex-1 text-center">
+        <span />
+        <span className="text-center font-medium text-red-400/70">
           {optimisticNoCount === 1 ? t("decliningOne") : t("declining", { count: optimisticNoCount })}
         </span>
       </div>
@@ -93,15 +67,9 @@ export function RSVPBar({
   );
 }
 
-function RSVPButton({
-  label,
-  value,
-  current,
-  disabled,
-  onClick,
-  activeClass,
-}: {
+function RSVPButton({ label, Icon, value, current, disabled, onClick, activeClass }: {
   label: string;
+  Icon: React.ComponentType<{ className?: string }>;
   value: AttendanceStatus;
   current: AttendanceStatus | null;
   disabled: boolean;
@@ -114,12 +82,11 @@ function RSVPButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex-1 h-10 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50",
-        isActive
-          ? activeClass
-          : "bg-transparent border-border text-muted hover:border-zinc-600 hover:text-foreground hover:bg-surface-2/50"
+        "flex h-14 items-center justify-center gap-2 rounded-2xl text-sm font-bold border transition-all duration-200 disabled:opacity-50 active:scale-95",
+        isActive ? activeClass : "bg-white/[0.04] border-white/10 text-foreground/80 hover:bg-white/[0.08] hover:border-white/20 backdrop-blur-sm"
       )}
     >
+      <Icon className="h-4 w-4" />
       {label}
     </button>
   );

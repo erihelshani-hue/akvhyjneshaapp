@@ -5,11 +5,7 @@ import { getAnnouncementCount } from "@/lib/cached-data";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 
-export default async function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
   if (!user) redirect("/login");
 
@@ -28,9 +24,9 @@ export default async function ProtectedLayout({
   const isAdmin = role === "admin";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen">
       <Header unreadCount={unreadCount} isAdmin={isAdmin} />
-      <main className="max-w-6xl mx-auto px-4 pt-6 pb-safe-nav sm:px-6">
+      <main className="relative max-w-6xl mx-auto px-5 pt-8 pb-safe-nav sm:px-6 z-10">
         {children}
       </main>
       <BottomNav unreadCount={unreadCount} isAdmin={isAdmin} />
