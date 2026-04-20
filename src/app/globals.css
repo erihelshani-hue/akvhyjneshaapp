@@ -5,11 +5,11 @@
 @layer base {
   :root {
     /* ── Website-aligned warm dark palette ── */
-    --background:     #0a0705;
+    --background:     #0b0b0c;
     --foreground:     #f5ede2;
-    --surface:        #14100c;
-    --surface-2:      #1c1610;
-    --surface-3:      #241c14;
+    --surface:        #141416;
+    --surface-2:      #1a1b1f;
+    --surface-3:      #212228;
     --muted:          #a69b8c;
     --dim:            #6b6256;
     --accent:         #d31622;
@@ -31,9 +31,9 @@
 
   body {
     background:
-      radial-gradient(ellipse 70% 40% at 50% -10%, rgba(211, 22, 34, 0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 45% 28% at 100% 10%, rgba(199, 187, 176, 0.03) 0%, transparent 60%),
-      #0a0705;
+      radial-gradient(ellipse 70% 40% at 50% -10%, rgba(211, 22, 34, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 45% 28% at 100% 10%, rgba(199, 187, 176, 0.035) 0%, transparent 60%),
+      #0b0b0c;
     background-attachment: fixed;
     color: var(--foreground);
     font-family: var(--font-inter), system-ui, sans-serif;
@@ -106,9 +106,8 @@
 }
 
 @layer components {
-  /* Glass — warm-tinted backgrounds matching website bg palette */
   .glass {
-    background: rgba(20, 16, 12, 0.82);
+    background: rgba(20, 20, 22, 0.82);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border);
@@ -116,23 +115,22 @@
   }
 
   .glass-strong {
-    background: rgba(20, 16, 12, 0.94);
+    background: rgba(20, 20, 22, 0.94);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--border-strong);
     box-shadow: 0 18px 52px -30px rgba(0, 0, 0, 0.9);
   }
 
-  /* Nav glass — exact match to website .nav.scrolled */
   .glass-nav {
-    background: rgba(10, 7, 5, 0.82);
+    background: rgba(11, 11, 12, 0.82);
     backdrop-filter: blur(24px) saturate(160%);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
     border-color: var(--border);
   }
 
   .glass-accent {
-    background: linear-gradient(135deg, rgba(211, 22, 34, 0.14), rgba(20, 16, 12, 0.9) 52%);
+    background: linear-gradient(135deg, rgba(211, 22, 34, 0.14), rgba(20, 20, 22, 0.9) 52%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(211, 22, 34, 0.36);
@@ -140,7 +138,7 @@
   }
 
   .glass-gold {
-    background: linear-gradient(135deg, rgba(199, 187, 176, 0.10), rgba(20, 16, 12, 0.9) 54%);
+    background: linear-gradient(135deg, rgba(199, 187, 176, 0.10), rgba(20, 20, 22, 0.9) 54%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(199, 187, 176, 0.22);
@@ -149,7 +147,7 @@
 
   .glass-border-gradient {
     position: relative;
-    background: rgba(20, 16, 12, 0.86);
+    background: rgba(20, 20, 22, 0.86);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }

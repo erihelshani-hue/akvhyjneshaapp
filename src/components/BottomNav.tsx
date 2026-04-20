@@ -28,7 +28,7 @@ export function BottomNav({ unreadCount, isAdmin }: BottomNavProps) {
       {/* Fade vignette above nav — warm-tinted like website */}
       <div
         className="fixed bottom-0 inset-x-0 z-40 md:hidden h-24 pointer-events-none"
-        style={{ background: "linear-gradient(to top, rgba(10,7,5,0.94), transparent)" }}
+        style={{ background: "linear-gradient(to top, rgba(11,11,12,0.94), transparent)" }}
       />
       <nav
         className="fixed bottom-0 inset-x-0 z-50 md:hidden glass-nav border-t"

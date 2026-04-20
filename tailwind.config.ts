@@ -11,12 +11,12 @@ const config: Config = {
     extend: {
       colors: {
         /* ── Warm dark palette — aligned with akv-hyjnesha.com ── */
-        background:    "#0A0705",
-        surface:       "#14100C",
-        "surface-2":   "#1C1610",
-        "surface-3":   "#241C14",
-        "surface-solid":   "#14100C",
-        "surface-solid-2": "#1C1610",
+        background:    "#0B0B0C",
+        surface:       "#141416",
+        "surface-2":   "#1A1B1F",
+        "surface-3":   "#212228",
+        "surface-solid":   "#141416",
+        "surface-solid-2": "#1A1B1F",
         foreground: "#F5EDE2",
         accent: {
           DEFAULT:    "#D31622",
@@ -36,14 +36,14 @@ const config: Config = {
         },
         border:        "rgba(245, 237, 226, 0.10)",
         "border-strong": "rgba(245, 237, 226, 0.20)",
-        input:  "#14100C",
+        input:  "#141416",
         ring:   "#D31622",
         card: {
-          DEFAULT:    "#14100C",
+          DEFAULT:    "#141416",
           foreground: "#F5EDE2",
         },
         popover: {
-          DEFAULT:    "#14100C",
+          DEFAULT:    "#141416",
           foreground: "#F5EDE2",
         },
         primary: {
@@ -51,7 +51,7 @@ const config: Config = {
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT:    "#1C1610",
+          DEFAULT:    "#1A1B1F",
           foreground: "#F5EDE2",
         },
         destructive: {
