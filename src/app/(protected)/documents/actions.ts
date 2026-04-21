@@ -16,8 +16,13 @@ export async function saveDocumentRecord(params: {
   fileName: string;
   mimeType: string;
   isAdminOnly: boolean;
-}) {
-  await assertAdmin();
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    await assertAdmin();
+  } catch {
+    return { ok: false, error: "Keine Admin-Berechtigung. Bitte erneut einloggen." };
+  }
+
   const user = await getUser();
   const supabase = await createServiceClient();
 
@@ -28,12 +33,13 @@ export async function saveDocumentRecord(params: {
     file_name: params.fileName,
     mime_type: params.mimeType,
     is_admin_only: params.isAdminOnly,
-    uploaded_by: user!.id,
+    uploaded_by: user?.id ?? null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) return { ok: false, error: `DB-Fehler: ${error.message}` };
 
   revalidatePath("/documents");
+  return { ok: true };
 }
 
 export async function deleteDocument(id: string, filePath: string) {

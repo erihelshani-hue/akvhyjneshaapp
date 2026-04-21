@@ -144,7 +144,7 @@ function UploadForm({ categories, onClose }: { categories: readonly CategoryDef[
       if (storageError) throw new Error(storageError.message);
 
       setProgress(80);
-      await saveDocumentRecord({
+      const result = await saveDocumentRecord({
         title: title.trim(),
         category: selectedCategory,
         filePath: path,
@@ -152,6 +152,8 @@ function UploadForm({ categories, onClose }: { categories: readonly CategoryDef[
         mimeType: file.type,
         isAdminOnly: adminOnly,
       });
+
+      if (!result.ok) throw new Error(result.error);
 
       setProgress(100);
       onClose();
