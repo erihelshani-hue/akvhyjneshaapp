@@ -91,12 +91,13 @@ export default async function MembersPage({}: Record<string, never>) {
 
   const todayBirthdays = members.filter((m) => m.birthday && isTodayBirthday(m.birthday));
   const nowUTC = new Date();
-  const currentMonth = nowUTC.getUTCMonth();
+  const todayUTC = Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth(), nowUTC.getUTCDate());
   const upcomingBirthdays = members
     .filter((m) => {
       if (!m.birthday || isTodayBirthday(m.birthday)) return false;
-      const bdMonth = new Date(m.birthday + "T12:00:00Z").getUTCMonth();
-      return bdMonth === currentMonth;
+      const [, bdMonth, bdDay] = m.birthday.split("-").map(Number);
+      const birthdayThisYearUTC = Date.UTC(nowUTC.getUTCFullYear(), bdMonth - 1, bdDay);
+      return bdMonth - 1 === nowUTC.getUTCMonth() && birthdayThisYearUTC > todayUTC;
     })
     .map((m) => ({ member: m, daysUntil: daysUntilBirthday(m.birthday!) }))
     .sort((a, b) => a.daysUntil - b.daysUntil);
