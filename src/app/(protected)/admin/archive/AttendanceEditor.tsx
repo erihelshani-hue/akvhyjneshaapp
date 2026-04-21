@@ -64,21 +64,31 @@ export function AttendanceEditor({
         const currentStatus = attendance[member.id] ?? null;
         const initials = getInitials(member.full_name);
         return (
-          <div key={member.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface">
-            <div className="relative h-8 w-8 shrink-0 rounded-full overflow-hidden border border-border bg-surface-2">
-              {member.avatar_url ? (
-                <Image src={member.avatar_url} alt={member.full_name} fill className="object-cover" sizes="32px" />
-              ) : (
-                <div className="h-full w-full flex items-center justify-center">
-                  <span className="font-playfair text-[10px] font-semibold text-muted">{initials}</span>
-                </div>
-              )}
+          <div key={member.id} className="p-3 rounded-xl border border-border bg-surface space-y-2">
+            {/* Member identity row */}
+            <div className="flex items-center gap-2.5">
+              <div className="relative h-8 w-8 shrink-0 rounded-full overflow-hidden border border-border bg-surface-2">
+                {member.avatar_url ? (
+                  <Image src={member.avatar_url} alt={member.full_name} fill className="object-cover" sizes="32px" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center">
+                    <span className="font-playfair text-[10px] font-semibold text-muted">{initials}</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm font-medium text-foreground">{member.full_name}</p>
+              <div className="ml-auto w-4 shrink-0">
+                {saving[member.id] && (
+                  <div className="h-3 w-3 rounded-full border border-muted/40 border-t-muted animate-spin" />
+                )}
+                {saved[member.id] && !saving[member.id] && (
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                )}
+              </div>
             </div>
 
-            <p className="flex-1 min-w-0 text-sm text-foreground truncate">{member.full_name}</p>
-
-            {/* Status selector */}
-            <div className="flex gap-1 flex-wrap justify-end shrink-0">
+            {/* Status buttons row */}
+            <div className="flex gap-1 flex-wrap">
               {STATUS_OPTIONS.map(({ value, label, color }) => {
                 const isSelected = currentStatus === value;
                 return (
@@ -87,7 +97,7 @@ export function AttendanceEditor({
                     type="button"
                     onClick={() => handleChange(member.id, value)}
                     disabled={saving[member.id]}
-                    className={`text-[10px] font-medium px-2 py-1 rounded-md border transition-colors ${
+                    className={`text-[10px] font-medium px-2.5 py-1 rounded-md border transition-colors ${
                       isSelected
                         ? color
                         : "text-muted border-transparent hover:border-border hover:text-foreground"
@@ -97,16 +107,6 @@ export function AttendanceEditor({
                   </button>
                 );
               })}
-            </div>
-
-            {/* Feedback */}
-            <div className="w-4 shrink-0">
-              {saving[member.id] && (
-                <div className="h-3 w-3 rounded-full border border-muted/40 border-t-muted animate-spin" />
-              )}
-              {saved[member.id] && !saving[member.id] && (
-                <Check className="h-3.5 w-3.5 text-emerald-400" />
-              )}
             </div>
           </div>
         );
