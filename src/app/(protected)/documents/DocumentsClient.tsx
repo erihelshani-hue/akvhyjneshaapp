@@ -4,6 +4,7 @@ import { useState, useRef, useTransition } from "react";
 import { FileAudio, FileText, FileImage, File, Download, Trash2, Upload, Lock, Play, Pause, ExternalLink } from "lucide-react";
 import { saveDocumentRecord, deleteDocument } from "./actions";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 import { CATEGORIES, type DocumentRow } from "./types";
 
 type CategoryDef = (typeof CATEGORIES)[number];
@@ -117,6 +118,7 @@ function DocumentCard({ doc, isAdmin, onDelete }: { doc: DocumentRow; isAdmin: b
 }
 
 function UploadForm({ categories, onClose }: { categories: readonly CategoryDef[]; onClose: () => void }) {
+  const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -153,6 +155,7 @@ function UploadForm({ categories, onClose }: { categories: readonly CategoryDef[
 
       setProgress(100);
       onClose();
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Upload");
     } finally {
@@ -225,6 +228,7 @@ export function DocumentsClient({
   isAdmin: boolean;
   categories: readonly CategoryDef[];
 }) {
+  const router = useRouter();
   const [docs, setDocs] = useState(initialDocs);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [showUpload, setShowUpload] = useState(false);
@@ -236,6 +240,7 @@ export function DocumentsClient({
     startTransition(async () => {
       try {
         await deleteDocument(doc.id, doc.file_path);
+        router.refresh();
       } catch {
         setDocs(initialDocs);
       }
