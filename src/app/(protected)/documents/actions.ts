@@ -9,40 +9,31 @@ async function assertAdmin() {
   if (role !== "admin") throw new Error("Keine Berechtigung");
 }
 
-export async function uploadDocument(formData: FormData) {
+export async function saveDocumentRecord(params: {
+  title: string;
+  category: string;
+  filePath: string;
+  fileName: string;
+  mimeType: string;
+  isAdminOnly: boolean;
+}) {
   await assertAdmin();
   const user = await getUser();
   const supabase = await createServiceClient();
 
-  const file = formData.get("file") as File;
-  const title = formData.get("title") as string;
-  const category = formData.get("category") as string;
-  const isAdminOnly = formData.get("is_admin_only") === "true";
-
-  if (!file || !title || !category) throw new Error("Fehlende Felder");
-
-  const path = `${category}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
-
-  const { error: storageError } = await supabase.storage.from("documents").upload(path, file);
-  if (storageError) throw new Error(storageError.message);
-
-  const { error: dbError } = await supabase.from("documents").insert({
-    title,
-    category,
-    file_path: path,
-    file_name: file.name,
-    mime_type: file.type,
-    is_admin_only: isAdminOnly,
+  const { error } = await supabase.from("documents").insert({
+    title: params.title,
+    category: params.category,
+    file_path: params.filePath,
+    file_name: params.fileName,
+    mime_type: params.mimeType,
+    is_admin_only: params.isAdminOnly,
     uploaded_by: user!.id,
   });
 
-  if (dbError) {
-    await supabase.storage.from("documents").remove([path]);
-    throw new Error(dbError.message);
-  }
+  if (error) throw new Error(error.message);
 
   revalidatePath("/documents");
-  revalidatePath("/admin/documents");
 }
 
 export async function deleteDocument(id: string, filePath: string) {

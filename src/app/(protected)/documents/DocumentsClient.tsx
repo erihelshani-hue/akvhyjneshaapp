@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useRef, useTransition } from "react";
 import { FileAudio, FileText, FileImage, File, Download, Trash2, Upload, Lock, Play, Pause, ExternalLink } from "lucide-react";
-import { uploadDocument, deleteDocument } from "./actions";
+import { saveDocumentRecord, deleteDocument } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 import { CATEGORIES, type DocumentRow } from "./types";
 
 type CategoryDef = (typeof CATEGORIES)[number];
@@ -116,25 +117,48 @@ function DocumentCard({ doc, isAdmin, onDelete }: { doc: DocumentRow; isAdmin: b
 }
 
 function UploadForm({ categories, onClose }: { categories: readonly CategoryDef[]; onClose: () => void }) {
-  const [isPending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>(categories[0].key);
   const [adminOnly, setAdminOnly] = useState(false);
+  const [title, setTitle] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const file = fileRef.current?.files?.[0];
+    if (!file || !title.trim()) return;
     setError(null);
-    const fd = new FormData(e.currentTarget);
-    fd.set("is_admin_only", String(adminOnly));
-    startTransition(async () => {
-      try {
-        await uploadDocument(fd);
-        onClose();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Fehler beim Upload");
-      }
-    });
+    setUploading(true);
+    setProgress(10);
+
+    try {
+      const supabase = createClient();
+      const path = `${selectedCategory}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
+
+      setProgress(30);
+      const { error: storageError } = await supabase.storage.from("documents").upload(path, file);
+      if (storageError) throw new Error(storageError.message);
+
+      setProgress(80);
+      await saveDocumentRecord({
+        title: title.trim(),
+        category: selectedCategory,
+        filePath: path,
+        fileName: file.name,
+        mimeType: file.type,
+        isAdminOnly: adminOnly,
+      });
+
+      setProgress(100);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fehler beim Upload");
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
   }
 
   return (
@@ -143,7 +167,7 @@ function UploadForm({ categories, onClose }: { categories: readonly CategoryDef[
 
       <div className="space-y-1">
         <label className="text-xs text-muted font-medium">Titel</label>
-        <input name="title" required placeholder="z.B. Tracht Sommerfest 2026" className="w-full h-9 rounded-md border border-border bg-surface-2 px-3 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/50" />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="z.B. Vallja e Përdrinit" className="w-full h-9 rounded-md border border-border bg-surface-2 px-3 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/50" />
       </div>
 
       <div className="space-y-1">
@@ -170,11 +194,19 @@ function UploadForm({ categories, onClose }: { categories: readonly CategoryDef[
         <span className="text-xs text-muted">Nur für Admins sichtbar</span>
       </label>
 
+      {uploading && (
+        <div className="space-y-1.5">
+          <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
+            <div className="h-full bg-accent rounded-full transition-[width] duration-300" style={{ width: `${progress}%` }} />
+          </div>
+          <p className="text-xs text-muted">Wird hochgeladen… {progress}%</p>
+        </div>
+      )}
       {error && <p className="text-xs text-red-400">{error}</p>}
 
       <div className="flex gap-2">
-        <button type="submit" disabled={isPending} className="h-9 px-4 rounded-md bg-accent text-white text-xs font-bold uppercase tracking-wider disabled:opacity-40 transition-opacity">
-          {isPending ? "Wird hochgeladen..." : "Hochladen"}
+        <button type="submit" disabled={uploading} className="h-9 px-4 rounded-md bg-accent text-white text-xs font-bold uppercase tracking-wider disabled:opacity-40 transition-opacity">
+          {uploading ? "Läuft..." : "Hochladen"}
         </button>
         <button type="button" onClick={onClose} className="h-9 px-4 rounded-md border border-border text-xs text-muted hover:text-foreground transition-colors">
           Abbrechen

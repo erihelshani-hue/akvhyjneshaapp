@@ -6,9 +6,6 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["web-push"],
-  experimental: {
-    serverActionsBodySizeLimit: "52mb",
-  },
   images: {
     remotePatterns: [
       {
