@@ -6,8 +6,10 @@ import { DashboardCard } from "@/components/DashboardCard";
 import { getNextOccurrence } from "@/lib/recurring";
 import { Link } from "@/i18n/navigation";
 import { formatDate } from "@/lib/utils";
-import { ChevronRight, Bell } from "lucide-react";
+import { ChevronRight, Bell, PartyPopper } from "lucide-react";
+import Image from "next/image";
 import type { AnnouncementRead } from "@/types/database";
+import { isTodayBirthday, formatBirthdayShort } from "@/lib/birthday";
 
 export default async function DashboardPage({}: Record<string, never>) {
   const t = await getTranslations("dashboard");
@@ -23,7 +25,10 @@ export default async function DashboardPage({}: Record<string, never>) {
   const hour = new Date().getHours();
   const greeting = hour < 11 ? "Guten Morgen" : hour < 18 ? "Tungjatjeta" : "Guten Abend";
 
-  const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user!.id).single();
+  const [{ data: profile }, { data: allMembers }] = await Promise.all([
+    supabase.from("profiles").select("full_name").eq("id", user!.id).single(),
+    supabase.from("profiles").select("id, full_name, avatar_url, birthday").not("birthday", "is", null),
+  ]);
   const firstName = profile?.full_name?.split(" ")[0] ?? "";
 
   const announcementIds = announcements.map((a) => a.id);
@@ -35,6 +40,7 @@ export default async function DashboardPage({}: Record<string, never>) {
   const readIds = new Set(reads.map((r) => r.announcement_id));
   const nextRehearsal = getNextOccurrence(rehearsals);
   const nextEvent = events[0] ?? null;
+  const todayBirthdays = (allMembers ?? []).filter((m) => m.birthday && isTodayBirthday(m.birthday));
 
   return (
     <div className="space-y-10 animate-fade-in-up">
@@ -51,6 +57,35 @@ export default async function DashboardPage({}: Record<string, never>) {
           AKV <span className="hyjnesha-italic text-muted">&ldquo;Hyjnesha&rdquo;</span> · Graz · Tradition trifft Leidenschaft
         </p>
       </div>
+
+      {todayBirthdays.length > 0 && (
+        <section className="space-y-2">
+          {todayBirthdays.map((member) => {
+            const initials = member.full_name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+            return (
+              <div key={member.id} className="relative flex items-center gap-4 rounded-xl glass-gold px-5 py-4 overflow-hidden">
+                <div className="relative h-11 w-11 shrink-0 rounded-full overflow-hidden border-2 border-warm/30">
+                  {member.avatar_url ? (
+                    <Image src={member.avatar_url} alt={member.full_name} fill className="object-cover" sizes="44px" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-white/[0.06]">
+                      <span className="font-display text-sm font-medium text-foreground">{initials}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-foreground">{member.full_name}</p>
+                  <p className="text-xs text-warm/80 mt-0.5 flex items-center gap-1.5">
+                    <PartyPopper className="h-3 w-3" />
+                    {member.birthday ? formatBirthdayShort(member.birthday) : ""} · Gëzuar ditëlindjen!
+                  </p>
+                </div>
+                <span className="text-2xl">🎂</span>
+              </div>
+            );
+          })}
+        </section>
+      )}
 
       <section className="grid gap-4 sm:grid-cols-2 stagger">
         <DashboardCard
