@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { isEndDateTimeAfterStart } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { revalidateEvents } from "../../actions";
+import { updateEvent } from "../../actions";
 import type { Event, EventType } from "@/types/database";
 
 const EVENT_TYPES: EventType[] = ["performance", "festival", "other"];
@@ -88,31 +87,26 @@ export default function EditEventPage() {
       return;
     }
 
-    const supabase = createClient();
-    const { error: updateError } = await supabase
-      .from("events")
-      .update({
-        title: form.title,
-        date: form.date,
-        time: form.time,
-        end_date: resolvedEndDate !== form.date ? resolvedEndDate : null,
-        end_time: form.end_time || null,
-        location: form.location,
-        event_type: form.event_type,
-        dress_code: form.dress_code || null,
-        meetup_time: form.meetup_time || null,
-        location_url: form.location_url || null,
-        notes: form.notes || null,
-      })
-      .eq("id", id);
+    const { error: updateError } = await updateEvent(id, {
+      title: form.title,
+      date: form.date,
+      time: form.time,
+      end_date: resolvedEndDate !== form.date ? resolvedEndDate : null,
+      end_time: form.end_time || null,
+      location: form.location,
+      event_type: form.event_type,
+      dress_code: form.dress_code || null,
+      meetup_time: form.meetup_time || null,
+      location_url: form.location_url || null,
+      notes: form.notes || null,
+    });
 
     if (updateError) {
-      setError(updateError.message || "Die Veranstaltung konnte nicht gespeichert werden.");
+      setError(updateError || "Die Veranstaltung konnte nicht gespeichert werden.");
       setLoading(false);
       return;
     }
 
-    await revalidateEvents(id);
     router.push(`/events/${id}`);
     router.refresh();
   }

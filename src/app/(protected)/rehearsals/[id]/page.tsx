@@ -7,6 +7,7 @@ import { getOccurrencesForRehearsal } from "@/lib/recurring";
 import { RecurringTag } from "@/components/RecurringTag";
 import { RehearsalDeleteButton } from "./RehearsalDeleteButton";
 import { RehearsalRSVP } from "./RehearsalRSVP";
+import { RehearsalNotifyButton } from "./RehearsalNotifyButton";
 import { Link } from "@/i18n/navigation";
 import { formatDate, formatTimeRange } from "@/lib/utils";
 import { Edit, MapPin, Clock, ArrowLeft } from "lucide-react";
@@ -137,6 +138,11 @@ export default async function RehearsalDetailPage({
           </h1>
           {isAdmin && (
             <div className="flex items-center gap-2">
+              <RehearsalNotifyButton
+                rehearsalId={id}
+                targetDate={targetDate}
+                rehearsalTitle={title}
+              />
               <Link href={`/rehearsals/${id}/edit`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-zinc-600 hover:text-foreground" aria-label={t("edit")}>
                 <Edit className="h-3.5 w-3.5" />
               </Link>
