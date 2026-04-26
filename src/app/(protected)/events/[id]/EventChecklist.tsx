@@ -11,8 +11,6 @@ type ChecklistItem = {
   sort_order: number;
 };
 
-const QUICK_ITEMS = ["Tracht", "Treffpunkt", "Bus organisiert", "Instrumente", "Programm", "Notenblätter", "Verpflegung", "Fotos/Video"];
-
 export function EventChecklist({
   eventId,
   items: initialItems,
@@ -144,39 +142,24 @@ export function EventChecklist({
 
       {/* Add form */}
       {adding && (
-        <div className="space-y-2 pt-1">
-          {/* Quick-add buttons */}
-          <div className="flex flex-wrap gap-1.5">
-            {QUICK_ITEMS.filter((q) => !items.some((i) => i.label === q)).map((q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => handleAdd(q)}
-                className="text-xs px-2.5 py-1 rounded-full border border-border text-muted hover:border-border-strong hover:text-foreground transition-colors"
-              >
-                + {q}
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newLabel}
-              onChange={(e) => setNewLabel(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAdd(newLabel)}
-              placeholder="Eigener Punkt..."
-              className="flex-1 h-9 rounded-md border border-border bg-surface-2 px-3 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
-              autoFocus
-            />
-            <button
-              type="button"
-              onClick={() => handleAdd(newLabel)}
-              disabled={!newLabel.trim()}
-              className="h-9 px-4 rounded-md bg-accent text-white text-xs font-bold uppercase tracking-wider disabled:opacity-40 transition-opacity"
-            >
-              OK
-            </button>
-          </div>
+        <div className="flex gap-2 pt-1">
+          <input
+            type="text"
+            value={newLabel}
+            onChange={(e) => setNewLabel(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAdd(newLabel)}
+            placeholder="Neuer Punkt..."
+            className="flex-1 h-9 rounded-md border border-border bg-surface-2 px-3 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
+            autoFocus
+          />
+          <button
+            type="button"
+            onClick={() => handleAdd(newLabel)}
+            disabled={!newLabel.trim()}
+            className="h-9 px-4 rounded-md bg-accent text-white text-xs font-bold uppercase tracking-wider disabled:opacity-40 transition-opacity"
+          >
+            OK
+          </button>
         </div>
       )}
 
