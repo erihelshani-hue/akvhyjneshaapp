@@ -26,12 +26,10 @@ interface SettingsFormProps {
   initialAvatarUrl: string | null;
   initialFavoriteDance: string | null;
   initialMemberSince: string | null;
-  initialAvailableRehearsals: boolean;
-  initialAvailableEvents: boolean;
   contributionSummary?: React.ReactNode;
 }
 
-export function SettingsForm({ userId, initialFullName, initialAvatarUrl, initialFavoriteDance, initialMemberSince, initialAvailableRehearsals, initialAvailableEvents, contributionSummary }: SettingsFormProps) {
+export function SettingsForm({ userId, initialFullName, initialAvatarUrl, initialFavoriteDance, initialMemberSince, contributionSummary }: SettingsFormProps) {
   const t = useTranslations("settings");
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,8 +38,6 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl, initia
   const [avatarUrl, setAvatarUrl] = useState<string | null>(initialAvatarUrl);
   const [favoriteDance, setFavoriteDance] = useState<string>(initialFavoriteDance ?? "");
   const [memberSince, setMemberSince] = useState(initialMemberSince ?? "");
-  const [availableRehearsals, setAvailableRehearsals] = useState(initialAvailableRehearsals);
-  const [availableEvents, setAvailableEvents] = useState(initialAvailableEvents);
   const [profileSaved, setProfileSaved] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -353,28 +349,6 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl, initia
             />
           </div>
 
-          {/* Verfügbarkeit */}
-          <div className="space-y-2">
-            <p className="text-xs text-muted font-medium">Verfügbarkeit</p>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <div
-                onClick={() => setAvailableRehearsals((v) => !v)}
-                className={`relative h-5 w-9 rounded-full transition-colors cursor-pointer ${availableRehearsals ? "bg-emerald-500" : "bg-surface-3"}`}
-              >
-                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${availableRehearsals ? "translate-x-4" : "translate-x-0.5"}`} />
-              </div>
-              <span className="text-sm text-foreground">Verfügbar für Proben</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <div
-                onClick={() => setAvailableEvents((v) => !v)}
-                className={`relative h-5 w-9 rounded-full transition-colors cursor-pointer ${availableEvents ? "bg-emerald-500" : "bg-surface-3"}`}
-              >
-                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${availableEvents ? "translate-x-4" : "translate-x-0.5"}`} />
-              </div>
-              <span className="text-sm text-foreground">Verfügbar für Auftritte</span>
-            </label>
-          </div>
         </div>
 
         {profileError && <p className="text-sm text-red-400">{profileError}</p>}
@@ -392,8 +366,6 @@ export function SettingsForm({ userId, initialFullName, initialAvatarUrl, initia
             const { error } = await supabase.from("profiles").update({
               favorite_dance: favoriteDance || null,
               member_since: memberSince || null,
-              available_for_rehearsals: availableRehearsals,
-              available_for_events: availableEvents,
             }).eq("id", userId);
             if (error) setProfileError("Fehler beim Speichern.");
             else { setProfileSaved(true); router.refresh(); }

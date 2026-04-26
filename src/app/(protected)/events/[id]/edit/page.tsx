@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { isEndDateTimeAfterStart } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

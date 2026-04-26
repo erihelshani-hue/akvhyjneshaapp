@@ -86,16 +86,14 @@ export function EventChecklist({
             </span>
           )}
         </div>
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setAdding((v) => !v)}
-            className="flex items-center gap-1 text-xs text-muted hover:text-foreground transition-colors"
-          >
-            {adding ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-            {adding ? "Abbrechen" : "Hinzufügen"}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setAdding((v) => !v)}
+          className="flex items-center gap-1 text-xs text-muted hover:text-foreground transition-colors"
+        >
+          {adding ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+          {adding ? "Abbrechen" : "Hinzufügen"}
+        </button>
       </div>
 
       {/* Progress bar */}
@@ -145,7 +143,7 @@ export function EventChecklist({
       )}
 
       {/* Add form */}
-      {isAdmin && adding && (
+      {adding && (
         <div className="space-y-2 pt-1">
           {/* Quick-add buttons */}
           <div className="flex flex-wrap gap-1.5">
@@ -182,7 +180,7 @@ export function EventChecklist({
         </div>
       )}
 
-      {items.length === 0 && isAdmin && !adding && (
+      {items.length === 0 && !adding && (
         <p className="text-xs text-muted italic">Noch keine Punkte. Füge die erste Aufgabe hinzu.</p>
       )}
     </div>

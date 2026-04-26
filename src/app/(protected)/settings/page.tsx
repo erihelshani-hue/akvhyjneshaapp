@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   }
 
   const [{ data: profile }, { data: contributions }] = await Promise.all([
-    supabase.from("profiles").select("full_name, avatar_url, favorite_dance, member_since, available_for_rehearsals, available_for_events").eq("id", user.id).single(),
+    supabase.from("profiles").select("full_name, avatar_url, favorite_dance, member_since").eq("id", user.id).single(),
     supabase
       .from("member_contributions")
       .select("*")
@@ -28,8 +28,6 @@ export default async function SettingsPage() {
       initialAvatarUrl={profile?.avatar_url ?? null}
       initialFavoriteDance={profile?.favorite_dance ?? null}
       initialMemberSince={profile?.member_since ?? null}
-      initialAvailableRehearsals={profile?.available_for_rehearsals ?? true}
-      initialAvailableEvents={profile?.available_for_events ?? true}
       contributionSummary={
         <ContributionSummary contributions={(contributions ?? []) as MemberContribution[]} />
       }

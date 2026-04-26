@@ -1,7 +1,7 @@
 "use server";
 
 import { createServiceClient } from "@/lib/supabase/server";
-import { getUserRole } from "@/lib/auth";
+import { getUser, getUserRole } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 async function assertAdmin() {
@@ -9,8 +9,13 @@ async function assertAdmin() {
   if (role !== "admin") throw new Error("Keine Berechtigung");
 }
 
+async function assertLoggedIn() {
+  const user = await getUser();
+  if (!user) throw new Error("Nicht angemeldet");
+}
+
 export async function addChecklistItem(eventId: string, label: string, sortOrder: number) {
-  await assertAdmin();
+  await assertLoggedIn();
   const supabase = await createServiceClient();
   const { error } = await supabase.from("event_checklist_items").insert({ event_id: eventId, label, sort_order: sortOrder });
   if (error) throw new Error(error.message);
