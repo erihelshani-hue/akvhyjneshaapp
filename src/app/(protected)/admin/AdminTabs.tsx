@@ -1,13 +1,14 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/navigation";
-import { BarChart2, Archive, CreditCard, LayoutDashboard } from "lucide-react";
+import { BarChart2, Archive, CreditCard, LayoutDashboard, Bell } from "lucide-react";
 
 const TABS = [
-  { href: "/admin",              label: "Übersicht",   Icon: LayoutDashboard },
-  { href: "/admin/attendance",   label: "Anwesenheit", Icon: BarChart2 },
-  { href: "/admin/archive",      label: "Archiv",      Icon: Archive },
-  { href: "/admin/contributions",label: "Beiträge",    Icon: CreditCard },
+  { href: "/admin",                  label: "Übersicht",        Icon: LayoutDashboard },
+  { href: "/admin/attendance",       label: "Anwesenheit",      Icon: BarChart2 },
+  { href: "/admin/archive",          label: "Archiv",           Icon: Archive },
+  { href: "/admin/contributions",    label: "Beiträge",         Icon: CreditCard },
+  { href: "/admin/notifications",    label: "Benachrichtigung", Icon: Bell },
 ] as const;
 
 export function AdminTabs() {
