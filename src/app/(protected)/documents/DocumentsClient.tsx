@@ -93,7 +93,7 @@ function AudioPlayer({ url }: { url: string }) {
   const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="mt-2 rounded-lg bg-surface-2/60 px-3 py-2.5 space-y-2">
+    <div className="mt-2 w-full max-w-full overflow-hidden rounded-lg bg-surface-2/60 px-3 py-3 space-y-2.5">
       <audio
         ref={audioRef}
         src={url}
@@ -109,60 +109,66 @@ function AudioPlayer({ url }: { url: string }) {
         onCanPlay={() => setLoading(false)}
       />
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => skip(-10)}
-          aria-label="10 Sekunden zurück"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-surface-3/60 transition-colors"
-        >
-          <Rewind className="h-4 w-4" />
-        </button>
+      {/* Row 1: seek slider — full width, no risk of overflow */}
+      <div className="flex w-full items-center gap-2">
+        <input
+          type="range"
+          min={0}
+          max={duration || 0}
+          step={0.1}
+          value={currentTime}
+          onChange={onSeekInput}
+          onPointerUp={onSeekCommit}
+          onMouseUp={onSeekCommit}
+          onTouchEnd={onSeekCommit}
+          onKeyUp={onSeekCommit}
+          disabled={!duration}
+          aria-label="Position"
+          className="audio-seek block w-full min-w-0 h-6"
+          style={{ ["--audio-pct" as string]: `${pct}%` }}
+        />
+      </div>
 
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={playing ? "Pause" : "Abspielen"}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent hover:bg-accent/25 active:bg-accent/30 transition-colors"
-        >
-          {loading && !playing ? (
-            <span className="h-3.5 w-3.5 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
-          ) : playing ? (
-            <Pause className="h-4 w-4" />
-          ) : (
-            <Play className="h-4 w-4 translate-x-px" />
-          )}
-        </button>
+      {/* Row 2: time labels + controls, all inside the container */}
+      <div className="flex w-full items-center justify-between gap-2">
+        <span className="text-[11px] tabular-nums text-muted shrink-0">{fmtTime(currentTime)}</span>
 
-        <button
-          type="button"
-          onClick={() => skip(10)}
-          aria-label="10 Sekunden vor"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-surface-3/60 transition-colors"
-        >
-          <FastForward className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => skip(-10)}
+            aria-label="10 Sekunden zurück"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-surface-3/60 active:bg-surface-3/80 transition-colors"
+          >
+            <Rewind className="h-4 w-4" />
+          </button>
 
-        <div className="flex-1 min-w-0 flex items-center gap-2">
-          <span className="text-[11px] tabular-nums text-muted shrink-0 w-9 text-right">{fmtTime(currentTime)}</span>
-          <input
-            type="range"
-            min={0}
-            max={duration || 0}
-            step={0.1}
-            value={currentTime}
-            onChange={onSeekInput}
-            onPointerUp={onSeekCommit}
-            onMouseUp={onSeekCommit}
-            onTouchEnd={onSeekCommit}
-            onKeyUp={onSeekCommit}
-            disabled={!duration}
-            aria-label="Position"
-            className="audio-seek flex-1 h-6"
-            style={{ ["--audio-pct" as string]: `${pct}%` }}
-          />
-          <span className="text-[11px] tabular-nums text-muted shrink-0 w-9">{fmtTime(duration)}</span>
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={playing ? "Pause" : "Abspielen"}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent hover:bg-accent/25 active:bg-accent/30 transition-colors"
+          >
+            {loading && !playing ? (
+              <span className="h-3.5 w-3.5 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
+            ) : playing ? (
+              <Pause className="h-4 w-4" />
+            ) : (
+              <Play className="h-4 w-4 translate-x-px" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => skip(10)}
+            aria-label="10 Sekunden vor"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-surface-3/60 active:bg-surface-3/80 transition-colors"
+          >
+            <FastForward className="h-4 w-4" />
+          </button>
         </div>
+
+        <span className="text-[11px] tabular-nums text-muted shrink-0">{fmtTime(duration)}</span>
       </div>
 
       <style jsx>{`
