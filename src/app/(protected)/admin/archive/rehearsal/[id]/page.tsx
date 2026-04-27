@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AttendanceEditor } from "../../AttendanceEditor";
+import { TitleEditor } from "../../TitleEditor";
 import type { AttendanceStatus } from "@/types/database";
 
 export default async function AdminRehearsalAttendancePage({
@@ -51,7 +52,7 @@ export default async function AdminRehearsalAttendancePage({
       </Link>
 
       <div>
-        <h2 className="font-playfair text-xl font-semibold text-foreground">{rehearsal.title}</h2>
+        <TitleEditor type="rehearsal" id={id} initialTitle={rehearsal.title} />
         <p className="text-sm text-muted mt-0.5">Anwesenheit bearbeiten</p>
       </div>
 

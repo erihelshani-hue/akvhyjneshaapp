@@ -57,6 +57,29 @@ export async function archiveEntity(
   revalidateTag(tag);
 }
 
+// ─── Rehearsal / event title edit ───────────────────────────────────────────
+
+export async function updateEntityTitle(
+  type: "rehearsal" | "event",
+  id: string,
+  title: string,
+) {
+  await requireAdmin();
+  const trimmed = title.trim();
+  if (!trimmed) throw new Error("Titel darf nicht leer sein");
+
+  const supabase = await createServiceClient();
+  const table = type === "rehearsal" ? "rehearsals" : "events";
+  const tag = type === "rehearsal" ? CACHE_TAGS.rehearsals : CACHE_TAGS.events;
+
+  const { error } = await supabase.from(table).update({ title: trimmed }).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidateTag(tag);
+  revalidatePath("/admin/archive");
+  revalidatePath(`/admin/archive/${type}/${id}`);
+}
+
 // ─── Attendance correction ───────────────────────────────────────────────────
 
 export async function updateAttendanceAdmin(
