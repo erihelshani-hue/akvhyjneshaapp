@@ -37,31 +37,19 @@ export default async function AttendancePage() {
   const supabase = await createServiceClient();
   const today = todayISODate();
 
-  // Only archived rehearsals + the single next upcoming (non-archived, date >= today) rehearsal
-  // count toward attendance. Events are never counted. Deleted rehearsals can't appear here
-  // because we query by id from the live table — orphaned attendance rows are ignored downstream.
-  const [{ data: profiles }, { data: archivedRehearsals }, { data: upcomingRehearsal }] =
-    await Promise.all([
-      supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
-      supabase
-        .from("rehearsals")
-        .select("id, title, date")
-        .eq("is_archived", true)
-        .order("date", { ascending: false }),
-      supabase
-        .from("rehearsals")
-        .select("id, title, date")
-        .eq("is_archived", false)
-        .gte("date", today)
-        .order("date", { ascending: true })
-        .limit(1),
-    ]);
+  // Only past or archived rehearsals count. Future rehearsals (incl. the next upcoming one)
+  // and events are excluded. Deleted rehearsals can't appear because we query the live table —
+  // orphaned attendance rows are filtered out by the IN-clause below.
+  const [{ data: profiles }, { data: countedRehearsals }] = await Promise.all([
+    supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
+    supabase
+      .from("rehearsals")
+      .select("id, title, date, is_archived")
+      .or(`is_archived.eq.true,date.lt.${today}`)
+      .order("date", { ascending: false }),
+  ]);
 
-  const consideredRehearsals = [
-    ...(archivedRehearsals ?? []),
-    ...(upcomingRehearsal ?? []),
-  ];
-  const rehearsalMap = new Map(consideredRehearsals.map((r) => [r.id, r]));
+  const rehearsalMap = new Map((countedRehearsals ?? []).map((r) => [r.id, r]));
 
   // Pull only attendance rows for considered rehearsals — orphaned/deleted rows are excluded
   // by the IN-filter, and event rows are never queried.
@@ -120,15 +108,15 @@ export default async function AttendancePage() {
     };
   });
 
-  const upcomingDate = upcomingRehearsal?.[0]?.date ?? null;
+  const rehearsalCount = rehearsalMap.size;
 
   return (
     <div className="space-y-5">
       <p className="text-xs text-muted">
-        Basis: alle archivierten Proben{upcomingDate ? ` + nächste Probe (${fmtDate(upcomingDate)})` : ""}.
-        Veranstaltungen, gelöschte und weitere zukünftige Proben werden nicht berücksichtigt.
+        Basis: {rehearsalCount} vergangene oder archivierte {rehearsalCount === 1 ? "Probe" : "Proben"}.
+        Zukünftige Proben, Veranstaltungen und gelöschte Einträge werden nicht berücksichtigt.
       </p>
-      <AttendanceTable stats={stats} upcomingDate={upcomingDate ? fmtDate(upcomingDate) : null} />
+      <AttendanceTable stats={stats} rehearsalCount={rehearsalCount} />
     </div>
   );
 }

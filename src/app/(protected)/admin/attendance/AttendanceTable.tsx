@@ -137,9 +137,10 @@ function MemberRow({ data }: { data: MemberAttendanceData }) {
   );
 }
 
-function downloadPdf(stats: MemberAttendanceData[], upcomingDate: string | null) {
+function downloadPdf(stats: MemberAttendanceData[], rehearsalCount: number) {
   const today = new Date().toLocaleDateString("de-DE");
-  const rows = stats
+  const sorted = [...stats].sort((a, b) => a.profile.full_name.localeCompare(b.profile.full_name, "de"));
+  const rows = sorted
     .map((s) => {
       const r = s.rehearsal;
       const pct = r.total > 0 ? Math.round((r.yes / r.total) * 100) : 0;
@@ -147,12 +148,11 @@ function downloadPdf(stats: MemberAttendanceData[], upcomingDate: string | null)
         .map((m) => `${m.title} (${m.date})`)
         .join(", ");
       return `<tr>
-        <td>${escapeHtml(s.profile.full_name)}</td>
+        <td class="name">${escapeHtml(s.profile.full_name)}</td>
         <td class="num">${r.yes}</td>
         <td class="num">${r.no}</td>
-        <td class="num">${r.maybe}</td>
         <td class="num">${r.total}</td>
-        <td class="num">${pct}%</td>
+        <td class="num quote">${r.total > 0 ? pct + "%" : "—"}</td>
         <td>${escapeHtml(missed)}</td>
       </tr>`;
     })
@@ -160,27 +160,30 @@ function downloadPdf(stats: MemberAttendanceData[], upcomingDate: string | null)
 
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Anwesenheitsstatistik</title>
     <style>
-      @page { size: A4; margin: 18mm; }
-      body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #111; font-size: 11px; }
-      h1 { font-size: 16px; margin: 0 0 4px; }
-      .meta { color: #555; font-size: 10px; margin-bottom: 12px; }
+      @page { size: A4; margin: 16mm; }
+      * { box-sizing: border-box; }
+      body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, sans-serif; color: #111; font-size: 11px; margin: 0; }
+      header { border-bottom: 2px solid #111; padding-bottom: 8px; margin-bottom: 14px; }
+      h1 { font-size: 18px; margin: 0; letter-spacing: -0.01em; }
+      .meta { color: #555; font-size: 10.5px; margin-top: 4px; }
       table { width: 100%; border-collapse: collapse; }
-      th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
-      th { background: #eee; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
-      td.num, th.num { text-align: right; white-space: nowrap; }
+      th, td { padding: 6px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid #ddd; }
+      thead th { background: #f3f3f3; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1.5px solid #111; }
+      td.num, th.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; width: 1%; }
+      td.name { font-weight: 500; }
+      td.quote { font-weight: 600; }
       tr { page-break-inside: avoid; }
+      tbody tr:nth-child(even) { background: #fafafa; }
     </style></head><body>
-    <h1>Anwesenheitsstatistik</h1>
-    <p class="meta">
-      Stand: ${today} · Basis: alle archivierten Proben${upcomingDate ? ` + nächste Probe (${upcomingDate})` : ""}.
-      Keine Veranstaltungen, keine gelöschten Proben.
-    </p>
+    <header>
+      <h1>Anwesenheitsstatistik</h1>
+      <p class="meta">Stand: ${today} · ${rehearsalCount} berücksichtigte ${rehearsalCount === 1 ? "Probe" : "Proben"} (vergangen/archiviert)</p>
+    </header>
     <table>
       <thead><tr>
         <th>Mitglied</th>
         <th class="num">Ja</th>
         <th class="num">Nein</th>
-        <th class="num">Vielleicht</th>
         <th class="num">Total</th>
         <th class="num">Quote</th>
         <th>Fehlende Proben</th>
@@ -206,17 +209,17 @@ function escapeHtml(s: string) {
 
 export function AttendanceTable({
   stats,
-  upcomingDate,
+  rehearsalCount,
 }: {
   stats: MemberAttendanceData[];
-  upcomingDate: string | null;
+  rehearsalCount: number;
 }) {
   return (
     <>
       <div className="flex justify-end">
         <button
           type="button"
-          onClick={() => downloadPdf(stats, upcomingDate)}
+          onClick={() => downloadPdf(stats, rehearsalCount)}
           className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border text-muted hover:text-foreground hover:border-zinc-600 transition-colors"
         >
           <Download className="h-3.5 w-3.5" />
