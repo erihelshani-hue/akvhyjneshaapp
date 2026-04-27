@@ -177,7 +177,7 @@ function downloadPdf(stats: MemberAttendanceData[], rehearsalCount: number) {
     </style></head><body>
     <header>
       <h1>Anwesenheitsstatistik</h1>
-      <p class="meta">Stand: ${today} · ${rehearsalCount} berücksichtigte ${rehearsalCount === 1 ? "Probe" : "Proben"} (vergangen/archiviert)</p>
+      <p class="meta">Stand: ${today} · ${rehearsalCount} archivierte ${rehearsalCount === 1 ? "Probe" : "Proben"} berücksichtigt</p>
     </header>
     <table>
       <thead><tr>

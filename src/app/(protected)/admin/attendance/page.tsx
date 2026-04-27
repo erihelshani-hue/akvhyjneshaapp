@@ -21,31 +21,18 @@ function fmtDate(dateStr: string | null | undefined) {
   });
 }
 
-function todayISODate() {
-  // Use Europe/Vienna local date so "next upcoming" is correct for the choir's timezone.
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Vienna",
-    year: "numeric", month: "2-digit", day: "2-digit",
-  }).formatToParts(new Date());
-  const y = parts.find((p) => p.type === "year")!.value;
-  const m = parts.find((p) => p.type === "month")!.value;
-  const d = parts.find((p) => p.type === "day")!.value;
-  return `${y}-${m}-${d}`;
-}
-
 export default async function AttendancePage() {
   const supabase = await createServiceClient();
-  const today = todayISODate();
 
-  // Only past or archived rehearsals count. Future rehearsals (incl. the next upcoming one)
-  // and events are excluded. Deleted rehearsals can't appear because we query the live table —
-  // orphaned attendance rows are filtered out by the IN-clause below.
+  // ONLY archived rehearsals count. Past-but-not-archived rehearsals, future rehearsals,
+  // and events are all excluded. Deleted rehearsals can't appear because we query the live
+  // table — orphaned attendance rows are filtered out by the IN-clause below.
   const [{ data: profiles }, { data: countedRehearsals }] = await Promise.all([
     supabase.from("profiles").select("id, full_name, avatar_url").order("full_name"),
     supabase
       .from("rehearsals")
       .select("id, title, date, is_archived")
-      .or(`is_archived.eq.true,date.lt.${today}`)
+      .eq("is_archived", true)
       .order("date", { ascending: false }),
   ]);
 
@@ -113,8 +100,8 @@ export default async function AttendancePage() {
   return (
     <div className="space-y-5">
       <p className="text-xs text-muted">
-        Basis: {rehearsalCount} vergangene oder archivierte {rehearsalCount === 1 ? "Probe" : "Proben"}.
-        Zukünftige Proben, Veranstaltungen und gelöschte Einträge werden nicht berücksichtigt.
+        Basis: {rehearsalCount} archivierte {rehearsalCount === 1 ? "Probe" : "Proben"}.
+        Zukünftige/nicht archivierte Proben, Veranstaltungen und gelöschte Einträge werden nicht berücksichtigt.
       </p>
       <AttendanceTable stats={stats} rehearsalCount={rehearsalCount} />
     </div>
