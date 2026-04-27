@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Download } from "lucide-react";
 
 export type MemberAttendanceData = {
   profile: { id: string; full_name: string; avatar_url: string | null };
   rehearsal: { yes: number; no: number; maybe: number; total: number };
-  event: { yes: number; no: number; maybe: number; total: number };
   missedRehearsals: { id: string; title: string; date: string }[];
-  missedEvents: { id: string; title: string; date: string }[];
 };
 
 function getInitials(name: string) {
@@ -32,10 +30,8 @@ function AttendanceBar({ yes, total }: { yes: number; total: number }) {
 
 function MemberRow({ data }: { data: MemberAttendanceData }) {
   const [open, setOpen] = useState(false);
-  const { profile, rehearsal, event, missedRehearsals, missedEvents } = data;
+  const { profile, rehearsal, missedRehearsals } = data;
   const initials = getInitials(profile.full_name);
-  const totalYes = rehearsal.yes + event.yes;
-  const totalAll = rehearsal.total + event.total;
 
   return (
     <>
@@ -57,26 +53,20 @@ function MemberRow({ data }: { data: MemberAttendanceData }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">{profile.full_name}</p>
-            <p className="text-xs text-muted">Gesamt: {totalYes}/{totalAll} Ja</p>
+            <p className="text-xs text-muted">{rehearsal.yes}/{rehearsal.total} Ja</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <AttendanceBar yes={totalYes} total={totalAll} />
+            <AttendanceBar yes={rehearsal.yes} total={rehearsal.total} />
             {open ? <ChevronUp className="h-4 w-4 text-muted" /> : <ChevronDown className="h-4 w-4 text-muted" />}
           </div>
         </button>
         {open && (
           <div className="border-t border-border px-4 pb-4 pt-3 bg-surface-2/20 space-y-3">
-            <div className="grid grid-cols-2 gap-2 text-xs text-muted">
-              <div>
-                <p className="font-medium text-foreground mb-0.5">Proben</p>
-                <p>✓ {rehearsal.yes} · ✗ {rehearsal.no} · ? {rehearsal.maybe}</p>
-              </div>
-              <div>
-                <p className="font-medium text-foreground mb-0.5">Veranstaltungen</p>
-                <p>✓ {event.yes} · ✗ {event.no} · ? {event.maybe}</p>
-              </div>
+            <div className="text-xs text-muted">
+              <p className="font-medium text-foreground mb-0.5">Proben</p>
+              <p>✓ {rehearsal.yes} · ✗ {rehearsal.no} · ? {rehearsal.maybe}</p>
             </div>
-            {missedRehearsals.length > 0 && (
+            {missedRehearsals.length > 0 ? (
               <div>
                 <p className="text-xs font-medium text-foreground mb-1.5">Fehlende Proben</p>
                 <ul className="space-y-1">
@@ -88,21 +78,7 @@ function MemberRow({ data }: { data: MemberAttendanceData }) {
                   ))}
                 </ul>
               </div>
-            )}
-            {missedEvents.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-foreground mb-1.5">Fehlende Veranstaltungen</p>
-                <ul className="space-y-1">
-                  {missedEvents.map((e) => (
-                    <li key={e.id} className="text-xs text-muted flex justify-between gap-2">
-                      <span className="truncate">{e.title}</span>
-                      <span className="shrink-0 text-dim">{e.date}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {missedRehearsals.length === 0 && missedEvents.length === 0 && (
+            ) : (
               <p className="text-xs text-muted italic">Keine Abwesenheiten.</p>
             )}
           </div>
@@ -128,19 +104,17 @@ function MemberRow({ data }: { data: MemberAttendanceData }) {
         <td className="px-3 py-3 text-center"><span className="text-emerald-400 font-medium">{rehearsal.yes}</span></td>
         <td className="px-3 py-3 text-center"><span className="text-red-400 font-medium">{rehearsal.no}</span></td>
         <td className="px-3 py-3 text-center text-muted">{rehearsal.maybe}</td>
-        <td className="px-3 py-3 text-center"><span className="text-emerald-400 font-medium">{event.yes}</span></td>
-        <td className="px-3 py-3 text-center"><span className="text-red-400 font-medium">{event.no}</span></td>
-        <td className="px-3 py-3 text-center text-muted">{event.maybe}</td>
-        <td className="px-4 py-3 min-w-[120px]"><AttendanceBar yes={totalYes} total={totalAll} /></td>
+        <td className="px-3 py-3 text-center text-muted tabular-nums">{rehearsal.total}</td>
+        <td className="px-4 py-3 min-w-[120px]"><AttendanceBar yes={rehearsal.yes} total={rehearsal.total} /></td>
         <td className="px-3 py-3 text-center text-muted">
           {open ? <ChevronUp className="h-4 w-4 inline" /> : <ChevronDown className="h-4 w-4 inline" />}
         </td>
       </tr>
       {open && (
         <tr className="hidden sm:table-row bg-surface-2/20">
-          <td colSpan={9} className="px-6 py-3 border-t border-border">
-            <div className="flex flex-wrap gap-6 text-xs text-muted">
-              {missedRehearsals.length > 0 && (
+          <td colSpan={7} className="px-6 py-3 border-t border-border">
+            <div className="text-xs text-muted">
+              {missedRehearsals.length > 0 ? (
                 <div className="min-w-[200px]">
                   <p className="font-medium text-foreground mb-1.5">Fehlende Proben</p>
                   <ul className="space-y-1">
@@ -152,21 +126,7 @@ function MemberRow({ data }: { data: MemberAttendanceData }) {
                     ))}
                   </ul>
                 </div>
-              )}
-              {missedEvents.length > 0 && (
-                <div className="min-w-[200px]">
-                  <p className="font-medium text-foreground mb-1.5">Fehlende Veranstaltungen</p>
-                  <ul className="space-y-1">
-                    {missedEvents.map((e) => (
-                      <li key={e.id} className="flex justify-between gap-4">
-                        <span>{e.title}</span>
-                        <span className="text-dim">{e.date}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {missedRehearsals.length === 0 && missedEvents.length === 0 && (
+              ) : (
                 <p className="italic">Keine Abwesenheiten.</p>
               )}
             </div>
@@ -177,9 +137,93 @@ function MemberRow({ data }: { data: MemberAttendanceData }) {
   );
 }
 
-export function AttendanceTable({ stats }: { stats: MemberAttendanceData[] }) {
+function downloadPdf(stats: MemberAttendanceData[], upcomingDate: string | null) {
+  const today = new Date().toLocaleDateString("de-DE");
+  const rows = stats
+    .map((s) => {
+      const r = s.rehearsal;
+      const pct = r.total > 0 ? Math.round((r.yes / r.total) * 100) : 0;
+      const missed = s.missedRehearsals
+        .map((m) => `${m.title} (${m.date})`)
+        .join(", ");
+      return `<tr>
+        <td>${escapeHtml(s.profile.full_name)}</td>
+        <td class="num">${r.yes}</td>
+        <td class="num">${r.no}</td>
+        <td class="num">${r.maybe}</td>
+        <td class="num">${r.total}</td>
+        <td class="num">${pct}%</td>
+        <td>${escapeHtml(missed)}</td>
+      </tr>`;
+    })
+    .join("");
+
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Anwesenheitsstatistik</title>
+    <style>
+      @page { size: A4; margin: 18mm; }
+      body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #111; font-size: 11px; }
+      h1 { font-size: 16px; margin: 0 0 4px; }
+      .meta { color: #555; font-size: 10px; margin-bottom: 12px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
+      th { background: #eee; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+      td.num, th.num { text-align: right; white-space: nowrap; }
+      tr { page-break-inside: avoid; }
+    </style></head><body>
+    <h1>Anwesenheitsstatistik</h1>
+    <p class="meta">
+      Stand: ${today} · Basis: alle archivierten Proben${upcomingDate ? ` + nächste Probe (${upcomingDate})` : ""}.
+      Keine Veranstaltungen, keine gelöschten Proben.
+    </p>
+    <table>
+      <thead><tr>
+        <th>Mitglied</th>
+        <th class="num">Ja</th>
+        <th class="num">Nein</th>
+        <th class="num">Vielleicht</th>
+        <th class="num">Total</th>
+        <th class="num">Quote</th>
+        <th>Fehlende Proben</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <script>window.addEventListener('load',()=>{setTimeout(()=>window.print(),200);});</script>
+    </body></html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert("Bitte Pop-ups für diese Seite erlauben, um den PDF-Export zu nutzen.");
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+
+function escapeHtml(s: string) {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+}
+
+export function AttendanceTable({
+  stats,
+  upcomingDate,
+}: {
+  stats: MemberAttendanceData[];
+  upcomingDate: string | null;
+}) {
   return (
     <>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => downloadPdf(stats, upcomingDate)}
+          className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border text-muted hover:text-foreground hover:border-zinc-600 transition-colors"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Als PDF herunterladen
+        </button>
+      </div>
+
       {/* Mobile */}
       <div className="space-y-2 sm:hidden">
         {stats.map((data) => <MemberRow key={data.profile.id} data={data} />)}
@@ -191,12 +235,10 @@ export function AttendanceTable({ stats }: { stats: MemberAttendanceData[] }) {
           <thead>
             <tr className="border-b border-border bg-surface-2/60">
               <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Mitglied</th>
-              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Proben Ja</th>
-              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Proben Nein</th>
-              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Proben ±</th>
-              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Events Ja</th>
-              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Events Nein</th>
-              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Events ±</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Ja</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Nein</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Vielleicht</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Total</th>
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Quote</th>
               <th className="px-3 py-3" />
             </tr>
