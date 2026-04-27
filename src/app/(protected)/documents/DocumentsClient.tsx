@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
-import { FileAudio, FileText, FileImage, File, Download, Trash2, Upload, Lock, Play, Pause, ExternalLink } from "lucide-react";
+import { useState, useRef, useTransition, useEffect } from "react";
+import { FileAudio, FileText, FileImage, File, Download, Trash2, Upload, Lock, Play, Pause, ExternalLink, Rewind, FastForward } from "lucide-react";
 import { saveDocumentRecord, deleteDocument } from "./actions";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -21,52 +21,203 @@ function isAudio(mime: string | null) {
   return !!mime?.startsWith("audio/");
 }
 
+// Module-level registry: ensures only one <audio> plays at a time across the page.
+// Each mounted player registers its element here; when one starts playing it pauses all others.
+const audioRegistry = new Set<HTMLAudioElement>();
+function pauseOthers(except: HTMLAudioElement) {
+  for (const el of audioRegistry) {
+    if (el !== except && !el.paused) el.pause();
+  }
+}
+
+function fmtTime(s: number) {
+  if (!isFinite(s) || s < 0) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
 function AudioPlayer({ url }: { url: string }) {
   const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [seeking, setSeeking] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  function toggle() {
+  useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
-    if (playing) { el.pause(); setPlaying(false); }
-    else { el.play(); setPlaying(true); }
-  }
+    audioRegistry.add(el);
+    return () => {
+      audioRegistry.delete(el);
+      el.pause();
+    };
+  }, []);
 
-  function onTimeUpdate() {
-    const el = audioRef.current;
-    if (!el || !el.duration) return;
-    setProgress((el.currentTime / el.duration) * 100);
-  }
-
-  function onEnded() { setPlaying(false); setProgress(0); }
-
-  function seek(e: React.MouseEvent<HTMLDivElement>) {
+  async function toggle() {
     const el = audioRef.current;
     if (!el) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    el.currentTime = ((e.clientX - rect.left) / rect.width) * el.duration;
+    if (el.paused) {
+      pauseOthers(el);
+      try {
+        await el.play();
+      } catch {
+        // play() may reject on iOS without user gesture chain; state will sync via events.
+      }
+    } else {
+      el.pause();
+    }
   }
+
+  function skip(delta: number) {
+    const el = audioRef.current;
+    if (!el) return;
+    const next = Math.max(0, Math.min((el.duration || 0), el.currentTime + delta));
+    el.currentTime = next;
+    setCurrentTime(next);
+  }
+
+  function onSeekInput(e: React.ChangeEvent<HTMLInputElement>) {
+    setSeeking(true);
+    setCurrentTime(Number(e.target.value));
+  }
+
+  function onSeekCommit(e: React.SyntheticEvent<HTMLInputElement>) {
+    const el = audioRef.current;
+    if (!el) return;
+    el.currentTime = Number(e.currentTarget.value);
+    setSeeking(false);
+  }
+
+  const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="mt-2 flex items-center gap-3 rounded-lg bg-surface-2/60 px-3 py-2">
-      <audio ref={audioRef} src={url} onTimeUpdate={onTimeUpdate} onEnded={onEnded} preload="metadata" />
-      <button
-        type="button"
-        onClick={toggle}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent hover:bg-accent/25 transition-colors"
-      >
-        {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 translate-x-px" />}
-      </button>
-      <div
-        className="flex-1 h-1.5 rounded-full bg-surface-3 cursor-pointer overflow-hidden"
-        onClick={seek}
-      >
-        <div
-          className="h-full bg-accent rounded-full transition-[width] duration-100"
-          style={{ width: `${progress}%` }}
-        />
+    <div className="mt-2 rounded-lg bg-surface-2/60 px-3 py-2.5 space-y-2">
+      <audio
+        ref={audioRef}
+        src={url}
+        preload="metadata"
+        playsInline
+        onLoadedMetadata={(e) => { setDuration(e.currentTarget.duration || 0); setLoading(false); }}
+        onDurationChange={(e) => setDuration(e.currentTarget.duration || 0)}
+        onTimeUpdate={(e) => { if (!seeking) setCurrentTime(e.currentTarget.currentTime); }}
+        onPlay={(e) => { pauseOthers(e.currentTarget); setPlaying(true); }}
+        onPause={() => setPlaying(false)}
+        onEnded={() => { setPlaying(false); setCurrentTime(0); }}
+        onWaiting={() => setLoading(true)}
+        onCanPlay={() => setLoading(false)}
+      />
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => skip(-10)}
+          aria-label="10 Sekunden zurück"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-surface-3/60 transition-colors"
+        >
+          <Rewind className="h-4 w-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={playing ? "Pause" : "Abspielen"}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent hover:bg-accent/25 active:bg-accent/30 transition-colors"
+        >
+          {loading && !playing ? (
+            <span className="h-3.5 w-3.5 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
+          ) : playing ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4 translate-x-px" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => skip(10)}
+          aria-label="10 Sekunden vor"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-surface-3/60 transition-colors"
+        >
+          <FastForward className="h-4 w-4" />
+        </button>
+
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <span className="text-[11px] tabular-nums text-muted shrink-0 w-9 text-right">{fmtTime(currentTime)}</span>
+          <input
+            type="range"
+            min={0}
+            max={duration || 0}
+            step={0.1}
+            value={currentTime}
+            onChange={onSeekInput}
+            onPointerUp={onSeekCommit}
+            onMouseUp={onSeekCommit}
+            onTouchEnd={onSeekCommit}
+            onKeyUp={onSeekCommit}
+            disabled={!duration}
+            aria-label="Position"
+            className="audio-seek flex-1 h-6"
+            style={{ ["--audio-pct" as string]: `${pct}%` }}
+          />
+          <span className="text-[11px] tabular-nums text-muted shrink-0 w-9">{fmtTime(duration)}</span>
+        </div>
       </div>
+
+      <style jsx>{`
+        .audio-seek {
+          -webkit-appearance: none;
+          appearance: none;
+          background: transparent;
+          touch-action: none;
+        }
+        .audio-seek::-webkit-slider-runnable-track {
+          height: 4px;
+          border-radius: 9999px;
+          background: linear-gradient(
+            to right,
+            rgb(var(--accent-rgb, 99 102 241) / 0.9) 0%,
+            rgb(var(--accent-rgb, 99 102 241) / 0.9) var(--audio-pct, 0%),
+            rgb(255 255 255 / 0.1) var(--audio-pct, 0%),
+            rgb(255 255 255 / 0.1) 100%
+          );
+        }
+        .audio-seek::-moz-range-track {
+          height: 4px;
+          border-radius: 9999px;
+          background: rgb(255 255 255 / 0.1);
+        }
+        .audio-seek::-moz-range-progress {
+          height: 4px;
+          border-radius: 9999px;
+          background: currentColor;
+        }
+        .audio-seek::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          margin-top: -7px;
+          width: 18px;
+          height: 18px;
+          border-radius: 9999px;
+          background: currentColor;
+          color: rgb(var(--accent-rgb, 99 102 241));
+          box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+          cursor: pointer;
+        }
+        .audio-seek::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+          border-radius: 9999px;
+          border: none;
+          background: currentColor;
+          color: rgb(var(--accent-rgb, 99 102 241));
+          cursor: pointer;
+        }
+        .audio-seek:disabled {
+          opacity: 0.5;
+        }
+      `}</style>
     </div>
   );
 }
